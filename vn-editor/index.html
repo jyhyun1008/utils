@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비주얼노벨 에디터</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @font-face {
+        font-family: 'NanumSquareRound';
+        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+        font-weight: normal;
+        font-display: swap;
+    }
+
+    :root {
+      --bg:        #F4F2FA;
+      --surf:      #FFFFFF;
+      --surf2:     #EDE9F9;
+      --bd:        #DDD8F4;
+      --bd2:       #EDEAF8;
+      --tx:        #1C1830;
+      --sub:       #8C86B8;
+      --acc:       #6B5AED;
+      --acc2:      #A394F7;
+      --acc-pale:  #EDEAFF;
+      --sh-sm:     0 1px 3px rgba(80,60,200,.07), 0 1px 2px rgba(80,60,200,.04);
+      --sh:        0 4px 16px rgba(80,60,200,.09), 0 2px 6px rgba(80,60,200,.05);
+      --sh-screen: 0 24px 64px rgba(0,0,0,.45), 0 8px 24px rgba(0,0,0,.25);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--tx);
+      font-family: 'NanumSquareRound', system-ui, sans-serif;
+    }
+
+    .app { display: flex; height: 100vh; }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .panel-left { border-right: 1px solid var(--bd); }
+
+    /* ── Panel headers ── */
+    .ph {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 16px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--bd);
+      flex-shrink: 0;
+      box-shadow: var(--sh-sm);
+      gap: 10px;
+    }
+
+    .ph-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ph-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--acc) 0%, var(--acc2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .ph-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--tx);
+      letter-spacing: -.3px;
+    }
+
+    .ph-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--bd);
+    }
+
+    .ph-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--sub);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--surf);
+      color: var(--tx);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .16s;
+      box-shadow: var(--sh-sm);
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--surf2); border-color: #C8C0F0; }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--acc) 0%, var(--acc2) 100%);
+      border: none;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(107,90,237,.32);
+    }
+    .btn.primary:hover {
+      box-shadow: 0 4px 20px rgba(107,90,237,.48);
+      transform: translateY(-1px);
+    }
+    .btn.primary:active { transform: translateY(0); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 8px 14px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--bd);
+      flex-shrink: 0;
+    }
+
+    .tbtn {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      background: var(--surf);
+      color: var(--sub);
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'NanumSquareRound', monospace;
+      cursor: pointer;
+      box-shadow: var(--sh-sm);
+      transition: all .15s;
+    }
+    .tbtn:hover {
+      background: var(--acc-pale);
+      border-color: #C0B5F8;
+      color: var(--acc);
+    }
+
+    /* ── Editor textarea ── */
+    .editor-ta {
+      flex: 1;
+      width: 100%;
+      background: #FDFCFF;
+      color: var(--tx);
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'NanumSquareRound', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      padding: 16px 20px;
+      min-height: 0;
+      caret-color: var(--acc);
+    }
+    .editor-ta::placeholder { color: #C4BEEF; }
+    .editor-ta::selection   { background: var(--acc-pale); }
+
+    /* ── VN Preview area ── */
+    .vn-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(107,90,237,.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(163,148,247,.08) 0%, transparent 55%),
+        linear-gradient(160deg, #1E1A36 0%, #100E1E 100%);
+      padding: 20px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .vn-wrap {
+      height: 100%;
+      aspect-ratio: 16 / 9;
+      max-width: 100%;
+      flex-shrink: 0;
+      filter: drop-shadow(var(--sh-screen));
+    }
+
+    .vn-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #0e0c1a;
+      overflow: hidden;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .vn-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-color: #0e0c1a;
+      z-index: 0;
+      transition: background-image .5s ease;
+    }
+
+    .vn-spr-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .vn-spr {
+      position: absolute;
+      bottom: 0;
+      max-height: 85%;
+      max-width: 42%;
+      object-fit: contain;
+    }
+    .vn-spr.left   { left: 4%; }
+    .vn-spr.center { left: 50%; transform: translateX(-50%); }
+    .vn-spr.right  { right: 4%; }
+
+    .vn-tb {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      background: var(--dlg-bg, rgba(8, 6, 20, 0.84));
+      backdrop-filter: blur(14px) saturate(160%);
+      border-top: 1px solid var(--tb-border, rgba(255,255,255,.06));
+      padding: 12px 20px 16px;
+      min-height: 27%;
+      display: none;
+    }
+
+    .vn-name {
+      display: inline-block;
+      font-size: clamp(10px, 1.4vw, 13px);
+      font-weight: 700;
+      color: #fff;
+      padding: 3px 12px;
+      border-radius: 5px 5px 0 0;
+      margin-bottom: 6px;
+      letter-spacing: .02em;
+    }
+
+    .vn-text {
+      color: var(--dlg-text, #EEEEFF);
+      font-size: clamp(11px, 1.5vw, 15px);
+      line-height: 1.75;
+    }
+
+    .vn-narr-text {
+      color: var(--narr-text, #C0B8E8);
+      font-size: clamp(11px, 1.4vw, 14px);
+      line-height: 1.75;
+      font-style: italic;
+      text-align: center;
+      padding: 6px 8%;
+    }
+
+    .vn-hint {
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+      color: var(--hint-color, rgba(255,255,255,.2));
+      font-size: clamp(8px, 1vw, 10px);
+      pointer-events: none;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: .2; }
+      50%       { opacity: .8; }
+    }
+
+    .vn-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 3;
+    }
+    .vn-empty-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(107,90,237,.18);
+      border: 1px solid rgba(107,90,237,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .vn-empty-text {
+      font-size: 12px;
+      color: rgba(180,170,220,.5);
+      font-weight: 500;
+    }
+
+    /* ── VN Controls ── */
+    .vn-ctrl {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      background: var(--surf);
+      border-top: 1px solid var(--bd);
+      flex-shrink: 0;
+    }
+
+    .ctrl-side {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 100px;
+    }
+
+    .ctrl-center {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--sub);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .color-pick {
+      width: 26px;
+      height: 26px;
+      border: 1.5px solid var(--bd);
+      border-radius: 7px;
+      cursor: pointer;
+      padding: 2px;
+      background: none;
+      transition: border-color .15s;
+    }
+    .color-pick:hover { border-color: var(--acc); }
+    .color-pick::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-pick::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+    .vbtn {
+      padding: 5px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--surf2);
+      color: var(--tx);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: var(--sh-sm);
+      transition: all .15s;
+    }
+    .vbtn:hover:not(:disabled) { background: var(--bd); }
+    .vbtn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px) scale(.95);
+      background: var(--surf);
+      border: 1px solid var(--bd);
+      color: var(--tx);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(80,60,200,.15), 0 2px 8px rgba(0,0,0,.08);
+      opacity: 0;
+      transition: all .32s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+
+    @media (max-width: 700px) {
+      .app { flex-direction: column; }
+      html, body { height: auto; overflow: auto; }
+      .panel { height: 50vh; flex: none; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--bd); }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Editor ===== -->
+  <div class="panel panel-left">
+    <div class="ph">
+      <div class="ph-brand">
+        <div class="ph-mark">✦</div>
+        <span class="ph-name">VN Studio</span>
+        <div class="ph-divider"></div>
+        <span class="ph-title">스크립트 에디터</span>
+      </div>
+      <button class="btn primary" onclick="copyEmbed()">↑ 임베드 코드 복사</button>
+    </div>
+    <div class="toolbar">
+      <button class="tbtn" onclick="ins('bg URL')">bg</button>
+      <button class="tbtn" onclick="ins('bgm URL')">bgm</button>
+      <button class="tbtn" onclick="ins('bgm stop')">bgm stop</button>
+      <button class="tbtn" onclick="ins('se URL')">se</button>
+      <button class="tbtn" onclick="ins('sprite 이름 left URL')">sprite</button>
+      <button class="tbtn" onclick="ins('hide 이름')">hide</button>
+      <button class="tbtn" onclick="ins('이름: ')">대화</button>
+      <button class="tbtn" onclick="ins('narr ')">나레이션</button>
+      <button class="tbtn" onclick="ins('# ')">주석</button>
+    </div>
+    <textarea class="editor-ta" id="ta" spellcheck="false"></textarea>
+  </div>
+
+  <!-- ===== Preview ===== -->
+  <div class="panel">
+    <div class="ph">
+      <div class="ph-brand">
+        <span class="ph-name">미리보기</span>
+        <div class="ph-divider"></div>
+        <span class="ph-title" id="fi" style="font-variant-numeric:tabular-nums">0 / 0</span>
+      </div>
+      <button class="btn" onclick="resetView()">↺ 처음으로</button>
+    </div>
+    <div class="vn-area" id="vnArea">
+      <div class="vn-wrap">
+        <div class="vn-screen" id="scr" onclick="screenClick()">
+          <div class="vn-bg" id="bg"></div>
+          <div class="vn-spr-layer" id="spr"></div>
+          <div class="vn-tb" id="tb">
+            <div class="vn-name" id="nm"></div>
+            <div id="tx"></div>
+            <span class="vn-hint">▼</span>
+          </div>
+          <div class="vn-empty" id="empty">
+            <div class="vn-empty-icon">✦</div>
+            <span class="vn-empty-text">스크립트를 입력하면 미리보기가 표시됩니다</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vn-ctrl">
+      <div class="ctrl-side">
+        <label class="ctrl-label" for="frameColor">프레임 색상</label>
+        <input type="color" class="color-pick" id="frameColor" value="#EDE9F9" oninput="setFrameColor(this.value)">
+      </div>
+      <div class="ctrl-center">
+        <button class="vbtn" id="bPrev" onclick="goPrev()" disabled>◀ 이전</button>
+        <button class="vbtn" id="bNext" onclick="goNext()" disabled>다음 ▶</button>
+      </div>
+      <div class="ctrl-side" aria-hidden="true"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======= Parser ======= */
+
+function parse(src) {
+  const cmds = [];
+  for (const raw of src.split('\n')) {
+    const line = raw.trim();
+    if (!line || line[0] === '#') continue;
+    if (line.startsWith('bg ')) {
+      cmds.push({ t: 'bg', url: line.slice(3).trim() });
+    } else if (line.startsWith('bgm ')) {
+      const val = line.slice(4).trim();
+      cmds.push({ t: 'bgm', url: val.toLowerCase() === 'stop' ? null : val });
+    } else if (line.startsWith('se ')) {
+      cmds.push({ t: 'se', url: line.slice(3).trim() });
+    } else if (line.startsWith('sprite ')) {
+      const m = line.slice(7).trim().match(/^(\S+)\s+(left|center|right)\s+(.+)$/i);
+      if (m) cmds.push({ t: 'sprite', name: m[1], pos: m[2].toLowerCase(), url: m[3].trim() });
+    } else if (line.startsWith('hide ')) {
+      cmds.push({ t: 'hide', name: line.slice(5).trim() });
+    } else if (line.startsWith('narr ')) {
+      cmds.push({ t: 'narr', text: line.slice(5).trim() });
+    } else {
+      const ci = line.indexOf(': ');
+      if (ci > 0) cmds.push({ t: 'dlg', name: line.slice(0, ci), text: line.slice(ci + 2) });
+    }
+  }
+  return cmds;
+}
+
+function buildFrames(cmds) {
+  const frames = [];
+  let st = { bg: null, bgm: null, sprites: {}, se: null };
+  for (const c of cmds) {
+    if (c.t === 'bg') {
+      st = { ...st, bg: c.url };
+    } else if (c.t === 'bgm') {
+      st = { ...st, bgm: c.url };
+    } else if (c.t === 'se') {
+      st = { ...st, se: c.url };
+    } else if (c.t === 'sprite') {
+      st = { ...st, sprites: { ...st.sprites, [c.name]: { pos: c.pos, url: c.url } } };
+    } else if (c.t === 'hide') {
+      const sp = { ...st.sprites };
+      delete sp[c.name];
+      st = { ...st, sprites: sp };
+    } else if (c.t === 'dlg') {
+      frames.push({ ...st, type: 'dlg', name: c.name, text: c.text });
+      st = { ...st, se: null };
+    } else if (c.t === 'narr') {
+      frames.push({ ...st, type: 'narr', text: c.text });
+      st = { ...st, se: null };
+    }
+  }
+  return frames.map(f => JSON.parse(JSON.stringify(f)));
+}
+
+/* ======= Frame Color ======= */
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function getBrightness(hex) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+function setFrameColor(c) {
+  document.getElementById('vnArea').style.background = c;
+  const scr = document.getElementById('scr');
+  const light = getBrightness(c) > 128;
+  scr.style.setProperty('--dlg-bg',     hexToRgba(c, 0.88));
+  scr.style.setProperty('--tb-border',  light ? 'rgba(0,0,0,.07)'  : 'rgba(255,255,255,.06)');
+  scr.style.setProperty('--dlg-text',   light ? '#1a1830'          : '#EEEEFF');
+  scr.style.setProperty('--narr-text',  light ? '#3a3560'          : '#C0B8E8');
+  scr.style.setProperty('--hint-color', light ? 'rgba(0,0,0,.2)'   : 'rgba(255,255,255,.2)');
+}
+
+/* ======= Audio ======= */
+
+let bgmAudio = null, bgmUrl = null;
+
+function playBgm(url) {
+  if (url === bgmUrl) return;
+  if (bgmAudio) { bgmAudio.pause(); bgmAudio.src = ''; bgmAudio = null; }
+  bgmUrl = url;
+  if (url) {
+    bgmAudio = new Audio(url);
+    bgmAudio.loop = true;
+    bgmAudio.volume = 0.7;
+    bgmAudio.play().catch(() => {});
+  }
+}
+
+function playSe(url) {
+  if (!url) return;
+  const a = new Audio(url);
+  a.volume = 0.8;
+  a.play().catch(() => {});
+}
+
+/* ======= Player ======= */
+
+let frames = [], cur = 0, typing = false, tTimer = null;
+
+const elBg    = document.getElementById('bg');
+const elSpr   = document.getElementById('spr');
+const elTb    = document.getElementById('tb');
+const elNm    = document.getElementById('nm');
+const elTx    = document.getElementById('tx');
+const elEmpty = document.getElementById('empty');
+const elFI    = document.getElementById('fi');
+const elPrev  = document.getElementById('bPrev');
+const elNext  = document.getElementById('bNext');
+
+function render(idx, instant) {
+  if (!frames.length) {
+    elEmpty.style.display = 'flex';
+    elTb.style.display = 'none';
+    elSpr.innerHTML = '';
+    elBg.style.backgroundImage = '';
+    elFI.textContent = '0 / 0';
+    elPrev.disabled = elNext.disabled = true;
+    return;
+  }
+  elEmpty.style.display = 'none';
+  const f = frames[idx];
+
+  elBg.style.backgroundImage = f.bg ? `url(${f.bg})` : 'none';
+  playBgm(f.bgm || null);
+  if (!instant && f.se) playSe(f.se);
+
+  elSpr.innerHTML = '';
+  for (const sp of Object.values(f.sprites)) {
+    const img = document.createElement('img');
+    img.src = sp.url;
+    img.className = 'vn-spr ' + sp.pos;
+    elSpr.appendChild(img);
+  }
+
+  elTb.style.display = 'block';
+
+  if (f.type === 'dlg') {
+    elNm.style.display = 'inline-block';
+    elNm.textContent = f.name;
+    elNm.style.background = '#6B5AED';
+    elTx.className = 'vn-text';
+  } else {
+    elNm.style.display = 'none';
+    elTx.className = 'vn-narr-text';
+  }
+
+  clearTimeout(tTimer);
+  if (instant) {
+    typing = false;
+    elTx.textContent = f.text;
+  } else {
+    typing = true;
+    typeAt(f.text, 0);
+  }
+
+  elFI.textContent = `${idx + 1} / ${frames.length}`;
+  elPrev.disabled = idx <= 0;
+  elNext.disabled = idx >= frames.length - 1;
+}
+
+function typeAt(txt, pos) {
+  if (pos >= txt.length) { typing = false; return; }
+  elTx.textContent = txt.slice(0, pos + 1);
+  tTimer = setTimeout(() => typeAt(txt, pos + 1), 22);
+}
+
+function screenClick() {
+  if (!frames.length) return;
+  if (typing) {
+    clearTimeout(tTimer);
+    typing = false;
+    elTx.textContent = frames[cur].text;
+  } else {
+    goNext();
+  }
+}
+
+function goNext() {
+  if (cur < frames.length - 1) { cur++; render(cur, false); }
+}
+
+function goPrev() {
+  if (cur > 0) { cur--; render(cur, true); }
+}
+
+function resetView() {
+  clearTimeout(tTimer);
+  typing = false;
+  if (frames.length) { cur = 0; render(0, false); }
+}
+
+/* ======= Live Preview ======= */
+
+let updateTimer;
+function scheduleUpdate() {
+  clearTimeout(updateTimer);
+  updateTimer = setTimeout(() => {
+    const newFrames = buildFrames(parse(document.getElementById('ta').value));
+    const changed = newFrames.length !== frames.length;
+    frames = newFrames;
+    if (!frames.length) { render(-1); return; }
+    if (changed && cur >= frames.length) cur = frames.length - 1;
+    if (cur < 0) cur = 0;
+    render(cur, true);
+  }, 350);
+}
+
+document.getElementById('ta').addEventListener('input', scheduleUpdate);
+
+/* ======= Keyboard ======= */
+
+document.addEventListener('keydown', e => {
+  if (document.activeElement === document.getElementById('ta')) return;
+  if (e.key === 'ArrowLeft') goPrev();
+  else if (e.key === 'ArrowRight') screenClick();
+});
+
+/* ======= Toolbar ======= */
+
+function ins(snippet) {
+  const ta = document.getElementById('ta');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const before = ta.value.slice(0, s);
+  const nl = (before.length && !before.endsWith('\n')) ? '\n' : '';
+  const text = nl + snippet;
+  ta.value = before + text + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus();
+  scheduleUpdate();
+}
+
+/* ======= Export ======= */
+
+function copyEmbed() {
+  const exportFrames = buildFrames(parse(document.getElementById('ta').value));
+  if (!exportFrames.length) {
+    showToast('먼저 스크립트를 입력하세요!');
+    return;
+  }
+  const frameColor = document.getElementById('frameColor').value;
+  const uid = 'vn' + Math.random().toString(36).slice(2, 7);
+  const html = buildEmbed(exportFrames, uid, frameColor);
+  navigator.clipboard.writeText(html).then(() => showToast('임베드 코드가 클립보드에 복사됐습니다!'));
+}
+
+function buildEmbed(fr, uid, frameColor) {
+  const data = JSON.stringify(fr);
+  const fc = frameColor || '#EDE9F9';
+  const rv = parseInt(fc.slice(1,3), 16);
+  const gv = parseInt(fc.slice(3,5), 16);
+  const bv = parseInt(fc.slice(5,7), 16);
+  const light = (rv * 299 + gv * 587 + bv * 114) / 1000 > 128;
+  const dlgBg    = `rgba(${rv},${gv},${bv},0.88)`;
+  const dlgText  = light ? '#1a1830' : '#EEEEFF';
+  const narrText = light ? '#3a3560' : '#C0B8E8';
+  const hintCol  = light ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.2)';
+  const tbBorder = light ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.06)';
+  const btnBg    = light ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.08)';
+  const btnHover = light ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.16)';
+  const btnText  = light ? 'rgba(0,0,0,.65)' : 'rgba(255,255,255,.75)';
+  const btnBd    = light ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.12)';
+  const fiCol    = light ? 'rgba(0,0,0,.35)' : 'rgba(255,255,255,.4)';
+  return `<style>
+#${uid}{width:100%;max-width:800px;margin:0 auto;font-family:system-ui,sans-serif;background:${fc};padding:12px 12px 6px;border-radius:10px}
+#${uid} .s{position:relative;width:100%;padding-top:56.25%;background:#111;overflow:hidden;border-radius:6px;cursor:pointer;user-select:none}
+#${uid} .s>*{position:absolute}
+#${uid} .b{inset:0;background-size:cover;background-position:center;z-index:0}
+#${uid} .l{inset:0;z-index:1;pointer-events:none}
+#${uid} .l img{position:absolute;bottom:0;max-height:85%;max-width:42%;object-fit:contain}
+#${uid} .l img.left{left:4%}
+#${uid} .l img.center{left:50%;transform:translateX(-50%)}
+#${uid} .l img.right{right:4%}
+#${uid} .tb{bottom:0;left:0;right:0;z-index:2;background:${dlgBg};backdrop-filter:blur(12px);border-top:1px solid ${tbBorder};padding:12px 18px 14px;min-height:27%}
+#${uid} .nm{display:inline-block;font-size:13px;font-weight:700;color:#fff;padding:2px 10px;border-radius:4px 4px 0 0;margin-bottom:5px;background:#6B5AED}
+#${uid} .dt{color:${dlgText};font-size:14px;line-height:1.7}
+#${uid} .nt{color:${narrText};font-size:13px;line-height:1.7;font-style:italic;text-align:center;padding:4px 8%}
+#${uid} .hn{position:absolute;bottom:8px;right:12px;color:${hintCol};font-size:10px;pointer-events:none}
+#${uid} .ctrl{display:flex;align-items:center;justify-content:center;gap:14px;padding:8px 2px 0}
+#${uid} .cb{padding:5px 16px;border-radius:6px;border:1px solid ${btnBd};background:${btnBg};color:${btnText};font-size:12px;cursor:pointer;font-family:inherit}
+#${uid} .cb:hover:not(:disabled){background:${btnHover}}
+#${uid} .cb:disabled{opacity:.3;cursor:not-allowed}
+#${uid} .ci{font-size:11px;color:${fiCol};min-width:52px;text-align:center}
+</style>
+<div id="${uid}">
+<div class="s" id="${uid}s">
+<div class="b" id="${uid}b"></div>
+<div class="l" id="${uid}l"></div>
+<div class="tb" id="${uid}t" style="display:none">
+<div class="nm" id="${uid}n"></div>
+<div id="${uid}x"></div>
+<span class="hn">▼</span>
+</div>
+</div>
+<div class="ctrl">
+<button class="cb" id="${uid}p" disabled>◀ 이전</button>
+<span class="ci" id="${uid}i">0 / 0</span>
+<button class="cb" id="${uid}q">다음 ▶</button>
+</div>
+</div>
+<script>
+(function(){
+var F=${data};
+var bgmA=null,bgmU=null;
+function pbgm(u){if(u===bgmU)return;if(bgmA){bgmA.pause();bgmA.src='';bgmA=null;}bgmU=u;if(u){bgmA=new Audio(u);bgmA.loop=true;bgmA.volume=0.7;bgmA.play().catch(function(){});}}
+function pse(u){if(!u)return;var a=new Audio(u);a.volume=0.8;a.play().catch(function(){});}
+var c=0,typing=false,tt=null;
+var B=document.getElementById('${uid}b'),L=document.getElementById('${uid}l'),T=document.getElementById('${uid}t'),N=document.getElementById('${uid}n'),X=document.getElementById('${uid}x'),FI=document.getElementById('${uid}i'),BP=document.getElementById('${uid}p'),BN=document.getElementById('${uid}q');
+function render(i,instant){
+var f=F[i];
+B.style.backgroundImage=f.bg?'url('+f.bg+')':'none';
+pbgm(f.bgm||null);
+if(!instant&&f.se)pse(f.se);
+L.innerHTML='';
+Object.values(f.sprites).forEach(function(s){var img=document.createElement('img');img.src=s.url;img.className=s.pos;L.appendChild(img);});
+T.style.display='block';
+if(f.type==='dlg'){N.style.display='inline-block';N.textContent=f.name;N.style.background='#6B5AED';X.className='dt';}
+else{N.style.display='none';X.className='nt';}
+clearTimeout(tt);
+if(instant){typing=false;X.textContent=f.text;}
+else{typing=true;ta(f.text,0);}
+FI.textContent=(i+1)+' / '+F.length;
+BP.disabled=i<=0;BN.disabled=i>=F.length-1;
+}
+function ta(t,p){if(p>=t.length){typing=false;return;}X.textContent=t.slice(0,p+1);tt=setTimeout(function(){ta(t,p+1);},22);}
+function click(){if(!F.length)return;if(typing){clearTimeout(tt);typing=false;X.textContent=F[c].text;}else{if(c<F.length-1){c++;render(c,false);}}}
+function prev(){if(c>0){c--;render(c,true);}}
+function next(){if(c<F.length-1){c++;render(c,false);}}
+document.getElementById('${uid}s').addEventListener('click',click);
+BP.addEventListener('click',function(e){e.stopPropagation();prev();});
+BN.addEventListener('click',function(e){e.stopPropagation();next();});
+document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')prev();else if(e.key==='ArrowRight'&&!typing)next();});
+if(F.length)render(0,false);
+})();
+<\/script>`;
+}
+
+/* ======= Toast ======= */
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ======= Init ======= */
+
+document.getElementById('ta').value = `# 비주얼노벨 샘플 스크립트
+# ────────────────────────────────────────────
+# bg <URL>                            배경 이미지 설정
+# bgm <URL>                           배경음악 재생 (루프)
+# bgm stop                            배경음악 정지
+# se <URL>                            효과음 재생 (1회)
+# sprite 이름 left/center/right <URL>  캐릭터 스프라이트 추가
+# hide 이름                           스프라이트 숨기기
+# 이름: 대사                          캐릭터 대화
+# narr 텍스트                         화자 없는 나레이션
+# ────────────────────────────────────────────
+
+bg https://i.pinimg.com/originals/82/50/8e/82508ef9a8d3d03e30d6479a9702bf98.jpg
+
+narr 어느 맑은 봄날의 이야기...
+
+Alice: 안녕하세요! 처음 뵙겠습니다.
+
+Bob: 저도 반가워요.
+
+Alice: 왼쪽에서 스크립트를 쓰면 오른쪽에서 실시간으로 미리볼 수 있어요.
+
+Bob: 완성되면 "임베드 코드 복사"로 블로그에 붙여넣으면 되는군요?
+
+Alice: 맞아요! 스프라이트 이미지도 sprite 명령어로 추가할 수 있어요.
+
+narr 두 사람은 긴 이야기를 나눴다.`;
+
+setFrameColor('#EDE9F9');
+scheduleUpdate();
+</script>
+</body>
+</html>

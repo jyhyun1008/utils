@@ -1,0 +1,314 @@
+<style>
+@font-face {
+    font-family: 'A2z';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-6@1.0/에이투지체-3Light.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'A2z';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-6@1.0/에이투지체-6SemiBold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0d1a;--card:#ffffff0d;--border:#ffffff15;--text:#e8e8f0;--muted:#ffffff55}
+body{font-family:'A2z',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:16px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#ffffff25;border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* HEADER */
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:linear-gradient(135deg,#4f46e5,#7c3aed,#db2777);flex-shrink:0;gap:12px}
+.nav-grp{display:flex;align-items:center;gap:6px}
+.nbtn{background:#ffffff22;border:none;border-radius:7px;color:white;cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;transition:all .2s}
+.nbtn:hover{background:#ffffff35}
+.nbtn.on{background:white;color:#4f46e5}
+#ddisp{font-size:15px;font-weight:700;color:white;margin-left:6px;white-space:nowrap}
+.hact{display:flex;gap:6px;align-items:center}
+.abtn{border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;padding:5px 13px;transition:all .2s}
+.exp-btn{background:#22c55e;color:white}
+.exp-btn:hover{background:#16a34a}
+.clr-btn{background:#ef4444bb;color:white}
+.clr-btn:hover{background:#ef4444}
+#svi{font-size:11px;color:#ffffff60;width:16px;height:16px;border-radius:50%;display:inline-block;background:#ffffff30;transition:background .4s}
+#svi.saving{background:#f59e0b}
+#svi.saved{background:#22c55e}
+
+/* COLUMNS */
+#cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px;flex:1;overflow:hidden}
+.col{display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-right:2px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px;flex-shrink:0}
+.ct{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+
+.c-mood{border-top:3px solid #a855f7}.c-mood .ct{color:#c084fc}
+.c-rtn{border-top:3px solid #22c55e}.c-rtn .ct{color:#4ade80}
+.c-todo{border-top:3px solid #3b82f6}.c-todo .ct{color:#60a5fa}
+.c-meal{border-top:3px solid #f97316}.c-meal .ct{color:#fb923c}
+.c-exp{border-top:3px solid #ec4899}.c-exp .ct{color:#f472b6}
+.c-hob{border-top:3px solid #14b8a6}.c-hob .ct{color:#2dd4bf}
+.c-hlt{border-top:3px solid #eab308}.c-hlt .ct{color:#facc15}
+
+textarea,input[type=text],input[type=number],select{background:#ffffff0a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:15px;padding:5px 7px;width:100%;resize:none;transition:border .2s,background .2s}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#ffffff40;background:#ffffff12}
+select option{background:#1a1a2e;color:var(--text)}
+
+/* ROUTINE */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.ritem{display:flex;align-items:center;gap:7px;font-size:15px;padding:6px 8px;background:#ffffff07;border-radius:7px;cursor:pointer;transition:background .2s;border:1px solid transparent;user-select:none}
+.ritem:hover{background:#ffffff12}
+.ritem.on{background:#22c55e1a;border-color:#22c55e35;color:#4ade80}
+.ritem input[type=checkbox]{width:14px;height:14px;accent-color:#4ade80;cursor:pointer;flex-shrink:0;pointer-events:none}
+
+/* TABLE ROWS */
+.thead{display:grid;gap:4px;font-size:10px;color:var(--muted);margin-bottom:3px;padding:0 2px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.trow{display:grid;gap:4px;margin-bottom:4px;align-items:center}
+.trow input,select{padding:4px 6px;font-size:12px}
+
+.addbtn{background:#ffffff08;border:1px dashed #ffffff22;border-radius:6px;color:var(--muted);cursor:pointer;font-size:11px;padding:5px;width:100%;transition:all .2s;margin-top:3px}
+.addbtn:hover{background:#ffffff12;color:var(--text);border-color:#ffffff38}
+.delbtn{background:#ef444420;border:none;border-radius:4px;color:#f87171;cursor:pointer;font-size:11px;padding:3px 5px;flex-shrink:0;transition:background .2s;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.delbtn:hover{background:#ef444440}
+
+.sumrow{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:6px 2px 2px;border-top:1px solid var(--border);font-size:12px;font-weight:700;margin-top:4px}
+</style>
+
+<div id="hdr">
+  <div class="nav-grp">
+    <button class="nbtn" id="bn2" onclick="gotoOffset(-2)">그저께</button>
+    <button class="nbtn" id="bn1" onclick="gotoOffset(-1)">어제</button>
+    <button class="nbtn on" id="bn0" onclick="gotoOffset(0)">오늘</button>
+    <span id="ddisp"></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span id="svi" title="저장 상태"></span>
+    <div class="hact">
+      <button class="abtn exp-btn" onclick="doExport()">📤 마크다운 내보내기</button>
+      <button class="abtn clr-btn" onclick="doClear()">🗑 전체 초기화</button>
+    </div>
+  </div>
+</div>
+
+<div id="cols">
+  <div class="col" id="c1">
+    <div class="card c-mood">
+      <div class="ct">💭 오늘의 기분 및 상황</div>
+      <textarea id="fmood" rows="5" placeholder="오늘 하루의 기분, 컨디션, 상황을 자유롭게 기록하세요" oninput="setf('mood',this.value)"></textarea>
+    </div>
+    <div class="card c-hlt">
+      <div class="ct">🏥 건강 관련 특이사항</div>
+      <textarea id="fhlt" rows="4" placeholder="건강 관련 특이사항, 증상, 복용약 메모 등" oninput="setf('health',this.value)"></textarea>
+    </div>
+    <div class="card c-hob">
+      <div class="ct">🎮 취미생활</div>
+      <textarea id="fhob" rows="5" placeholder="오늘 즐긴 취미 활동, 게임, 영화, 음악 등을 기록하세요" oninput="setf('hobby',this.value)"></textarea>
+    </div>
+  </div>
+  <div class="col" id="c2">
+    <div class="card c-rtn">
+      <div class="ct">✅ 루틴 체크</div>
+      <div class="rgrid" id="rgrid"></div>
+    </div>
+    <div class="card c-todo">
+      <div class="ct">📋 오늘 할 일</div>
+      <div class="thead" style="grid-template-columns:1fr 1.4fr 1.4fr 24px"><span>프로젝트</span><span>할 일</span><span>한줄평</span><span></span></div>
+      <div id="tlist"></div>
+      <button class="addbtn" onclick="addTodo()">＋ 할 일 추가</button>
+    </div>
+  </div>
+  <div class="col" id="c3">
+    <div class="card c-meal">
+      <div class="ct">🍽️ 식단</div>
+      <div class="thead" style="grid-template-columns:64px 1fr 56px 64px 24px"><span>구분</span><span>메뉴</span><span>포만감</span><span>칼로리</span><span></span></div>
+      <div id="mlist"></div>
+      <button class="addbtn" onclick="addMeal()">＋ 식단 추가</button>
+      <div class="sumrow"><span style="color:var(--muted)">총 칼로리</span><span id="calsum" style="color:#fb923c;font-size:13px">0 kcal</span></div>
+    </div>
+    <div class="card c-exp">
+      <div class="ct">💰 소비기록</div>
+      <div class="thead" style="grid-template-columns:1fr 76px 1fr 24px"><span>항목</span><span>금액</span><span>구입 사유</span><span></span></div>
+      <div id="elist"></div>
+      <button class="addbtn" onclick="addExp()">＋ 소비 추가</button>
+      <div class="sumrow"><span style="color:var(--muted)">총 지출</span><span id="expsum" style="color:#f472b6;font-size:13px">0원</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEF_RTNS=[
+  {k:'login',l:'🔐 데일리 로그인'}
+];
+let RTNS=[...DEF_RTNS];
+const MTYPES=['아침','점심','저녁','간식'];
+let off=0, D={}, saveT=null, uid=1;
+
+function mkDate(o){const d=new Date();d.setDate(d.getDate()+o);const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${day}`}
+function dkey(o){return'daily:'+mkDate(o)}
+function defD(){return{mood:'',routines:Object.fromEntries(RTNS.map(r=>[r.k,false])),todos:[],meals:[],expenses:[],hobby:'',health:''}}
+function loadRtns(){try{const r=localStorage.getItem('daily:routines');if(r)RTNS=JSON.parse(r)}catch{}}
+function saveRtns(){localStorage.setItem('daily:routines',JSON.stringify(RTNS))}
+function addRtn(){const inp=document.getElementById('newrtn');const l=inp.value.trim();if(!l)return;const k='r'+Date.now();RTNS.push({k,l});if(D.routines[k]===undefined)D.routines[k]=false;saveRtns();inp.value='';renderRtn();sched()}
+function delRtn(k){if(!confirm('루틴을 삭제할까요?'))return;RTNS=RTNS.filter(r=>r.k!==k);delete D.routines[k];saveRtns();renderRtn();sched()}
+function nid(){return++uid}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+async function init(){loadRtns();await load(0)}
+
+async function load(o){
+  off=o;
+  const ds=mkDate(o);
+  document.getElementById('ddisp').textContent=ds+' ('+['그저께','어제','오늘'][o+2]+')';
+  [-2,-1,0].forEach(x=>{const b=document.getElementById('bn'+Math.abs(x));if(b)b.className='nbtn'+(x===o?' on':'')});
+  try{const raw=localStorage.getItem(dkey(o));D=raw?JSON.parse(raw):defD()}
+  catch{D=defD()}
+  render()
+}
+
+function render(){
+  document.getElementById('fmood').value=D.mood||'';
+  document.getElementById('fhob').value=D.hobby||'';
+  document.getElementById('fhlt').value=D.health||'';
+  renderRtn();renderTodos();renderMeals();renderExps()
+}
+
+function renderRtn(){
+  document.getElementById('rgrid').innerHTML=RTNS.map(r=>`
+    <div class="ritem${D.routines[r.k]?' on':''}" style="justify-content:space-between">
+      <div onclick="togRtn('${r.k}')" style="display:flex;align-items:center;gap:7px;flex:1;cursor:pointer;overflow:hidden">
+        <input type="checkbox"${D.routines[r.k]?' checked':''} tabindex="-1" style="pointer-events:none;flex-shrink:0">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.l}</span>
+      </div>
+      <button class="delbtn" onclick="delRtn('${r.k}')" style="width:18px;height:18px;font-size:11px;margin-left:4px;flex-shrink:0">×</button>
+    </div>`).join('');
+  document.getElementById('rgrid').insertAdjacentHTML('afterend',
+    document.getElementById('rtn-add')?'':'<div id="rtn-add" style="display:flex;gap:6px;margin-top:7px"><input type="text" id="newrtn" placeholder="새 루틴 추가..." style="flex:1"><button class="addbtn" onclick="addRtn()" style="width:auto;padding:5px 14px;margin:0;white-space:nowrap">＋</button></div>'
+  )
+}
+
+function renderTodos(){
+  document.getElementById('tlist').innerHTML=(D.todos||[]).map((t,i)=>`
+    <div class="trow" style="grid-template-columns:1fr 1.4fr 1.4fr 24px">
+      <input type="text" value="${esc(t.proj)}" placeholder="프로젝트" oninput="updT(${i},'proj',this.value)">
+      <input type="text" value="${esc(t.title)}" placeholder="할 일" oninput="updT(${i},'title',this.value)">
+      <input type="text" value="${esc(t.note)}" placeholder="한줄평" oninput="updT(${i},'note',this.value)">
+      <button class="delbtn" onclick="delT(${i})">✕</button>
+    </div>`).join('')
+}
+
+function renderMeals(){
+  document.getElementById('mlist').innerHTML=(D.meals||[]).map((m,i)=>`
+    <div class="trow" style="grid-template-columns:64px 1fr 56px 64px 24px">
+      <select onchange="updM(${i},'type',this.value)">${MTYPES.map(t=>`<option${m.type===t?' selected':''}>${t}</option>`).join('')}</select>
+      <input type="text" value="${esc(m.food)}" placeholder="메뉴" oninput="updM(${i},'food',this.value)">
+      <input type="text" value="${esc(m.full)}" placeholder="보통" oninput="updM(${i},'full',this.value)">
+      <input type="number" value="${m.cal||''}" placeholder="kcal" min="0" oninput="updM(${i},'cal',+this.value||0)">
+      <button class="delbtn" onclick="delM(${i})">✕</button>
+    </div>`).join('');
+  updCalSum()
+}
+
+function renderExps(){
+  document.getElementById('elist').innerHTML=(D.expenses||[]).map((e,i)=>`
+    <div class="trow" style="grid-template-columns:1fr 76px 1fr 24px">
+      <input type="text" value="${esc(e.item)}" placeholder="항목" oninput="updE(${i},'item',this.value)">
+      <input type="number" value="${e.price||''}" placeholder="원" min="0" oninput="updE(${i},'price',+this.value||0)">
+      <input type="text" value="${esc(e.reason)}" placeholder="구입 사유" oninput="updE(${i},'reason',this.value)">
+      <button class="delbtn" onclick="delE(${i})">✕</button>
+    </div>`).join('');
+  updExpSum()
+}
+
+function updCalSum(){
+  const s=(D.meals||[]).reduce((a,m)=>a+(+m.cal||0),0);
+  document.getElementById('calsum').textContent=s.toLocaleString()+' kcal'
+}
+function updExpSum(){
+  const s=(D.expenses||[]).reduce((a,e)=>a+(+e.price||0),0);
+  document.getElementById('expsum').textContent=s.toLocaleString()+'원'
+}
+
+function setf(k,v){D[k]=v;sched()}
+function togRtn(k){D.routines[k]=!D.routines[k];renderRtn();sched()}
+function addTodo(){D.todos.push({id:nid(),proj:'',title:'',note:''});renderTodos();sched()}
+function delT(i){D.todos.splice(i,1);renderTodos();sched()}
+function updT(i,k,v){D.todos[i][k]=v;sched()}
+function addMeal(){D.meals.push({id:nid(),type:'아침',food:'',full:'',cal:0});renderMeals();sched()}
+function delM(i){D.meals.splice(i,1);renderMeals();sched()}
+function updM(i,k,v){D.meals[i][k]=v;if(k==='cal')updCalSum();sched()}
+function addExp(){D.expenses.push({id:nid(),item:'',price:0,reason:''});renderExps();sched()}
+function delE(i){D.expenses.splice(i,1);renderExps();sched()}
+function updE(i,k,v){D.expenses[i][k]=v;if(k==='price')updExpSum();sched()}
+
+function svi(){return document.getElementById('svi')}
+function sched(){
+  const v=svi();if(v){v.className='saving'}
+  clearTimeout(saveT);saveT=setTimeout(save,700)
+}
+async function save(){
+  try{
+    localStorage.setItem(dkey(off),JSON.stringify(D));
+    const v=svi();if(v){v.className='saved';setTimeout(()=>{if(v)v.className=''},1800)}
+  }catch(e){console.error('save error',e)}
+}
+
+async function gotoOffset(o){
+  await save();
+  await load(o)
+}
+
+function doExport(){
+  const ds=mkDate(off);
+  let md=`# 📅 ${ds} 데일리 로그\n\n`;
+
+  if(D.mood)md+=`## 💭 오늘의 기분 및 상황\n\n${D.mood}\n\n`;
+
+  const done=RTNS.filter(r=>D.routines[r.k]).length;
+  md+=`## ✅ 루틴 (${done}/${RTNS.length})\n\n`;
+  md+=`| 항목 | 완료 |\n| --- | --- |\n`;
+  RTNS.forEach(r=>{md+=`| ${r.l} | ${D.routines[r.k]?'✅':'⬜'} |\n`});
+  md+='\n';
+
+  if((D.todos||[]).length){
+    md+=`## 📋 오늘 할 일\n\n| 프로젝트 | 할 일 | 한줄평 |\n| --- | --- | --- |\n`;
+    D.todos.forEach(t=>{md+=`| ${t.proj||''} | ${t.title||''} | ${t.note||''} |\n`});
+    md+='\n'
+  }
+
+  if((D.meals||[]).length){
+    md+=`## 🍽️ 식단\n\n| 구분 | 메뉴 | 포만감 | 칼로리 |\n| --- | --- | --- | --- |\n`;
+    D.meals.forEach(m=>{md+=`| ${m.type} | ${m.food||''} | ${m.full||''} | ${m.cal||0} kcal |\n`});
+    const cs=D.meals.reduce((a,m)=>a+(+m.cal||0),0);
+    md+=`\n> **총 칼로리: ${cs.toLocaleString()} kcal**\n\n`
+  }
+
+  if((D.expenses||[]).length){
+    md+=`## 💰 소비기록\n\n| 항목 | 금액 | 구입 사유 |\n| --- | --- | --- |\n`;
+    D.expenses.forEach(e=>{md+=`| ${e.item||''} | ${(+e.price||0).toLocaleString()}원 | ${e.reason||''} |\n`});
+    const es=D.expenses.reduce((a,e)=>a+(+e.price||0),0);
+    md+=`\n> **총 지출: ${es.toLocaleString()}원**\n\n`
+  }
+
+  if(D.hobby)md+=`## 🎮 취미생활\n\n${D.hobby}\n\n`;
+  if(D.health)md+=`## 🏥 건강 관련 특이사항\n\n${D.health}\n\n`;
+
+  const blob=new Blob([md],{type:'text/markdown;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`${ds}.md`;a.click();
+  URL.revokeObjectURL(url)
+}
+
+async function doClear(){
+  if(!confirm('⚠️ 저장된 모든 날짜의 데이터를 삭제합니다.\n이 작업은 되돌릴 수 없습니다. 계속할까요?'))return;
+  try{
+    Object.keys(localStorage).filter(k=>k.startsWith('daily:')).forEach(k=>localStorage.removeItem(k));
+    D=defD();render();
+    localStorage.setItem('daily:routines',JSON.stringify(RTNS))
+    alert('✅ 전체 데이터가 삭제되었습니다.')
+  }catch(e){alert('오류가 발생했습니다: '+e.message)}
+}
+
+init();
+</script>

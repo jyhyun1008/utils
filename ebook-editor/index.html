@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>e-book 에디터</title>
+  <style>
+    @font-face {
+      font-family: 'NanumSquareRound';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Soonbatang';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/SunBatang-Light.woff') format('woff');
+      font-weight: 300;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #F4F2FA; --surf: #FFFFFF; --surf2: #EDE9F9;
+      --bd: #DDD8F4; --tx: #1C1830; --sub: #8C86B8;
+      --acc: #6B5AED; --acc2: #A394F7; --acc-pale: #EDEAFF;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'NanumSquareRound', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--tx);
+      height: 100vh;
+
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── shared panel header ── */
+    .panel-ph {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 16px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--bd);
+      box-shadow: 0 1px 4px rgba(107,90,237,.06);
+      flex-shrink: 0;
+      gap: 10px;
+      user-select: none;
+    }
+    .panel-brand { display: flex; align-items: center; gap: 8px; }
+    .panel-back { font-size: 16px; color: var(--sub); text-decoration: none; line-height: 1; }
+    .panel-back:hover { color: var(--acc); }
+    .panel-divider { width: 1px; height: 14px; background: var(--bd); flex-shrink: 0; }
+    .ph-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--acc) 0%, var(--acc2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .panel-name { font-size: 13px; font-weight: 700; color: var(--tx); letter-spacing: -.3px; }
+    .panel-sub { font-size: 11px; font-weight: 500; color: var(--sub); }
+    .panel-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--surf);
+      color: var(--tx);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      box-shadow: 0 1px 3px rgba(107,90,237,.06);
+    }
+    .panel-btn:hover { background: var(--surf2); border-color: var(--acc2); }
+    .panel-btn.primary {
+      background: linear-gradient(135deg, var(--acc) 0%, var(--acc2) 100%);
+      border: none;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(107,90,237,.32);
+    }
+    .panel-btn.primary:hover { box-shadow: 0 4px 20px rgba(107,90,237,.48); transform: translateY(-1px); }
+
+    /* ── main layout ── */
+    .main { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── editor panel ── */
+    .ep {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1.5px solid var(--bd);
+      background: var(--surf);
+    }
+    .ep-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--bd);
+      background: var(--surf2);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .ep-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sub);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .ep-select {
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1.5px solid var(--bd);
+      background: var(--surf);
+      color: var(--tx);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .ep-select:focus { border-color: var(--acc); }
+    .ep-color {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 1.5px solid var(--bd);
+      padding: 2px;
+      cursor: pointer;
+      background: none;
+    }
+    .ep-textarea {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      outline: none;
+      font-family: 'NanumSquareRound', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--tx);
+      background: var(--surf);
+      resize: none;
+    }
+
+    /* ── editor hint strip ── */
+    .ep-hint {
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--bd);
+      background: var(--surf);
+      font-size: 11px;
+      color: var(--sub);
+      line-height: 1.7;
+      flex-shrink: 0;
+    }
+    .ep-hint strong { color: var(--tx); }
+    .ep-hint code {
+      background: var(--acc-pale);
+      color: var(--acc);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 10px;
+    }
+
+    /* ── preview panel ── */
+    .vp {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* ── embedded viewer (eb- prefix) ── */
+    .eb-wrapper {
+      width: 100%;
+      max-width: 740px;
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+      font-family: 'Soonbatang', Georgia, serif;
+      --eb-ratio: 1 / 1.414;
+    }
+    .eb-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 16px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--bd);
+      box-shadow: 0 1px 4px rgba(107,90,237,.06);
+      flex-shrink: 0;
+      user-select: none;
+      gap: 10px;
+    }
+    .eb-zoom-btn {
+      padding: 5px 10px;
+      border: 1.5px solid var(--bd);
+      background: var(--surf);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--tx);
+      font-family: 'NanumSquareRound', sans-serif;
+      box-shadow: 0 1px 3px rgba(107,90,237,.06);
+    }
+    .eb-zoom-btn:hover { background: var(--acc-pale); border-color: var(--acc2); }
+    .eb-body {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+    }
+    .eb-body.comic-mode { background: #121212; }
+    .eb-slider { display: flex; height: 100%; transition: transform 0.3s ease-out; }
+    .eb-block.type-text {
+      flex: 0 0 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 40px 35px;
+      column-fill: auto;
+      font-size: 16px;
+      line-height: 1.8;
+      color: #2b2b2b;
+      text-align: justify;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      overflow: hidden;
+      display: block;
+    }
+    .eb-block.type-text p { margin: 0; padding-bottom: 0.8em; white-space: pre-wrap; }
+    .eb-block.type-text p:last-child { padding-bottom: 0; }
+    .eb-block.type-image {
+      flex: 0 0 100%;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+    }
+    .eb-img-full { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .eb-nav-overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 15%;
+      min-width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity .2s;
+      border: none;
+      background: transparent;
+      padding: 0;
+    }
+    .eb-nav-overlay.left  { left: 0;  background: linear-gradient(to right, rgba(0,0,0,.08), transparent); }
+    .eb-nav-overlay.right { right: 0; background: linear-gradient(to left,  rgba(0,0,0,.08), transparent); }
+    .eb-body:hover .eb-nav-overlay:not(:disabled) { opacity: 1; }
+    .eb-nav-overlay:disabled { cursor: not-allowed; }
+    .eb-nav-overlay svg {
+      width: 28px; height: 28px;
+      fill: none; stroke: rgba(0,0,0,.45);
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+      filter: drop-shadow(0 1px 2px rgba(255,255,255,.6));
+    }
+    .eb-body.comic-mode .eb-nav-overlay svg { stroke: rgba(255,255,255,.7); filter: none; }
+
+    .eb-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--surf2);
+      border-top: 1px solid var(--bd);
+      user-select: none;
+    }
+    .eb-scrubber {
+      flex: 1;
+      cursor: pointer;
+      accent-color: var(--acc);
+      min-width: 0;
+    }
+    .eb-arrow-btn {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid var(--bd);
+      background: var(--surf);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--tx);
+      transition: background .15s, border-color .15s;
+    }
+    .eb-arrow-btn:hover:not(:disabled) { background: var(--acc-pale); border-color: var(--acc2); }
+    .eb-arrow-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .eb-arrow-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .eb-fs-btn {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--sub);
+    }
+    .eb-fs-btn:hover { background: var(--acc-pale); color: var(--acc); }
+    .eb-fs-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .eb-wrapper:fullscreen {
+      width: 100vw !important; max-width: none !important; height: 100vh !important;
+      margin: 0 !important; border: none !important; border-radius: 0 !important;
+      background: #121212; display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+    }
+    .eb-wrapper:fullscreen .eb-body {
+      width: 100% !important; height: auto !important;
+      aspect-ratio: var(--eb-ratio) !important;
+      max-width: calc((100vh - 120px) * (1 / 1.414)) !important;
+      box-shadow: 0 0 20px rgba(0,0,0,.6);
+    }
+    .eb-wrapper:fullscreen .eb-header,
+    .eb-wrapper:fullscreen .eb-footer {
+      width: 100%; max-width: 700px; background: #1a1a1a; border-color: #333; color: #ccc;
+    }
+    .eb-wrapper:fullscreen .eb-fs-btn { color: #fff !important; }
+    .eb-wrapper:fullscreen .eb-fs-btn:hover { background: rgba(255,255,255,.12); }
+
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="ep">
+      <div class="panel-ph">
+        <div class="panel-brand">
+        <div class="ph-mark">✦</div>
+          <span class="panel-name">e-book 에디터</span>
+          <div class="panel-divider"></div>
+          <span class="panel-sub">스크립트</span>
+        </div>
+        <button class="panel-btn primary" onclick="copyEmbed()">↑ 임베드 코드 복사</button>
+      </div>
+      <div class="ep-toolbar">
+        <span class="ep-label">모드</span>
+        <select class="ep-select" id="modeSelect" onchange="scheduleUpdate()">
+          <option value="MIXED">MIXED</option>
+          <option value="TEXT">TEXT</option>
+          <option value="COMIC">COMIC</option>
+        </select>
+        <span class="ep-label">비율</span>
+        <select class="ep-select" id="ratioSelect" onchange="applyRatio()">
+          <option value="1 / 1.414">A4/B5</option>
+          <option value="1 / 1">정사각형</option>
+          <option value="1.414 / 1">가로</option>
+          <option value="4 / 3">4:3</option>
+          <option value="16 / 9">16:9</option>
+        </select>
+        <span class="ep-label">색상</span>
+        <input type="color" class="ep-color" id="accentColor" value="#6B5AED" oninput="setAccentColor(this.value)">
+      </div>
+      <div class="ep-hint">
+        <strong>문법</strong> &nbsp;
+        일반 텍스트 → 본문 &nbsp;|&nbsp;
+        <code>image &lt;URL&gt;</code> → 이미지 &nbsp;|&nbsp;
+        <code>---</code> → 페이지 구분 &nbsp;|&nbsp;
+        <code>#</code> → 주석<br>
+        <strong>모드</strong> &nbsp;
+        <code>TEXT</code> 텍스트 전용 &nbsp;|&nbsp;
+        <code>MIXED</code> 텍스트+이미지 혼용 &nbsp;|&nbsp;
+        <code>COMIC</code> 이미지 전용
+      </div>
+      <textarea class="ep-textarea" id="scriptArea" placeholder="# 주석은 #으로 시작합니다
+텍스트를 입력하면 본문으로 처리됩니다.
+여러 줄을 이어서 쓰면 같은 문단에 들어갑니다.
+
+image https://example.com/image.jpg
+
+---
+다음 페이지의 텍스트입니다." oninput="scheduleUpdate()"></textarea>
+    </div>
+
+    <div class="vp">
+        <div class="eb-wrapper" id="ebWrapper">
+          <div class="eb-header panel-ph">
+            <div class="panel-brand">
+              <span class="panel-name">미리보기</span>
+              <div class="panel-divider"></div>
+              <span class="panel-sub" id="ebPageNum" style="font-variant-numeric:tabular-nums;">1</span>
+              <span class="panel-sub">/</span>
+              <span class="panel-sub" id="ebTotalPage">?</span>
+            </div>
+            <div id="ebZoomArea" style="display:flex;align-items:center;gap:6px;">
+              <button class="eb-zoom-btn" onclick="ebZoom(2)">가+</button>
+              <button class="eb-zoom-btn" onclick="ebZoom(-2)">가-</button>
+              <span id="ebFontNum" style="font-size:11px;color:var(--sub);font-weight:700;">16px</span>
+            </div>
+          </div>
+          <div class="eb-body" id="ebBody">
+            <div class="eb-slider" id="ebSlider"></div>
+            <button class="eb-nav-overlay left" id="ebOvPrev" onclick="ebChangePage(-1)" disabled>
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="eb-nav-overlay right" id="ebOvNext" onclick="ebChangePage(1)" disabled>
+              <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+            </button>
+          </div>
+          <div class="eb-footer">
+            <button class="eb-arrow-btn" id="ebPrev" onclick="ebChangePage(-1)" disabled>
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <input type="range" class="eb-scrubber" id="ebScrubber" min="1" max="1" value="1"
+              oninput="ebJump(this.value - 1)">
+            <button class="eb-arrow-btn" id="ebNext" onclick="ebChangePage(1)" disabled>
+              <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+            </button>
+            <button class="eb-fs-btn" onclick="ebFullscreen()" title="전체화면">
+              <svg id="ebFsIcon" viewBox="0 0 24 24">
+                <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── accent color system ── */
+    let currentAccent = '#6B5AED';
+
+    function hexToHsl(hex) {
+      let r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+      const max = Math.max(r,g,b), min = Math.min(r,g,b);
+      let h, s, l = (max+min)/2;
+      if (max === min) { h = s = 0; }
+      else {
+        const d = max-min;
+        s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+        switch(max) {
+          case r: h=((g-b)/d+(g<b?6:0))/6; break;
+          case g: h=((b-r)/d+2)/6; break;
+          case b: h=((r-g)/d+4)/6; break;
+        }
+      }
+      return [h*360, s*100, l*100];
+    }
+
+    function hslToHex(h, s, l) {
+      s /= 100; l /= 100;
+      const k = n => (n+h/30)%12, a = s*Math.min(l,1-l);
+      const f = n => Math.round((l - a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1))))*255);
+      return '#'+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,'0')).join('');
+    }
+
+    function computeColors(hex) {
+      const [h, s, l] = hexToHsl(hex);
+      return {
+        acc:     hex,
+        acc2:    hslToHex(h, Math.min(s*0.9, 100), Math.min(l+14, 93)),
+        accPale: hslToHex(h, Math.min(s*0.55, 100), 96),
+        bd:      hslToHex(h, Math.min(s*0.45, 100), 89),
+        surf2:   hslToHex(h, Math.min(s*0.40, 100), 94),
+        sub:     hslToHex(h, Math.min(s*0.25, 100), 62),
+      };
+    }
+
+    function setAccentColor(hex) {
+      currentAccent = hex;
+      const c = computeColors(hex);
+      const w = document.getElementById('ebWrapper');
+      w.style.setProperty('--acc',      c.acc);
+      w.style.setProperty('--acc2',     c.acc2);
+      w.style.setProperty('--acc-pale', c.accPale);
+      w.style.setProperty('--bd',       c.bd);
+      w.style.setProperty('--surf2',    c.surf2);
+      w.style.setProperty('--sub',      c.sub);
+    }
+
+    let ebPage = 0, ebTotal = 0, ebFontSize = 16, ebOffsets = [];
+    let updateTimer = null;
+
+    const ebWrapper = document.getElementById('ebWrapper');
+    const ebBodyEl  = document.getElementById('ebBody');
+    const ebSlider  = document.getElementById('ebSlider');
+    const ebPageNum = document.getElementById('ebPageNum');
+    const ebTotalPage = document.getElementById('ebTotalPage');
+    const ebScrubber  = document.getElementById('ebScrubber');
+    const ebPrev    = document.getElementById('ebPrev');
+    const ebNext    = document.getElementById('ebNext');
+    const ebOvPrev  = document.getElementById('ebOvPrev');
+    const ebOvNext  = document.getElementById('ebOvNext');
+    const ebFontNum = document.getElementById('ebFontNum');
+    const ebFsIcon  = document.getElementById('ebFsIcon');
+    const ebZoomArea = document.getElementById('ebZoomArea');
+
+    const FS_EXPAND = `<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>`;
+    const FS_SHRINK = `<path d="m 4,16 h 4 v 4 m 12,-4 h -4 v 4 M 4,8 H 8 V 4 M 20,8 H 16 V 4"/>`;
+
+    function applyRatio() {
+      const r = document.getElementById('ratioSelect').value;
+      ebWrapper.style.setProperty('--eb-ratio', r);
+      scheduleUpdate();
+    }
+
+    function scheduleUpdate() {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(buildPreview, 300);
+    }
+
+    function parseScript(src) {
+      const items = [];
+      for (const raw of src.split('\n')) {
+        const line = raw.trim();
+        if (!line || line[0] === '#') continue;
+        if (line === '---') {
+          items.push({ type: 'newpage' });
+        } else if (line.startsWith('image ')) {
+          items.push({ type: 'image', value: line.slice(6).trim() });
+        } else {
+          items.push({ type: 'text', value: line });
+        }
+      }
+      return items;
+    }
+
+    function buildPreview() {
+      const src  = document.getElementById('scriptArea').value;
+      const mode = document.getElementById('modeSelect').value;
+      const items = parseScript(src);
+
+      ebZoomArea.style.display = mode === 'COMIC' ? 'none' : '';
+      ebSlider.innerHTML = '';
+      renderBlocks(items, mode);
+      ebBodyEl.classList.toggle('comic-mode', mode === 'COMIC');
+      waitAndLayout();
+    }
+
+    function renderBlocks(items, mode) {
+      let cur = null;
+      items.forEach(item => {
+        if (item.type === 'newpage') { cur = null; return; }
+        if (item.type === 'text') {
+          if (mode === 'COMIC') return;
+          if (!cur) {
+            cur = document.createElement('div');
+            cur.className = 'eb-block type-text';
+            ebSlider.appendChild(cur);
+          }
+          const p = document.createElement('p');
+          p.innerHTML = item.value.replace(/\n/g, '<br>');
+          cur.appendChild(p);
+        } else if (item.type === 'image') {
+          if (mode === 'TEXT') return;
+          cur = null;
+          const b = document.createElement('div');
+          b.className = 'eb-block type-image';
+          b.innerHTML = `<img src="${item.value}" class="eb-img-full">`;
+          ebSlider.appendChild(b);
+        }
+      });
+    }
+
+    function waitAndLayout() {
+      const imgs = ebSlider.querySelectorAll('img');
+      let loaded = 0;
+      if (!imgs.length) { calcLayout(); return; }
+      imgs.forEach(img => {
+        if (img.complete) { loaded++; if (loaded === imgs.length) calcLayout(); }
+        else {
+          img.addEventListener('load',  () => { loaded++; if (loaded === imgs.length) calcLayout(); });
+          img.addEventListener('error', () => { loaded++; if (loaded === imgs.length) calcLayout(); });
+        }
+      });
+    }
+
+    function calcLayout() {
+      const pw = ebBodyEl.clientWidth, ph = ebBodyEl.clientHeight;
+      if (!pw || !ph) return;
+
+      ebOffsets = [];
+      let cx = 0;
+
+      ebSlider.querySelectorAll('.eb-block').forEach(block => {
+        if (block.classList.contains('type-image')) {
+          block.style.width = pw + 'px';
+          block.style.minWidth = pw + 'px';
+          block.style.flex = `0 0 ${pw}px`;
+          ebOffsets.push(cx);
+          cx += pw;
+          return;
+        }
+        if (block.classList.contains('type-text')) {
+          const cw = pw - 70, cg = 70;
+          block.style.fontSize = ebFontSize + 'px';
+          block.style.flex = `0 0 ${pw}px`;
+          block.style.width = pw + 'px';
+          block.style.minWidth = pw + 'px';
+          block.style.height = ph + 'px';
+          block.style.columnWidth = cw + 'px';
+          block.style.columnGap = cg + 'px';
+          void block.offsetHeight;
+          void block.offsetWidth;
+          const pages = Math.max(1, Math.ceil((block.scrollWidth - cg) / (cw + cg)));
+          const tw = pages * pw;
+          block.style.width = tw + 'px';
+          block.style.minWidth = tw + 'px';
+          block.style.flex = `0 0 ${tw}px`;
+          for (let i = 0; i < pages; i++) ebOffsets.push(cx + i * pw);
+          cx += tw;
+        }
+      });
+
+      ebSlider.style.width = cx + 'px';
+      ebTotal = ebOffsets.length;
+      ebScrubber.max = Math.max(1, ebTotal);
+      if (ebPage >= ebTotal) ebPage = Math.max(0, ebTotal - 1);
+      ebUpdateView();
+    }
+
+    function ebUpdateView() {
+      if (!ebOffsets.length) return;
+      ebSlider.style.transform = `translateX(-${ebOffsets[ebPage]}px)`;
+      ebPageNum.textContent  = ebPage + 1;
+      ebTotalPage.textContent = ebTotal;
+      ebScrubber.value = ebPage + 1;
+      ebPrev.disabled = ebPage === 0;
+      ebNext.disabled = ebPage >= ebTotal - 1;
+      ebOvPrev.disabled = ebPage === 0;
+      ebOvNext.disabled = ebPage >= ebTotal - 1;
+    }
+
+    function ebChangePage(dir) {
+      const n = ebPage + dir;
+      if (n >= 0 && n < ebTotal) { ebPage = n; ebUpdateView(); }
+    }
+
+    function ebJump(idx) {
+      idx = parseInt(idx);
+      if (idx >= 0 && idx < ebTotal) { ebPage = idx; ebUpdateView(); }
+    }
+
+    function ebZoom(amt) {
+      ebFontSize = Math.min(26, Math.max(12, ebFontSize + amt));
+      ebFontNum.textContent = ebFontSize + 'px';
+      calcLayout();
+    }
+
+    function ebFullscreen() {
+      if (!document.fullscreenElement) {
+        ebWrapper.requestFullscreen && ebWrapper.requestFullscreen();
+        ebFsIcon.innerHTML = FS_SHRINK;
+      } else {
+        document.exitFullscreen && document.exitFullscreen();
+        ebFsIcon.innerHTML = FS_EXPAND;
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) ebFsIcon.innerHTML = FS_EXPAND;
+      setTimeout(calcLayout, 100);
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft')  ebChangePage(-1);
+      else if (e.key === 'ArrowRight') ebChangePage(1);
+    });
+
+    window.addEventListener('resize', () => setTimeout(calcLayout, 200));
+
+    /* ── embed export ── */
+    function buildBookData(items, mode) {
+      const comic = [], text = [], mixed = [];
+
+      if (mode === 'COMIC') {
+        items.forEach(it => { if (it.type === 'image') comic.push(it.value); });
+      } else if (mode === 'TEXT') {
+        let buf = [];
+        const flush = () => { if (buf.length) { text.push(buf.join('\n')); buf = []; } };
+        items.forEach(it => {
+          if (it.type === 'newpage') { flush(); text.push('<newpage>'); }
+          else if (it.type === 'text') buf.push(it.value);
+        });
+        flush();
+      } else {
+        let buf = [];
+        const flush = () => { if (buf.length) { mixed.push({ type: 'text', value: buf.join('\n') }); buf = []; } };
+        items.forEach(it => {
+          if (it.type === 'newpage') { flush(); mixed.push({ type: 'newpage' }); }
+          else if (it.type === 'image') { flush(); mixed.push({ type: 'image', value: it.value }); }
+          else if (it.type === 'text') buf.push(it.value);
+        });
+        flush();
+      }
+
+      return { comic, text, mixed };
+    }
+
+    function copyEmbed() {
+      const src   = document.getElementById('scriptArea').value;
+      const mode  = document.getElementById('modeSelect').value;
+      const ratio = document.getElementById('ratioSelect').value;
+      const items = parseScript(src);
+      const bd    = buildBookData(items, mode);
+      const uid   = 'eb' + Math.random().toString(36).slice(2, 8);
+      const cols  = computeColors(currentAccent);
+      const html  = generateEmbedHtml(uid, mode, ratio, bd, cols);
+
+      const btn = document.querySelector('.panel-btn.primary');
+      const flash = () => {
+        const orig = btn.textContent;
+        btn.textContent = '복사됨!';
+        setTimeout(() => btn.textContent = orig, 1500);
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(html).then(flash).catch(() => fallbackCopy(html, flash));
+      } else {
+        fallbackCopy(html, flash);
+      }
+    }
+
+    function fallbackCopy(text, onSuccess) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        onSuccess();
+      } catch {
+        alert('클립보드 복사 실패');
+      }
+      document.body.removeChild(ta);
+    }
+
+    function generateEmbedHtml(uid, mode, ratio, bd, cols) {
+      const comicJSON = JSON.stringify(bd.comic, null, 2);
+      const textJSON  = JSON.stringify(bd.text,  null, 2);
+      const mixedJSON = JSON.stringify(bd.mixed, null, 2);
+      const {acc, acc2, accPale, bd: bdCol, surf2, sub} = cols;
+
+      return `<style>
+@font-face {
+  font-family: 'Soonbatang';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/SunBatang-Light.woff') format('woff');
+  font-weight: 300; font-display: swap;
+}
+
+#${uid} { --book-ratio: ${ratio}; }
+#${uid}.all-viewer-wrapper:fullscreen {
+  width:100vw!important;max-width:none!important;height:100vh!important;
+  margin:0!important;border:none!important;border-radius:0!important;
+  background:#121212;display:flex;flex-direction:column;justify-content:center;align-items:center;
+}
+#${uid}:fullscreen .viewer-body {
+  width:100%!important;height:auto!important;aspect-ratio:${ratio}!important;
+  max-width:calc((100vh - 120px) * (1 / 1.414))!important;box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+#${uid}:fullscreen .viewer-header,
+#${uid}:fullscreen .viewer-footer { width:100%;max-width:700px;background:#1a1a1a;border-color:#333; }
+#${uid}:fullscreen .viewer-btn { background:#2a2a2a;border-color:#444;color:#fff; }
+#${uid}:fullscreen .viewer-btn:hover:not(:disabled){ background:#3a3a3a; }
+#${uid}:fullscreen .viewer-btn:disabled { background:#222;color:#555; }
+#${uid}:fullscreen .fullscreen-icon-btn { color:#fff!important; }
+#${uid}.all-viewer-wrapper {
+  width:100%;max-width:700px;margin:20px auto;
+  font-family:'Soonbatang',serif;
+  border:1px solid ${bdCol};border-radius:8px;overflow:hidden;
+  background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.07);
+}
+#${uid} .viewer-header {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 16px;background:#fff;border-bottom:1px solid ${bdCol};
+  box-shadow:0 1px 4px rgba(0,0,0,.04);user-select:none;gap:10px;
+}
+#${uid} .viewer-header-brand { display:flex;align-items:center;gap:8px; }
+#${uid} .viewer-header-name { font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:-.3px; }
+#${uid} .viewer-header-div  { width:1px;height:14px;background:${bdCol};flex-shrink:0; }
+#${uid} .viewer-header-sub  { font-size:11px;font-weight:500;color:${sub};font-variant-numeric:tabular-nums; }
+#${uid} .viewer-zoom-area   { display:flex;align-items:center;gap:6px; }
+#${uid} .viewer-body {
+  position:relative;width:100%;aspect-ratio:var(--book-ratio);background:#fff;overflow:hidden;
+}
+#${uid} .viewer-body.comic-mode { background:#121212; }
+#${uid} .viewer-slider { display:flex;height:100%;transition:transform .3s ease-out; }
+#${uid} .viewer-block.type-text {
+  flex:0 0 100%;height:100%;box-sizing:border-box;padding:40px 35px;
+  column-fill:auto;font-size:16px;line-height:1.8;color:#2b2b2b;
+  text-align:justify;word-break:break-all;overflow-wrap:anywhere;overflow:hidden;display:block;
+}
+#${uid} .viewer-block.type-text p { margin:0;padding-bottom:.8em;white-space:pre-wrap; }
+#${uid} .viewer-block.type-text p:last-child { padding-bottom:0; }
+#${uid} .viewer-block.type-image {
+  flex:0 0 100%;height:100%;box-sizing:border-box;
+  display:flex;justify-content:center;align-items:center;background:#fff;
+}
+#${uid} .img-full { width:100%;height:100%;object-fit:contain;display:block; }
+#${uid} .viewer-footer {
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;background:${surf2};border-top:1px solid ${bdCol};user-select:none;
+}
+#${uid} .page-scrubber { flex:1;min-width:0;cursor:pointer;accent-color:${acc}; }
+#${uid} .viewer-btn {
+  flex-shrink:0;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid ${bdCol};background:#fff;border-radius:6px;cursor:pointer;
+}
+#${uid} .viewer-btn:hover:not(:disabled){ background:${accPale};border-color:${acc2}; }
+#${uid} .viewer-btn:disabled { opacity:.35;cursor:not-allowed; }
+#${uid} .viewer-btn svg { width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round; }
+#${uid} .fullscreen-icon-btn {
+  flex-shrink:0;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:none;cursor:pointer;border-radius:4px;color:${sub};
+}
+#${uid} .fullscreen-icon-btn:hover { background:${accPale}; }
+#${uid} .fullscreen-icon-btn svg { width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+#${uid} .nav-overlay {
+  position:absolute;top:0;bottom:0;width:15%;min-width:36px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:10;opacity:0;transition:opacity .2s;
+  border:none;background:transparent;padding:0;
+}
+#${uid} .nav-overlay.left  {left:0; background:linear-gradient(to right,rgba(0,0,0,.08),transparent);}
+#${uid} .nav-overlay.right {right:0;background:linear-gradient(to left, rgba(0,0,0,.08),transparent);}
+#${uid} .viewer-body:hover .nav-overlay:not(:disabled){opacity:1;}
+#${uid} .nav-overlay:disabled{cursor:not-allowed;}
+#${uid} .nav-overlay svg{
+  width:28px;height:28px;fill:none;stroke:rgba(0,0,0,.45);
+  stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 1px 2px rgba(255,255,255,.6));
+}
+#${uid} .viewer-body.comic-mode .nav-overlay svg{stroke:rgba(255,255,255,.7);filter:none;}
+</style>
+
+<div class="all-viewer-wrapper" id="${uid}">
+  <div class="viewer-header">
+    <div class="viewer-header-brand">
+      <span class="viewer-header-name">미리보기</span>
+      <div class="viewer-header-div"></div>
+      <span class="viewer-header-sub" id="${uid}PN">1</span>
+      <span class="viewer-header-sub">/</span>
+      <span class="viewer-header-sub" id="${uid}TP">?</span>
+    </div>
+    <div class="viewer-zoom-area" id="${uid}ZA"${mode === 'COMIC' ? ' style="display:none"' : ''}>
+      <button class="viewer-btn" onclick="${uid}Z(2)" style="width:auto;padding:4px 10px;font-size:12px;font-weight:700;">가+</button>
+      <button class="viewer-btn" onclick="${uid}Z(-2)" style="width:auto;padding:4px 10px;font-size:12px;font-weight:700;">가-</button>
+      <span id="${uid}FN" style="font-size:11px;color:${sub};font-weight:700;margin-left:2px;">16px</span>
+    </div>
+  </div>
+  <div class="viewer-body${mode === 'COMIC' ? ' comic-mode' : ''}" id="${uid}B">
+    <div class="viewer-slider" id="${uid}S"></div>
+    <button class="nav-overlay left" id="${uid}OL" onclick="${uid}P(-1)" disabled>
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="nav-overlay right" id="${uid}OR" onclick="${uid}P(1)" disabled>
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </button>
+  </div>
+  <div class="viewer-footer">
+    <button class="viewer-btn" id="${uid}PV" onclick="${uid}P(-1)" disabled>
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <input type="range" class="page-scrubber" id="${uid}SC" min="1" max="1" value="1"
+      oninput="${uid}J(this.value-1)">
+    <button class="viewer-btn" id="${uid}NX" onclick="${uid}P(1)" disabled>
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </button>
+    <button class="fullscreen-icon-btn" onclick="${uid}F()" title="전체화면">
+      <svg id="${uid}FI" viewBox="0 0 24 24">
+        <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+const BOOK_MODE=${JSON.stringify(mode)};
+const BOOK_DATA={
+  comic:${comicJSON},
+  text:${textJSON},
+  mixed:${mixedJSON}
+};
+let cp=0,tp=0,fs=16,po=[];
+const W=document.getElementById("${uid}"),
+  SL=document.getElementById("${uid}S"),
+  BD=document.getElementById("${uid}B"),
+  FN=document.getElementById("${uid}FN"),
+  PN=document.getElementById("${uid}PN"),
+  TP=document.getElementById("${uid}TP"),
+  SC=document.getElementById("${uid}SC"),
+  PV=document.getElementById("${uid}PV"),
+  NX=document.getElementById("${uid}NX"),
+  OL=document.getElementById("${uid}OL"),
+  OR=document.getElementById("${uid}OR"),
+  FI=document.getElementById("${uid}FI");
+const FE=\`<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>\`;
+const FM=\`<path d="m 4,16 h 4 v 4 m 12,-4 h -4 v 4 M 4,8 H 8 V 4 M 20,8 H 16 V 4"/>\`;
+function bb(){
+  SL.innerHTML="";
+  let d;
+  if(BOOK_MODE==="COMIC") d=BOOK_DATA.comic.map(v=>({type:"image",value:v}));
+  else if(BOOK_MODE==="TEXT"){
+    d=[];
+    BOOK_DATA.text.forEach(t=>{
+      if(typeof t==="string"&&t.trim()==="<newpage>") d.push({type:"newpage"});
+      else d.push({type:"text",value:t});
+    });
+  } else d=BOOK_DATA.mixed;
+  rb(d);
+  wi();
+}
+function rb(data){
+  let cur=null;
+  data.forEach(it=>{
+    if(it.type==="newpage"){cur=null;return;}
+    if(it.type==="text"){
+      if(!cur){cur=document.createElement("div");cur.className="viewer-block type-text";SL.appendChild(cur);}
+      const p=document.createElement("p");p.innerHTML=it.value.replace(/\\n/g,"<br>");cur.appendChild(p);
+    } else if(it.type==="image"){
+      cur=null;
+      const b=document.createElement("div");b.className="viewer-block type-image";
+      b.innerHTML=\`<img src="\${it.value}" class="img-full">\`;SL.appendChild(b);
+    }
+  });
+}
+function wi(){
+  const imgs=SL.querySelectorAll("img");let n=0;
+  if(!imgs.length){cl();return;}
+  imgs.forEach(i=>{
+    if(i.complete){n++;if(n===imgs.length)cl();}
+    else{
+      i.addEventListener("load",()=>{n++;if(n===imgs.length)cl();});
+      i.addEventListener("error",()=>{n++;if(n===imgs.length)cl();});
+    }
+  });
+}
+function cl(){
+  const pw=BD.clientWidth,ph=BD.clientHeight;
+  if(!pw||!ph)return;
+  po=[];let cx=0;
+  SL.querySelectorAll(".viewer-block").forEach(b=>{
+    if(b.classList.contains("type-image")){
+      b.style.cssText+=\`;width:\${pw}px;min-width:\${pw}px;flex:0 0 \${pw}px;\`;
+      po.push(cx);cx+=pw;return;
+    }
+    if(b.classList.contains("type-text")){
+      const cw=pw-70,cg=70;
+      b.style.cssText+=\`;flex:0 0 \${pw}px;width:\${pw}px;min-width:\${pw}px;height:\${ph}px;column-width:\${cw}px;column-gap:\${cg}px;font-size:\${fs}px;\`;
+      void b.offsetHeight;void b.offsetWidth;
+      const pages=Math.max(1,Math.ceil((b.scrollWidth-cg)/(cw+cg)));
+      const tw=pages*pw;
+      b.style.cssText+=\`;width:\${tw}px;min-width:\${tw}px;flex:0 0 \${tw}px;\`;
+      for(let i=0;i<pages;i++)po.push(cx+i*pw);
+      cx+=tw;
+    }
+  });
+  SL.style.width=cx+"px";
+  tp=po.length;SC.max=tp;
+  if(cp>=tp)cp=Math.max(0,tp-1);
+  uv();
+}
+function uv(){
+  if(!po.length)return;
+  SL.style.transform=\`translateX(-\${po[cp]}px)\`;
+  PN.innerText=cp+1;TP.innerText=tp;SC.value=cp+1;
+  PV.disabled=cp===0;NX.disabled=cp>=tp-1;
+  if(OL)OL.disabled=cp===0;if(OR)OR.disabled=cp>=tp-1;
+}
+window["${uid}P"]=function(d){const n=cp+d;if(n>=0&&n<tp){cp=n;uv();}};
+window["${uid}J"]=function(i){i=parseInt(i);if(i>=0&&i<tp){cp=i;uv();}};
+window["${uid}Z"]=function(a){
+  fs=Math.min(26,Math.max(12,fs+a));
+  SL.querySelectorAll(".viewer-block.type-text").forEach(b=>b.style.fontSize=fs+"px");
+  if(FN)FN.innerText=fs+"px";cl();
+};
+window["${uid}F"]=function(){
+  if(!document.fullscreenElement){W.requestFullscreen&&W.requestFullscreen();FI.innerHTML=FM;}
+  else{document.exitFullscreen&&document.exitFullscreen();FI.innerHTML=FE;}
+};
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)FI.innerHTML=FE;setTimeout(cl,100);});
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft")window["${uid}P"](-1);
+  else if(e.key==="ArrowRight")window["${uid}P"](1);
+});
+window.addEventListener("resize",()=>setTimeout(cl,200));
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bb);else bb();
+})();
+<\/script>`;
+    }
+
+    buildPreview();
+  </script>
+</body>
+</html>
