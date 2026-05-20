@@ -107,9 +107,12 @@
     }
 
     .card-icon {
-      font-size: 22px;
-      line-height: 1;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      color: var(--accent);
     }
+    .card-icon svg { width: 22px; height: 22px; }
 
     .card-title {
       font-size: 16px;
@@ -128,10 +131,12 @@
       right: 22px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 16px;
       color: var(--sub);
       transition: color .18s, right .18s;
+      display: flex;
+      align-items: center;
     }
+    .card-arrow svg { width: 18px; height: 18px; }
 
     a.card:hover .card-arrow {
       color: var(--accent);
@@ -156,47 +161,47 @@
     <div class="grid">
       <a class="card" href="weekly/">
         <div class="card-top">
-          <span class="card-icon">📅</span>
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm12-4v4M8 3v4m-4 4h16M7 14h.013m2.997 0h.005m2.995 0h.005m3 0h.005m-3.005 3h.005m-6.01 0h.005m2.995 0h.005"/></svg></span>
           <span class="card-title">주간 루틴</span>
         </div>
         <p class="card-desc">요일별 시간표 형식으로 반복 루틴을 관리하는 스케줄러</p>
-        <span class="card-arrow">→</span>
+        <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></span>
       </a>
 
       <a class="card" href="obsidian/">
         <div class="card-top">
-          <span class="card-icon">📔</span>
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1m3 0v18m4-14h2m-2 4h2"/></svg></span>
           <span class="card-title">일일 노트 생성기</span>
         </div>
         <p class="card-desc">옵시디언 데일리 노트를 생성해주는 도구</p>
-        <span class="card-arrow">→</span>
+        <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></span>
       </a>
 
       <a class="card" href="practice/">
         <div class="card-top">
-          <span class="card-icon">🎯</span>
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0"/><path d="M7 12a5 5 0 1 0 10 0a5 5 0 1 0-10 0"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0"/></g></svg></span>
           <span class="card-title">연습 룰렛</span>
         </div>
         <p class="card-desc">연습 항목을 룰렛으로 무작위 선택해주는 도구</p>
-        <span class="card-arrow">→</span>
+        <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></span>
       </a>
 
       <a class="card" href="vn-editor/">
         <div class="card-top">
-          <span class="card-icon">📖</span>
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6v13m9-13v13m9-13v13"/></svg></span>
           <span class="card-title">비주얼노벨 에디터</span>
         </div>
         <p class="card-desc">스크립트를 작성하고 블로그에 임베드할 수 있는 비주얼노벨 에디터 + 미리보기 뷰어</p>
-        <span class="card-arrow">→</span>
+        <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></span>
       </a>
 
       <a class="card" href="ebook-editor/">
         <div class="card-top">
-          <span class="card-icon">📚</span>
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><path d="M5 5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zm4 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zM5 8h4m0 8h4"/><path d="m13.803 4.56l2.184-.53c.562-.135 1.133.19 1.282.732l3.695 13.418a1.02 1.02 0 0 1-.634 1.219l-.133.041l-2.184.53c-.562.135-1.133-.19-1.282-.732L13.036 5.82a1.02 1.02 0 0 1 .634-1.219zM14 9l4-1m-2 8l3.923-.98"/></g></svg></span>
           <span class="card-title">e-book 에디터</span>
         </div>
         <p class="card-desc">텍스트/이미지/혼용 모드를 지원하는 e-book 에디터 + 미리보기 뷰어</p>
-        <span class="card-arrow">→</span>
+        <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></span>
       </a>
     </div>
 

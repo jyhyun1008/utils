@@ -180,7 +180,7 @@ function renderRtn(){
         <input type="checkbox"${D.routines[r.k]?' checked':''} tabindex="-1" style="pointer-events:none;flex-shrink:0">
         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.l}</span>
       </div>
-      <button class="delbtn" onclick="delRtn('${r.k}')" style="width:18px;height:18px;font-size:11px;margin-left:4px;flex-shrink:0">×</button>
+      <button class="delbtn" onclick="delRtn('${r.k}')" style="width:18px;height:18px;margin-left:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>`).join('');
   document.getElementById('rgrid').insertAdjacentHTML('afterend',
     document.getElementById('rtn-add')?'':'<div id="rtn-add" style="display:flex;gap:6px;margin-top:7px"><input type="text" id="newrtn" placeholder="새 루틴 추가..." style="flex:1"><button class="addbtn" onclick="addRtn()" style="width:auto;padding:5px 14px;margin:0;white-space:nowrap">＋</button></div>'
@@ -193,7 +193,7 @@ function renderTodos(){
       <input type="text" value="${esc(t.proj)}" placeholder="프로젝트" oninput="updT(${i},'proj',this.value)">
       <input type="text" value="${esc(t.title)}" placeholder="할 일" oninput="updT(${i},'title',this.value)">
       <input type="text" value="${esc(t.note)}" placeholder="한줄평" oninput="updT(${i},'note',this.value)">
-      <button class="delbtn" onclick="delT(${i})">✕</button>
+      <button class="delbtn" onclick="delT(${i})" style="display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>`).join('')
 }
 
@@ -204,7 +204,7 @@ function renderMeals(){
       <input type="text" value="${esc(m.food)}" placeholder="메뉴" oninput="updM(${i},'food',this.value)">
       <input type="text" value="${esc(m.full)}" placeholder="보통" oninput="updM(${i},'full',this.value)">
       <input type="number" value="${m.cal||''}" placeholder="kcal" min="0" oninput="updM(${i},'cal',+this.value||0)">
-      <button class="delbtn" onclick="delM(${i})">✕</button>
+      <button class="delbtn" onclick="delM(${i})" style="display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>`).join('');
   updCalSum()
 }
@@ -215,7 +215,7 @@ function renderExps(){
       <input type="text" value="${esc(e.item)}" placeholder="항목" oninput="updE(${i},'item',this.value)">
       <input type="number" value="${e.price||''}" placeholder="원" min="0" oninput="updE(${i},'price',+this.value||0)">
       <input type="text" value="${esc(e.reason)}" placeholder="구입 사유" oninput="updE(${i},'reason',this.value)">
-      <button class="delbtn" onclick="delE(${i})">✕</button>
+      <button class="delbtn" onclick="delE(${i})" style="display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>`).join('');
   updExpSum()
 }

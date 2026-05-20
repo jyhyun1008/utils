@@ -49,7 +49,8 @@
       user-select: none;
     }
     .panel-brand { display: flex; align-items: center; gap: 8px; }
-    .panel-back { font-size: 16px; color: var(--sub); text-decoration: none; line-height: 1; }
+    .panel-back { color: var(--sub); text-decoration: none; line-height: 1; display: flex; align-items: center; }
+    .panel-back svg { width: 18px; height: 18px; }
     .panel-back:hover { color: var(--acc); }
     .panel-divider { width: 1px; height: 14px; background: var(--bd); flex-shrink: 0; }
     .ph-mark {
@@ -60,10 +61,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
       color: #fff;
       flex-shrink: 0;
     }
+    .ph-mark svg { width: 13px; height: 13px; }
     .panel-name { font-size: 13px; font-weight: 700; color: var(--tx); letter-spacing: -.3px; }
     .panel-sub { font-size: 11px; font-weight: 500; color: var(--sub); }
     .panel-btn {
@@ -78,7 +79,11 @@
       cursor: pointer;
       transition: all .15s;
       box-shadow: 0 1px 3px rgba(107,90,237,.06);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
+    .panel-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
     .panel-btn:hover { background: var(--surf2); border-color: var(--acc2); }
     .panel-btn.primary {
       background: linear-gradient(135deg, var(--acc) 0%, var(--acc2) 100%);
@@ -358,12 +363,12 @@
     <div class="ep">
       <div class="panel-ph">
         <div class="panel-brand">
-        <div class="ph-mark">✦</div>
+        <div class="ph-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2m0-12a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2M9 18a6 6 0 0 1 6-6a6 6 0 0 1-6-6a6 6 0 0 1-6 6a6 6 0 0 1 6 6"/></svg></div>
           <span class="panel-name">e-book 에디터</span>
           <div class="panel-divider"></div>
           <span class="panel-sub">스크립트</span>
         </div>
-        <button class="panel-btn primary" onclick="copyEmbed()">↑ 임베드 코드 복사</button>
+        <button class="panel-btn primary" onclick="copyEmbed()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m6-8l-6-6m-6 6l6-6"/></svg> 임베드 코드 복사</button>
       </div>
       <div class="ep-toolbar">
         <span class="ep-label">모드</span>
@@ -439,24 +444,24 @@ image https://example.com/image.jpg
           <div class="eb-body" id="ebBody">
             <div class="eb-slider" id="ebSlider"></div>
             <button class="eb-nav-overlay left" id="ebOvPrev" onclick="ebChangePage(-1)" disabled>
-              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg>
             </button>
             <button class="eb-nav-overlay right" id="ebOvNext" onclick="ebChangePage(1)" disabled>
-              <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg>
             </button>
           </div>
           <div class="eb-footer">
             <button class="eb-arrow-btn" id="ebPrev" onclick="ebChangePage(-1)" disabled>
-              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg>
             </button>
             <input type="range" class="eb-scrubber" id="ebScrubber" min="1" max="1" value="1"
               oninput="ebJump(this.value - 1)">
             <button class="eb-arrow-btn" id="ebNext" onclick="ebChangePage(1)" disabled>
-              <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg>
             </button>
             <button class="eb-fs-btn" onclick="ebFullscreen()" title="전체화면">
               <svg id="ebFsIcon" viewBox="0 0 24 24">
-                <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+                <path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/>
               </svg>
             </button>
           </div>
@@ -533,8 +538,8 @@ image https://example.com/image.jpg
     const ebFsIcon  = document.getElementById('ebFsIcon');
     const ebZoomArea = document.getElementById('ebZoomArea');
 
-    const FS_EXPAND = `<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>`;
-    const FS_SHRINK = `<path d="m 4,16 h 4 v 4 m 12,-4 h -4 v 4 M 4,8 H 8 V 4 M 20,8 H 16 V 4"/>`;
+    const FS_EXPAND = `<path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/>`;
+    const FS_SHRINK = `<path d="M15 19v-2a2 2 0 0 1 2-2h2M15 5v2a2 2 0 0 0 2 2h2M5 15h2a2 2 0 0 1 2 2v2M5 9h2a2 2 0 0 0 2-2V5"/>`;
 
     function applyRatio() {
       const r = document.getElementById('ratioSelect').value;
@@ -984,20 +989,20 @@ image https://example.com/image.jpg
   <div class="viewer-body${mode === 'COMIC' ? ' comic-mode' : ''}" id="${uid}B">
     <div class="viewer-slider" id="${uid}S"></div>
     <button class="nav-overlay left" id="${uid}OL" onclick="${uid}P(-1)" disabled>
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg>
     </button>
     <button class="nav-overlay right" id="${uid}OR" onclick="${uid}P(1)" disabled>
-      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg>
     </button>
   </div>
   <div class="viewer-footer">
     <button class="viewer-btn" id="${uid}PV" onclick="${uid}P(-1)" disabled>
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg>
     </button>
     <input type="range" class="page-scrubber" id="${uid}SC" min="1" max="1" value="1"
       oninput="${uid}J(this.value-1)">
     <button class="viewer-btn" id="${uid}NX" onclick="${uid}P(1)" disabled>
-      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg>
     </button>
     <button class="fullscreen-icon-btn" onclick="${uid}F()" title="전체화면">
       <svg id="${uid}FI" viewBox="0 0 24 24">
@@ -1028,8 +1033,8 @@ const W=document.getElementById("${uid}"),
   OL=document.getElementById("${uid}OL"),
   OR=document.getElementById("${uid}OR"),
   FI=document.getElementById("${uid}FI");
-const FE=\`<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>\`;
-const FM=\`<path d="m 4,16 h 4 v 4 m 12,-4 h -4 v 4 M 4,8 H 8 V 4 M 20,8 H 16 V 4"/>\`;
+const FE=\`<path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/>\`;
+const FM=\`<path d="M15 19v-2a2 2 0 0 1 2-2h2M15 5v2a2 2 0 0 0 2 2h2M5 15h2a2 2 0 0 1 2 2v2M5 9h2a2 2 0 0 0 2-2V5"/>\`;
 function bb(){
   SL.innerHTML="";
   let d;

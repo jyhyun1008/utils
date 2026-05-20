@@ -76,10 +76,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
       color: #fff;
       flex-shrink: 0;
     }
+    .ph-mark svg { width: 13px; height: 13px; }
 
     .ph-name {
       font-size: 13px;
@@ -114,7 +114,11 @@
       transition: all .16s;
       box-shadow: var(--sh-sm);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
     .btn:hover { background: var(--surf2); border-color: #C8C0F0; }
 
     .btn.primary {
@@ -286,10 +290,11 @@
       bottom: 10px;
       right: 14px;
       color: var(--hint-color, rgba(255,255,255,.2));
-      font-size: clamp(8px, 1vw, 10px);
       pointer-events: none;
       animation: blink 1.8s ease-in-out infinite;
+      display: flex;
     }
+    .vn-hint svg { width: 12px; height: 12px; }
 
     @keyframes blink {
       0%, 100% { opacity: .2; }
@@ -315,8 +320,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      color: rgba(107,90,237,.7);
     }
+    .vn-empty-icon svg { width: 22px; height: 22px; }
     .vn-empty-text {
       font-size: 12px;
       color: rgba(180,170,220,.5);
@@ -381,7 +387,11 @@
       cursor: pointer;
       box-shadow: var(--sh-sm);
       transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+    .vbtn svg { width: 14px; height: 14px; flex-shrink: 0; }
     .vbtn:hover:not(:disabled) { background: var(--bd); }
     .vbtn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
 
@@ -439,12 +449,12 @@
   <div class="panel panel-left">
     <div class="ph">
       <div class="ph-brand">
-        <div class="ph-mark">✦</div>
+        <div class="ph-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2m0-12a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2M9 18a6 6 0 0 1 6-6a6 6 0 0 1-6-6a6 6 0 0 1-6 6a6 6 0 0 1 6 6"/></svg></div>
         <span class="ph-name">VN Studio</span>
         <div class="ph-divider"></div>
         <span class="ph-title">스크립트 에디터</span>
       </div>
-      <button class="btn primary" onclick="copyEmbed()">↑ 임베드 코드 복사</button>
+      <button class="btn primary" onclick="copyEmbed()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m6-8l-6-6m-6 6l6-6"/></svg> 임베드 코드 복사</button>
     </div>
     <div class="toolbar">
       <button class="tbtn" onclick="ins('bg URL')">bg</button>
@@ -469,8 +479,8 @@
         <span class="ph-title" id="fi" style="font-variant-numeric:tabular-nums">0 / 0</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="btn" onclick="resetView()">↺ 처음으로</button>
-        <button class="btn" id="fsBtn" onclick="toggleFullscreen()" title="전체 화면">⛶</button>
+        <button class="btn" onclick="resetView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4m-4 4a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg> 처음으로</button>
+        <button class="btn" id="fsBtn" onclick="toggleFullscreen()" title="전체 화면"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/></svg></button>
       </div>
     </div>
     <div class="vn-area" id="vnArea">
@@ -481,10 +491,10 @@
           <div class="vn-tb" id="tb">
             <div class="vn-name" id="nm"></div>
             <div id="tx"></div>
-            <span class="vn-hint">▼</span>
+            <span class="vn-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9l6 6l6-6"/></svg></span>
           </div>
           <div class="vn-empty" id="empty">
-            <div class="vn-empty-icon">✦</div>
+            <div class="vn-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2m0-12a2 2 0 0 1 2 2a2 2 0 0 1 2-2a2 2 0 0 1-2-2a2 2 0 0 1-2 2M9 18a6 6 0 0 1 6-6a6 6 0 0 1-6-6a6 6 0 0 1-6 6a6 6 0 0 1 6 6"/></svg></div>
             <span class="vn-empty-text">스크립트를 입력하면 미리보기가 표시됩니다</span>
           </div>
         </div>
@@ -496,8 +506,8 @@
         <input type="color" class="color-pick" id="frameColor" value="#EDE9F9" oninput="setFrameColor(this.value)">
       </div>
       <div class="ctrl-center">
-        <button class="vbtn" id="bPrev" onclick="goPrev()" disabled>◀ 이전</button>
-        <button class="vbtn" id="bNext" onclick="goNext()" disabled>다음 ▶</button>
+        <button class="vbtn" id="bPrev" onclick="goPrev()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg> 이전</button>
+        <button class="vbtn" id="bNext" onclick="goNext()" disabled>다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></button>
       </div>
       <div class="ctrl-side" aria-hidden="true"></div>
     </div>
@@ -744,8 +754,11 @@ function toggleFullscreen() {
   }
 }
 
+const SVG_MAXIMIZE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/></svg>`;
+const SVG_MINIMIZE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19v-2a2 2 0 0 1 2-2h2M15 5v2a2 2 0 0 0 2 2h2M5 15h2a2 2 0 0 1 2 2v2M5 9h2a2 2 0 0 0 2-2V5"/></svg>`;
+
 document.addEventListener('fullscreenchange', () => {
-  document.getElementById('fsBtn').textContent = document.fullscreenElement ? '✕' : '⛶';
+  document.getElementById('fsBtn').innerHTML = document.fullscreenElement ? SVG_MINIMIZE : SVG_MAXIMIZE;
 });
 
 /* ======= Live Preview ======= */
@@ -834,9 +847,11 @@ function buildEmbed(fr, uid, frameColor) {
 #${uid} .nm{display:inline-block;font-size:13px;font-weight:700;color:#fff;padding:2px 10px;border-radius:14px;margin-bottom:5px;background:${nameBg}}
 #${uid} .dt{color:${dlgText};font-size:14px;line-height:1.7}
 #${uid} .nt{color:${narrText};font-size:13px;line-height:1.7;font-style:italic;text-align:center;padding:4px 8%}
-#${uid} .hn{position:absolute;bottom:8px;right:12px;color:${hintCol};font-size:10px;pointer-events:none}
+#${uid} .hn{position:absolute;bottom:8px;right:12px;color:${hintCol};pointer-events:none;display:flex;}
+#${uid} .hn svg{width:10px;height:10px;}
 #${uid} .ctrl{display:flex;align-items:center;justify-content:center;gap:14px;padding:8px 2px 0}
-#${uid} .cb{padding:5px 16px;border-radius:6px;border:1px solid ${btnBd};background:${btnBg};color:${btnText};font-size:12px;cursor:pointer;font-family:inherit}
+#${uid} .cb{padding:5px 16px;border-radius:6px;border:1px solid ${btnBd};background:${btnBg};color:${btnText};font-size:12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;}
+#${uid} .cb svg{width:14px;height:14px;flex-shrink:0;}
 #${uid} .cb:hover:not(:disabled){background:${btnHover}}
 #${uid} .cb:disabled{opacity:.3;cursor:not-allowed}
 #${uid} .ci{font-size:11px;color:${fiCol};min-width:52px;text-align:center}
@@ -848,13 +863,13 @@ function buildEmbed(fr, uid, frameColor) {
 <div class="tb" id="${uid}t" style="display:none">
 <div class="nm" id="${uid}n"></div>
 <div id="${uid}x"></div>
-<span class="hn">▼</span>
+<span class="hn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9l6 6l6-6"/></svg></span>
 </div>
 </div>
 <div class="ctrl">
-<button class="cb" id="${uid}p" disabled>◀ 이전</button>
+<button class="cb" id="${uid}p" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6l-6 6l6 6"/></svg> 이전</button>
 <span class="ci" id="${uid}i">0 / 0</span>
-<button class="cb" id="${uid}q">다음 ▶</button>
+<button class="cb" id="${uid}q">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6l6 6l-6 6"/></svg></button>
 </div>
 </div>
 <script>
