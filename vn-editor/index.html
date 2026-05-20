@@ -406,6 +406,24 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 
+    .vn-area:fullscreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(107,90,237,.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(163,148,247,.08) 0%, transparent 55%),
+        linear-gradient(160deg, #1E1A36 0%, #100E1E 100%);
+      padding: 0;
+    }
+
+    .vn-area:-webkit-full-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
     @media (max-width: 700px) {
       .app { flex-direction: column; }
       html, body { height: auto; overflow: auto; }
@@ -450,7 +468,10 @@
         <div class="ph-divider"></div>
         <span class="ph-title" id="fi" style="font-variant-numeric:tabular-nums">0 / 0</span>
       </div>
-      <button class="btn" onclick="resetView()">↺ 처음으로</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" onclick="resetView()">↺ 처음으로</button>
+        <button class="btn" id="fsBtn" onclick="toggleFullscreen()" title="전체 화면">⛶</button>
+      </div>
     </div>
     <div class="vn-area" id="vnArea">
       <div class="vn-wrap">
@@ -713,6 +734,19 @@ function resetView() {
   typing = false;
   if (frames.length) { cur = 0; render(0, false); }
 }
+
+function toggleFullscreen() {
+  const el = document.getElementById('vnArea');
+  if (!document.fullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('fsBtn').textContent = document.fullscreenElement ? '✕' : '⛶';
+});
 
 /* ======= Live Preview ======= */
 
