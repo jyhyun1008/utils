@@ -822,7 +822,7 @@ function buildEmbed(fr, uid, frameColor) {
   const fiCol    = light ? 'rgba(0,0,0,.35)' : 'rgba(255,255,255,.4)';
   return `<style>
 #${uid}{width:100%;max-width:800px;margin:0 auto;font-family:system-ui,sans-serif;background:${fc};padding:12px 12px 6px;border-radius:10px}
-#${uid} .s{position:relative;width:100%;padding-top:56.25%;background:#111;overflow:hidden;border-radius:6px;cursor:pointer;user-select:none}
+#${uid} .s{position:relative;width:100%;padding-top:56.25%;background:#111;overflow:hidden;border-radius:6px;cursor:pointer;user-select:none;aspect-ratio: 1;}
 #${uid} .s>*{position:absolute}
 #${uid} .b{inset:0;background-size:cover;background-position:center;z-index:0}
 #${uid} .l{inset:0;z-index:1;pointer-events:none}
