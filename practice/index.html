@@ -405,6 +405,84 @@
       color: var(--text-2);
     }
 
+    /* ── RHYTHM ROULETTE ── */
+    .rhythm-body {
+      padding: 16px 18px 18px;
+    }
+    .rhythm-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .rhythm-wheel-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .rhythm-pointer {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 18px solid var(--accent);
+      filter: drop-shadow(0 2px 4px rgba(232,81,26,.3));
+      z-index: 10;
+    }
+    #rhythmCanvas {
+      display: block;
+      border-radius: 50%;
+      box-shadow: 0 3px 18px rgba(0,0,0,0.1);
+    }
+    .rhythm-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rhythm-result-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .rhythm-result-value {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.1;
+      transition: color 0.3s;
+    }
+    .rhythm-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 2px;
+    }
+    .rhythm-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.75rem;
+      color: var(--text-2);
+    }
+    .rhythm-legend-swatch {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .rhythm-legend-pct {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 820px) {
       .page { grid-template-columns: 1fr; padding: 16px; }
@@ -437,14 +515,52 @@
     </div>
   </div>
 
-  <!-- RIGHT: Key roulette + list -->
+  <!-- RIGHT: Rhythm roulette + Key roulette + list -->
   <div class="right-col">
+
+    <!-- Rhythm Roulette -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17a3 3 0 1 0 6 0a3 3 0 0 0-6 0m6 0V7l12-2v10m0 0a3 3 0 1 0-6 0a3 3 0 0 0 6 0m-6 0V5"/></svg>
+          리듬 룰렛
+        </div>
+        <button class="mini-spin-btn" id="rhythmSpinBtn" onclick="spinRhythm()">SPIN</button>
+      </div>
+      <div class="rhythm-body">
+        <div class="rhythm-row">
+          <div class="rhythm-wheel-wrap">
+            <div class="rhythm-pointer"></div>
+            <canvas id="rhythmCanvas" width="170" height="170"></canvas>
+          </div>
+          <div class="rhythm-info">
+            <div>
+              <div class="rhythm-result-label">결과</div>
+              <div class="rhythm-result-value" id="rhythmResult">—</div>
+            </div>
+            <div class="rhythm-legend">
+              <div class="rhythm-legend-item">
+                <div class="rhythm-legend-swatch" style="background:#4AAFDB"></div>
+                <span>스트레이트</span>
+                <span class="rhythm-legend-pct">75%</span>
+              </div>
+              <div class="rhythm-legend-item">
+                <div class="rhythm-legend-swatch" style="background:#B07DE8"></div>
+                <span>스윙</span>
+                <span class="rhythm-legend-pct">25%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 12-Key Roulette -->
     <div class="card">
       <div class="card-head">
         <div class="card-head-title">
-          🎵 12키 룰렛
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17a3 3 0 1 0 6 0a3 3 0 0 0-6 0m6 0V7l12-2v10m0 0a3 3 0 1 0-6 0a3 3 0 0 0 6 0m-6 0V5"/></svg>
+          12키 룰렛
         </div>
         <button class="mini-spin-btn" id="keySpinBtn" onclick="spinKey()">SPIN</button>
       </div>
@@ -457,7 +573,10 @@
     <!-- Practice List -->
     <div class="card">
       <div class="card-head">
-        <div class="card-head-title">📋 연습 목록</div>
+        <div class="card-head-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M5 6v.01M5 12v.01M5 18v.01"/></svg>
+          연습 목록
+        </div>
         <span class="badge" id="itemCount">0개</span>
       </div>
       <div class="list-items" id="listItems"></div>
@@ -778,8 +897,135 @@
   function cancelEdit() { editIdx = -1; renderList(); }
 
   /* ═══════════════════════════════════════════
+     RHYTHM ROULETTE
+  ═══════════════════════════════════════════ */
+  const RHYTHM = [
+    { label: '스트레이트', weight: 75, color: '#4AAFDB' },
+    { label: '스윙',       weight: 25, color: '#B07DE8' },
+  ];
+  const RHYTHM_TOTAL = 100;
+
+  let rhythmRotation = 0;
+  let rhythmSpinning = false;
+
+  const rhythmCanvas = document.getElementById('rhythmCanvas');
+  const rCtx = rhythmCanvas.getContext('2d');
+
+  function drawRhythmWheel() {
+    const W = rhythmCanvas.width, H = rhythmCanvas.height;
+    const cx = W / 2, cy = H / 2;
+    const r = Math.min(cx, cy) - 8;
+
+    rCtx.clearRect(0, 0, W, H);
+
+    let startA = rhythmRotation - Math.PI / 2;
+    for (const seg of RHYTHM) {
+      const sweep = (seg.weight / RHYTHM_TOTAL) * 2 * Math.PI;
+      const endA = startA + sweep;
+
+      rCtx.beginPath();
+      rCtx.moveTo(cx, cy);
+      rCtx.arc(cx, cy, r, startA, endA);
+      rCtx.closePath();
+      rCtx.fillStyle = seg.color;
+      rCtx.fill();
+      rCtx.strokeStyle = 'rgba(255,255,255,0.6)';
+      rCtx.lineWidth = 2;
+      rCtx.stroke();
+
+      const midA = startA + sweep / 2;
+      const textR = r * 0.6;
+      const tx = cx + textR * Math.cos(midA);
+      const ty = cy + textR * Math.sin(midA);
+
+      rCtx.save();
+      rCtx.translate(tx, ty);
+      rCtx.rotate(midA + Math.PI / 2);
+      rCtx.textAlign = 'center';
+      rCtx.textBaseline = 'middle';
+      rCtx.font = '600 11px "DM Sans"';
+      rCtx.fillStyle = 'rgba(255,255,255,0.95)';
+      rCtx.shadowColor = 'rgba(0,0,0,0.2)';
+      rCtx.shadowBlur = 2;
+      rCtx.fillText(seg.label, 0, 0);
+      rCtx.restore();
+
+      startA = endA;
+    }
+
+    // Rim
+    rCtx.beginPath();
+    rCtx.arc(cx, cy, r, 0, 2 * Math.PI);
+    rCtx.strokeStyle = 'rgba(255,255,255,0.25)';
+    rCtx.lineWidth = 3;
+    rCtx.stroke();
+
+    // Hub
+    rCtx.beginPath();
+    rCtx.arc(cx, cy, 16, 0, 2 * Math.PI);
+    rCtx.fillStyle = '#fff';
+    rCtx.fill();
+    rCtx.strokeStyle = '#E4E0D8';
+    rCtx.lineWidth = 1.5;
+    rCtx.stroke();
+
+    rCtx.beginPath();
+    rCtx.arc(cx, cy, 5, 0, 2 * Math.PI);
+    rCtx.fillStyle = '#E8511A';
+    rCtx.fill();
+  }
+
+  function spinRhythm() {
+    if (rhythmSpinning) return;
+    rhythmSpinning = true;
+    document.getElementById('rhythmSpinBtn').disabled = true;
+    document.getElementById('rhythmResult').textContent = '...';
+    document.getElementById('rhythmResult').style.color = '';
+
+    const winIdx = Math.random() < 0.75 ? 0 : 1;
+
+    // Compute target wheel angle for winner segment
+    let segStart = 0;
+    for (let i = 0; i < winIdx; i++) segStart += (RHYTHM[i].weight / RHYTHM_TOTAL) * 2 * Math.PI;
+    const segSweep = (RHYTHM[winIdx].weight / RHYTHM_TOTAL) * 2 * Math.PI;
+    const targetAngle = segStart + segSweep * (0.1 + Math.random() * 0.8);
+
+    // The pointer (top) lands on wheel angle = (-rotation) mod 2π
+    // So we need rotation mod 2π = (2π - targetAngle) mod 2π
+    const targetMod = ((2 * Math.PI - targetAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    const currentMod = ((rhythmRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    let delta = (targetMod - currentMod + 2 * Math.PI) % (2 * Math.PI);
+    if (delta < 0.15) delta += 2 * Math.PI;
+
+    const extraLaps = 4 + Math.floor(Math.random() * 3);
+    const totalRot = extraLaps * 2 * Math.PI + delta;
+    const startRot = rhythmRotation;
+    const duration = 2600 + Math.random() * 800;
+    const t0 = performance.now();
+
+    function frame(now) {
+      const p = Math.min((now - t0) / duration, 1);
+      rhythmRotation = startRot + totalRot * easeOut(p);
+      drawRhythmWheel();
+
+      if (p < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        rhythmSpinning = false;
+        document.getElementById('rhythmSpinBtn').disabled = false;
+        const el = document.getElementById('rhythmResult');
+        el.textContent = RHYTHM[winIdx].label;
+        el.style.color = RHYTHM[winIdx].color;
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
+  drawRhythmWheel();
   renderList();
   renderKeyGrid(-1);
 </script>
