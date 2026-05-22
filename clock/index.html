@@ -71,31 +71,70 @@
     overflow: visible;
   }
 
-  /* Sound toggle button */
-  #sound-btn {
+  /* Sound controls */
+  #sound-ctrl {
     position: fixed;
     bottom: 28px;
     right: 28px;
     z-index: 20;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.13);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 28px;
+    padding: 8px 14px 8px 10px;
+    transition: opacity 0.2s;
+  }
+
+  #sound-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: none;
+    border: none;
     color: rgba(255,255,255,0.85);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+    padding: 0;
+    transition: color 0.2s, transform 0.15s;
   }
-  #sound-btn:hover {
-    background: rgba(255,255,255,0.25);
-    transform: scale(1.08);
-  }
+  #sound-btn:hover { color: #fff; transform: scale(1.1); }
   #sound-btn svg { width: 20px; height: 20px; }
+
+  #vol-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+    cursor: pointer;
+  }
+  #vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  #vol-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  #vol-slider::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -124,14 +163,16 @@
   </div>
 </div>
 
-<!-- Sound toggle -->
-<button id="sound-btn" title="소리 켜기/끄기" onclick="toggleSound()">
-  <svg id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- muted icon (default) -->
-    <path d="M9 9v6h4l5 5V4l-5 5H9z"/>
-    <line x1="3" y1="3" x2="21" y2="21"/>
-  </svg>
-</button>
+<!-- Sound controls -->
+<div id="sound-ctrl">
+  <button id="sound-btn" title="소리 켜기/끄기" onclick="toggleSound()">
+    <svg id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 9v6h4l5 5V4l-5 5H9z"/>
+      <line x1="3" y1="3" x2="21" y2="21"/>
+    </svg>
+  </button>
+  <input id="vol-slider" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)">
+</div>
 
 <script>
 // ── Clock face ──
@@ -181,8 +222,9 @@ function updateClock() {
 updateClock();
 
 // ── YouTube IFrame API ──
-const SVG_MUTED = `<path d="M9 9v6h4l5 5V4l-5 5H9z"/><line x1="3" y1="3" x2="21" y2="21"/>`;
-const SVG_SOUND = `<path d="M9 9v6h4l5 5V4l-5 5H9z"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/>`;
+const SVG_MUTED  = `<path d="M9 9v6h4l5 5V4l-5 5H9z"/><line x1="3" y1="3" x2="21" y2="21"/>`;
+const SVG_LOW    = `<path d="M9 9v6h4l5 5V4l-5 5H9z"/><path d="M15 8a5 5 0 0 1 0 8"/>`;
+const SVG_HIGH   = `<path d="M9 9v6h4l5 5V4l-5 5H9z"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/>`;
 
 let player;
 let isMuted = true;
@@ -195,25 +237,47 @@ window.onYouTubeIframeAPIReady = function() {
         e.target.playVideo();
       },
       onStateChange: e => {
-        // keep looping if somehow ended
         if (e.data === YT.PlayerState.ENDED) e.target.playVideo();
       }
     }
   });
 };
 
+function updateSoundIcon(vol, muted) {
+  const icon = document.getElementById('sound-icon');
+  if (muted || vol == 0) icon.innerHTML = SVG_MUTED;
+  else if (vol < 50)     icon.innerHTML = SVG_LOW;
+  else                   icon.innerHTML = SVG_HIGH;
+}
+
 function toggleSound() {
   if (!player) return;
+  const slider = document.getElementById('vol-slider');
   if (isMuted) {
     player.unMute();
-    player.setVolume(70);
+    const vol = parseInt(slider.value);
+    player.setVolume(vol);
     isMuted = false;
-    document.getElementById('sound-icon').innerHTML = SVG_SOUND;
+    updateSoundIcon(vol, false);
   } else {
     player.mute();
     isMuted = true;
-    document.getElementById('sound-icon').innerHTML = SVG_MUTED;
+    updateSoundIcon(0, true);
   }
+}
+
+function setVolume(val) {
+  if (!player) return;
+  const v = parseInt(val);
+  if (v === 0) {
+    player.mute();
+    isMuted = true;
+  } else {
+    player.unMute();
+    player.setVolume(v);
+    isMuted = false;
+  }
+  updateSoundIcon(v, isMuted);
 }
 
 // Load IFrame API
