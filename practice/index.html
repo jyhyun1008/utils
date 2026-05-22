@@ -405,6 +405,102 @@
       color: var(--text-2);
     }
 
+    /* ── TEMPO CARD ── */
+    .tempo-body {
+      padding: 16px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .tempo-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tempo-bpm {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.25s;
+      min-width: 3ch;
+      text-align: right;
+    }
+    .tempo-bpm-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .tempo-unit {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .metro-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.04s, box-shadow 0.04s;
+    }
+    .metro-dot.beat {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(232,81,26,0.55);
+    }
+    .tempo-slider {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+      height: 4px;
+    }
+    .tempo-adj-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+    .tempo-adj-btn {
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--key-bg);
+      color: var(--text-2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tempo-adj-btn:hover { background: var(--border); color: var(--text); }
+    .metro-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .metro-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .metro-btn:hover { background: var(--accent-dark); }
+    .metro-btn.running { background: #374151; }
+    .metro-btn.running:hover { background: #1f2937; }
+
     /* ── RHYTHM ROULETTE ── */
     .rhythm-body {
       padding: 16px 18px 18px;
@@ -511,6 +607,38 @@
           <div class="value" id="mainResultText">스핀을 눌러보세요!</div>
         </div>
         <button class="spin-btn" id="mainSpinBtn" onclick="spinMain()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="8.5" cy="8.5" r=".5" fill="currentColor"/><circle cx="15.5" cy="8.5" r=".5" fill="currentColor"/><circle cx="15.5" cy="15.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="15.5" r=".5" fill="currentColor"/></svg> SPIN!</button>
+      </div>
+    </div>
+
+    <!-- Tempo -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9l4 18l3-9h4"/></svg>
+          템포
+        </div>
+        <button class="mini-spin-btn" onclick="randomTempo()">랜덤</button>
+      </div>
+      <div class="tempo-body">
+        <div class="tempo-display">
+          <div class="tempo-bpm" id="tempoBpm">100</div>
+          <div class="tempo-bpm-right">
+            <div class="metro-dot" id="metroDot"></div>
+            <span class="tempo-unit">BPM</span>
+          </div>
+        </div>
+        <input type="range" class="tempo-slider" id="tempoSlider"
+               min="60" max="180" value="100" oninput="setTempo(+this.value)">
+        <div class="tempo-adj-row">
+          <button class="tempo-adj-btn" onclick="adjustTempo(-10)">−10</button>
+          <button class="tempo-adj-btn" onclick="adjustTempo(-1)">−1</button>
+          <button class="metro-btn" id="metroBtn" onclick="toggleMetronome()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524.852l13-8a1 1 0 0 0 0-1.704l-13-8A1 1 0 0 0 6 4z"/></svg>
+            시작
+          </button>
+          <button class="tempo-adj-btn" onclick="adjustTempo(+1)">+1</button>
+          <button class="tempo-adj-btn" onclick="adjustTempo(+10)">+10</button>
+        </div>
       </div>
     </div>
   </div>
@@ -895,6 +1023,121 @@
   }
 
   function cancelEdit() { editIdx = -1; renderList(); }
+
+  /* ═══════════════════════════════════════════
+     TEMPO & METRONOME
+  ═══════════════════════════════════════════ */
+  let currentTempo = 100;
+  let metroRunning = false;
+  let audioCtx = null;
+  let nextBeatTime = 0;
+  let metroInterval = null;
+
+  const LOOKAHEAD    = 0.12; // seconds ahead to schedule
+  const TICK_FREQ    = 25;   // ms between scheduler calls
+
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  function scheduleClick(time) {
+    const ctx = getAudioCtx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1100, time);
+    osc.frequency.exponentialRampToValueAtTime(280, time + 0.045);
+    gain.gain.setValueAtTime(0.38, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.055);
+    osc.start(time);
+    osc.stop(time + 0.06);
+
+    const delay = Math.max(0, (time - ctx.currentTime) * 1000);
+    setTimeout(() => {
+      const dot = document.getElementById('metroDot');
+      dot.classList.add('beat');
+      setTimeout(() => dot.classList.remove('beat'), 80);
+    }, delay);
+  }
+
+  function metroScheduler() {
+    const ctx = getAudioCtx();
+    while (nextBeatTime < ctx.currentTime + LOOKAHEAD) {
+      scheduleClick(nextBeatTime);
+      nextBeatTime += 60.0 / currentTempo;
+    }
+  }
+
+  function toggleMetronome() {
+    if (metroRunning) {
+      clearInterval(metroInterval);
+      metroInterval = null;
+      metroRunning = false;
+      const btn = document.getElementById('metroBtn');
+      btn.classList.remove('running');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524.852l13-8a1 1 0 0 0 0-1.704l-13-8A1 1 0 0 0 6 4z"/></svg> 시작`;
+    } else {
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      nextBeatTime = ctx.currentTime + 0.05;
+      metroInterval = setInterval(metroScheduler, TICK_FREQ);
+      metroRunning = true;
+      const btn = document.getElementById('metroBtn');
+      btn.classList.add('running');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> 정지`;
+    }
+  }
+
+  function setTempo(bpm) {
+    currentTempo = Math.max(60, Math.min(180, Math.round(bpm)));
+    document.getElementById('tempoBpm').textContent = currentTempo;
+    document.getElementById('tempoSlider').value = currentTempo;
+  }
+
+  function adjustTempo(delta) { setTempo(currentTempo + delta); }
+
+  let tempoRollTimer = null;
+
+  function randomTempo() {
+    const target = Math.floor(Math.random() * 121) + 60;
+    const el = document.getElementById('tempoBpm');
+    const btn = document.querySelector('.card .mini-spin-btn[onclick="randomTempo()"]');
+
+    if (tempoRollTimer) clearInterval(tempoRollTimer);
+    if (btn) btn.disabled = true;
+
+    const duration = 900;
+    const interval = 45;
+    const steps = Math.floor(duration / interval);
+    let step = 0;
+
+    tempoRollTimer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      // ease out: early steps are fast random, later steps slow toward target
+      if (progress < 0.75) {
+        el.textContent = Math.floor(Math.random() * 121) + 60;
+      } else {
+        // converge: mix between random and target
+        const rand = Math.floor(Math.random() * 121) + 60;
+        const w = (progress - 0.75) / 0.25; // 0→1 in last quarter
+        el.textContent = Math.round(rand * (1 - w) + target * w);
+      }
+      el.style.color = 'var(--accent)';
+
+      if (step >= steps) {
+        clearInterval(tempoRollTimer);
+        tempoRollTimer = null;
+        setTempo(target);
+        el.style.color = 'var(--accent)';
+        setTimeout(() => el.style.color = '', 400);
+        if (btn) btn.disabled = false;
+      }
+    }, interval);
+  }
 
   /* ═══════════════════════════════════════════
      RHYTHM ROULETTE
