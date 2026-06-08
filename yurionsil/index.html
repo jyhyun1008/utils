@@ -515,6 +515,108 @@ nav{
 
 /* lucide icons */
 .lico{display:inline-block;vertical-align:-.18em;width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ═══════════════════════════
+   MOBILE — 수직 스크롤 모드
+═══════════════════════════ */
+@media (max-width: 768px) {
+  /* 스크롤 허용 */
+  html, body { overflow: auto !important; height: auto !important; }
+  body { cursor: auto; }
+
+  /* 데스크톱 전용 UI 숨김 */
+  #cur, #cur-ring, .slide-dots, .prog-bar, .key-hint, .scroll-hint { display: none !important; }
+
+  /* 네비 — 로고만 표시 */
+  nav { padding: 10px 16px; }
+  .nav-links { display: none; }
+
+  /* 슬라이드 시스템 → 일반 블록 흐름 */
+  #slides-wrap { position: static !important; }
+  .slide {
+    position: relative !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+    overflow: visible !important;
+    animation: none !important;
+    transform: none !important;
+    min-height: 100svh;
+  }
+  .slide.enter-down, .slide.enter-up, .slide.exit-up, .slide.exit-down {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* 고정 배경 레이어 숨기고, 섹션에 직접 bg 적용 */
+  #bgLayer { display: none !important; }
+  #s1, #s2, #s4 { background: var(--BG_URL) center/cover no-repeat; }
+
+  /* ── S1 타이틀 ── */
+  #s1 { justify-content: flex-start; align-items: stretch; padding-top: 60px; }
+  .hero-inner { padding: 12px 16px 32px; }
+  .hero-card { padding: 18px 16px 20px; max-width: 100%; }
+  .hero-name { font-size: clamp(42px, 14vw, 72px); }
+  .hero-eyebrow { font-size: 10px; padding: 5px 12px; letter-spacing: .2em; }
+  .hero-copy { font-size: 13px; line-height: 1.8; }
+  .hero-tags { gap: 5px; }
+  .htag { font-size: 11px; padding: 5px 11px; }
+  .chibi-row { justify-content: center; }
+  .chibi-row img { max-width: min(280px, 80vw) !important; width: 100%; }
+
+  /* ── S2 소개 ── */
+  #s2 { padding: 0; min-height: auto; }
+  #s2 > div {
+    height: auto !important;
+    flex-direction: column !important;
+    padding: 60px 16px 32px !important;
+    gap: 16px !important;
+  }
+  .about-glass { max-width: 100%; padding: 20px 16px; flex: none; }
+  .about-body { font-size: 13px; line-height: 1.85; }
+  .synthv-widget { width: 100%; }
+
+  /* ── S3 멤버 ── */
+  #s3 { padding: 0; min-height: auto; }
+  #s3 > div {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 60px 16px 32px !important;
+  }
+  .mc-all-row { gap: 8px; }
+  .mc-mini { width: calc(50% - 4px); }
+  .mc-detail { flex-direction: column; gap: 12px; }
+  .mc-card { width: 100%; }
+  .mc-info { min-width: 0; }
+
+  /* ── S4 음악 ── */
+  #s4 { padding: 0; min-height: auto; }
+  #s4 > div {
+    height: auto !important;
+    padding: 60px 16px 32px !important;
+  }
+  .s4-wrap { max-width: 100%; }
+  .s4-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .video-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  /* ── S5 FAQ ── */
+  #s5 { padding: 0; min-height: auto; }
+  #s5 > div {
+    height: auto !important;
+    flex-direction: column !important;
+    padding: 60px 16px 32px !important;
+    gap: 20px !important;
+  }
+  .faq-l { max-width: 100%; }
+  .faq-r { max-width: 100%; }
+
+  /* ── S6 커뮤니티 ── */
+  #s6 { min-height: auto; padding: 48px 16px 40px; }
+  .s6-inner { padding: 24px 0; }
+  .s6-title { font-size: clamp(34px, 10vw, 56px); }
+  .social-grid { gap: 7px; }
+  .s6-footer { position: static; padding: 20px 0 4px; }
+  .sparkle-s6 { display: none; }
+}
 </style>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -658,12 +760,9 @@ nav{
         <a class="yt-badge">▶ YouTube 채널</a>
       </div>
       <div class="video-grid">
-        <div class="vid-card"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:linear-gradient(135deg,#b8f0dc,#80d8b8);"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">유리온실 — 오리지널 1번곡 <i data-lucide="leaf" class="lico"></i><br><span style="opacity:.5;font-size:10px;">준비 중...</span></div><div class="vid-meta"><span class="vid-type vt-orig">Original</span><span class="vid-synth">SynthV · 전멤버</span></div></div></div>
-        <div class="vid-card"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:linear-gradient(135deg,#ffe8a0,#ffd060);"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">커버 1번곡 <i data-lucide="music" class="lico"></i><br><span style="opacity:.5;font-size:10px;">준비 중...</span></div><div class="vid-meta"><span class="vid-type vt-cover">Cover</span><span class="vid-synth">SynthV · 선정 중</span></div></div></div>
+        <a class="vid-card" href="https://youtu.be/NeySiO7Eu_0" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:url('https://img.youtube.com/vi/NeySiO7Eu_0/maxresdefault.jpg') center/cover no-repeat;"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">유리온실 — Forbidden but Unveiled <i data-lucide="leaf" class="lico"></i></div><div class="vid-meta"><span class="vid-type vt-orig">Original</span><span class="vid-synth">SynthV · 전멤버</span></div></div></a>
+        <a class="vid-card" href="https://youtu.be/7aQJQD5JaR0" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:url('https://img.youtube.com/vi/7aQJQD5JaR0/maxresdefault.jpg') center/cover no-repeat;"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">유리온실 - 귀를 기울이면 (커버) <i data-lucide="music" class="lico"></i></div><div class="vid-meta"><span class="vid-type vt-cover">Cover</span><span class="vid-synth">SynthV · 선정 중</span></div></div></a>
         <div class="wip-card"><div class="wip-ico"><i data-lucide="wrench" class="lico"></i></div><div><div class="wip-title">더 많은 영상 준비 중!</div><div class="wip-sub">유리온실은 지금 막 시작 단계예요.<br>채널 구독하고 기다려 주세요 <i data-lucide="sprout" class="lico"></i></div></div></div>
-        <div class="vid-card" style="opacity:.38;pointer-events:none;"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:linear-gradient(135deg,var(--olive-s),var(--olive));"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">COO — 솔로 기타 연주 <i data-lucide="guitar" class="lico"></i></div><div class="vid-meta"><span class="vid-type vt-soon">Soon</span><span class="vid-synth">계획 중</span></div></div></div>
-        <div class="vid-card" style="opacity:.38;pointer-events:none;"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:linear-gradient(135deg,var(--violet-s),var(--violet));"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">SII — 바이올린 커버 <i data-lucide="music-2" class="lico"></i></div><div class="vid-meta"><span class="vid-type vt-soon">Soon</span><span class="vid-synth">계획 중</span></div></div></div>
-        <div class="vid-card" style="opacity:.38;pointer-events:none;"><div class="vid-thumb"><div class="vid-thumb-bg" style="background:linear-gradient(135deg,var(--pink-s),var(--pink));"></div><div class="vid-play">▶</div></div><div class="vid-info"><div class="vid-title">MV — 유리온실 테마 <i data-lucide="film" class="lico"></i></div><div class="vid-meta"><span class="vid-type vt-soon">Soon</span><span class="vid-synth">계획 중</span></div></div></div>
       </div>
     </div>
   </div>
@@ -733,6 +832,8 @@ const slideEls = document.querySelectorAll('.slide');
 const dots = document.querySelectorAll('.sdot');
 const progFill = document.getElementById('progFill');
 
+function isMobile() { return window.innerWidth <= 768; }
+
 function updateUI(idx) {
   dots.forEach((d,i) => d.classList.toggle('on', i===idx));
   progFill.style.width = ((idx+1)/TOTAL*100)+'%';
@@ -740,6 +841,7 @@ function updateUI(idx) {
 }
 
 function goTo(idx, dir) {
+  if(isMobile()) return;
   if(animating || idx===current || idx<0 || idx>=TOTAL) return;
   animating = true;
   const prev = current;
@@ -766,6 +868,7 @@ function prev(){ goTo(current-1,-1); }
 
 /* keyboard */
 document.addEventListener('keydown', e => {
+  if(isMobile()) return;
   if(['ArrowDown','PageDown','ArrowRight'].includes(e.key)){ e.preventDefault(); next(); }
   if(['ArrowUp','PageUp','ArrowLeft'].includes(e.key)){ e.preventDefault(); prev(); }
 });
@@ -773,6 +876,7 @@ document.addEventListener('keydown', e => {
 /* wheel */
 let wt = null;
 document.addEventListener('wheel', e => {
+  if(isMobile()) return;
   e.preventDefault();
   if(wt) return;
   if(e.deltaY > 30) next();
@@ -784,6 +888,7 @@ document.addEventListener('wheel', e => {
 let ty = null;
 document.addEventListener('touchstart', e=>{ ty=e.touches[0].clientY; },{passive:true});
 document.addEventListener('touchend', e=>{
+  if(isMobile()) { ty=null; return; }
   if(ty===null) return;
   const dy = ty - e.changedTouches[0].clientY;
   if(Math.abs(dy)>50){ dy>0?next():prev(); }
