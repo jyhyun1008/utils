@@ -59,14 +59,6 @@ body{
   position:fixed;inset:0;z-index:0;
   background: var(--BG_URL) center/cover no-repeat;
 }
-/* per-slide solid color bg (for member/faq/community slides) */
-.solid-bg{
-  position:fixed;inset:0;z-index:1;
-  pointer-events:none;
-  transition:opacity 0.55s ease;
-  opacity:0;
-}
-
 /* ── NAV ── */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:300;
@@ -149,6 +141,17 @@ nav{
   box-shadow:0 4px 16px rgba(0,0,0,.06);
 }
 
+/* ── slide content wrapper ── */
+.slide-content{
+  height:100%;display:flex;align-items:center;justify-content:center;
+  padding:80px 44px 40px;gap:28px;flex-wrap:wrap;
+}
+.slide-content--col{flex-direction:column;}
+.s3-inner{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;padding:76px 28px 24px;overflow:hidden;width:100%;
+}
+
 /* ═══════════════════════════
    S1 — TITLE  (bg image visible)
 ═══════════════════════════ */
@@ -220,9 +223,13 @@ nav{
 /* ═══════════════════════════
    S2 — ABOUT  (bg image)
 ═══════════════════════════ */
-#s2{flex-direction:row;align-items:center;justify-content:center;padding:80px 44px 40px;gap:28px;flex-wrap:wrap;}
 
-.sec-label{font-size:12px;font-weight:700;letter-spacing:.4em;color:var(--mint-dark);text-transform:uppercase;margin-bottom:10px;}
+.sec-label{
+  font-size:12px;font-weight:700;letter-spacing:.4em;color:var(--mint-dark);text-transform:uppercase;
+  background:rgba(45,154,122,.1);padding:6px 18px;border-radius:20px;
+  border:1px solid rgba(45,154,122,.25);
+  display:inline-block;margin-bottom:14px;
+}
 .about-title{
   font-family:'GyeonggiMillenniumTitle',sans-serif;
   font-size:clamp(28px,3.8vw,44px);font-weight:700;
@@ -263,10 +270,7 @@ nav{
 /* ═══════════════════════════
    S3 — MEMBERS  (SOLID BG)
 ═══════════════════════════ */
-#s3{
-  background: linear-gradient(150deg, #f0faf6 0%, #e8f8f2 60%, #eef6ff 100%);
-  padding:80px 28px 28px;align-items:center;
-}
+#s3{background:linear-gradient(150deg,#f0faf6 0%,#e8f8f2 60%,#eef6ff 100%);}
 
 .s3-header{text-align:center;margin-bottom:16px;}
 .s3-title{font-family:'GyeonggiMillenniumTitle',sans-serif;font-size:clamp(36px,5.5vw,60px);font-weight:800;color:var(--ink);line-height:1;}
@@ -399,12 +403,10 @@ nav{
 /* ═══════════════════════════
    S4 — MUSIC  (bg image + frost)
 ═══════════════════════════ */
-#s4{padding:80px 48px 40px;align-items:center;justify-content:center;}
 .s4-wrap{width:100%;max-width:880px;}
 .s4-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
 .s4-title-card{padding:20px 28px;}
 .s4-title{font-family:'GyeonggiMillenniumTitle',sans-serif;font-size:clamp(34px,5vw,56px);font-weight:800;color:var(--ink);line-height:1;}
-.s4-title span{display:block;font-size:13px;font-weight:700;letter-spacing:.3em;color:var(--mint-dark);margin-bottom:5px;}
 .yt-badge{display:flex;align-items:center;gap:7px;background:rgba(255,40,40,.88);color:white;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;letter-spacing:.1em;text-decoration:none;cursor:pointer;transition:all .22s;border:1px solid rgba(255,120,120,.3);}
 .yt-badge:hover{background:rgba(255,40,40,1);transform:translateY(-2px);}
 .video-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
@@ -437,11 +439,7 @@ nav{
 /* ═══════════════════════════
    S5 — FAQ  (SOLID BG)
 ═══════════════════════════ */
-#s5{
-  background: linear-gradient(140deg, #e8f8f2 0%, #f4fffe 50%, #f0ecff 100%);
-  flex-direction:row;align-items:center;justify-content:center;
-  padding:80px 44px 44px;gap:28px;flex-wrap:wrap;
-}
+#s5{background:linear-gradient(140deg,#e8f8f2 0%,#f4fffe 50%,#f0ecff 100%);}
 
 .faq-l{max-width:270px;}
 .faq-l-title{font-family:'GyeonggiMillenniumTitle',sans-serif;font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.1;color:var(--ink);margin-bottom:12px;}
@@ -480,7 +478,6 @@ nav{
 }
 .s6-deco-top{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--olive),var(--coral),var(--sky),var(--pink),var(--violet));z-index:2;}
 .s6-inner{position:relative;z-index:2;max-width:560px;padding:36px;}
-.s6-eyebrow{font-size:12px;font-weight:700;letter-spacing:.4em;color:var(--mint-dark);text-transform:uppercase;margin-bottom:16px;}
 .s6-title{font-family:'GyeonggiMillenniumTitle',sans-serif;font-size:clamp(44px,7.5vw,80px);font-weight:800;line-height:1.05;color:var(--ink);margin-bottom:10px;}
 .s6-title span{color:var(--mint-dark);}
 .s6-sub{font-size:15.5px;line-height:1.9;color:var(--ink-soft);margin-bottom:32px;}
@@ -563,25 +560,25 @@ nav{
   .chibi-row { justify-content: center; }
   .chibi-row img { max-width: min(280px, 80vw) !important; width: 100%; }
 
-  /* ── S2 소개 ── */
-  #s2 { padding: 0; min-height: auto; }
-  #s2 > div {
+  /* ── S2/S3/S4/S5 래퍼 ── */
+  .slide-content {
     height: auto !important;
     flex-direction: column !important;
     padding: 60px 16px 32px !important;
     gap: 16px !important;
   }
+  .s3-inner {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 60px 16px 32px !important;
+  }
+
+  /* ── S2 소개 ── */
   .about-glass { max-width: 100%; padding: 20px 16px; flex: none; }
   .about-body { font-size: 13px; line-height: 1.85; }
   .synthv-widget { width: 100%; }
 
   /* ── S3 멤버 ── */
-  #s3 { padding: 0; min-height: auto; }
-  #s3 > div {
-    height: auto !important;
-    overflow: visible !important;
-    padding: 60px 16px 32px !important;
-  }
   .mc-all-row { gap: 8px; }
   .mc-mini { width: calc(50% - 4px); }
   .mc-detail { flex-direction: column; gap: 12px; }
@@ -589,23 +586,11 @@ nav{
   .mc-info { min-width: 0; }
 
   /* ── S4 음악 ── */
-  #s4 { padding: 0; min-height: auto; }
-  #s4 > div {
-    height: auto !important;
-    padding: 60px 16px 32px !important;
-  }
   .s4-wrap { max-width: 100%; }
   .s4-header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .video-grid { grid-template-columns: 1fr; gap: 10px; }
 
   /* ── S5 FAQ ── */
-  #s5 { padding: 0; min-height: auto; }
-  #s5 > div {
-    height: auto !important;
-    flex-direction: column !important;
-    padding: 60px 16px 32px !important;
-    gap: 20px !important;
-  }
   .faq-l { max-width: 100%; }
   .faq-r { max-width: 100%; }
 
@@ -695,7 +680,7 @@ nav{
 
 <!-- ══ S2 ABOUT (bg image + frost) ══ -->
 <section class="slide" id="s2">
-  <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:80px 44px 40px;gap:28px;flex-wrap:wrap;">
+  <div class="slide-content">
     <div class="frost about-glass">
       <div class="sec-label">About</div>
       <h2 class="about-title">우리가 만드는<br><em>유리 온실</em> 안의<br>소리들</h2>
@@ -721,7 +706,7 @@ nav{
 
 <!-- ══ S3 MEMBERS (solid bg) ══ -->
 <section class="slide" id="s3">
-  <div style="display:flex;flex-direction:column;align-items:center;height:100%;padding:76px 28px 24px;overflow:hidden;width:100%;">
+  <div class="s3-inner">
     <div class="s3-header"><div class="sec-label">Members</div><h2 class="s3-title">다섯 목소리 <i data-lucide="leaf" class="lico"></i></h2><div class="s3-sub">탭을 클릭해서 자세히 보기</div></div>
     <div class="member-tabs">
       <button class="mtab all active" onclick="showMember('all',this)"><i data-lucide="leaf" class="lico"></i> 전체</button>
@@ -753,10 +738,10 @@ nav{
 
 <!-- ══ S4 MUSIC (bg image + frost cards) ══ -->
 <section class="slide" id="s4">
-  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 44px 36px;">
+  <div class="slide-content slide-content--col">
     <div class="s4-wrap">
       <div class="s4-header">
-        <div class="frost s4-title-card"><div class="s4-title"><span>Music & Video</span>유리온실의 음악들</div></div>
+        <div class="frost s4-title-card"><div class="sec-label">Music &amp; Video</div><div class="s4-title">유리온실의 음악들</div></div>
         <a class="yt-badge">▶ YouTube 채널</a>
       </div>
       <div class="video-grid">
@@ -770,7 +755,7 @@ nav{
 
 <!-- ══ S5 FAQ (solid bg) ══ -->
 <section class="slide" id="s5">
-  <div style="display:flex;flex-direction:row;align-items:center;justify-content:center;height:100%;padding:80px 44px 44px;gap:28px;flex-wrap:wrap;">
+  <div class="slide-content">
     <div class="faq-l">
       <div class="sec-label">FAQ</div>
       <h2 class="faq-l-title">궁금한게<br>있나요?<br><em>물어봐요!</em></h2>
@@ -797,7 +782,7 @@ nav{
   <div class="sparkle-s6" style="top:30%;left:9%;animation-delay:1.1s;color:var(--pink);font-size:14px;">✧</div>
   <div class="sparkle-s6" style="bottom:26%;right:11%;animation-delay:1.7s;color:var(--sky);font-size:16px;">✦</div>
   <div class="s6-inner">
-    <div class="s6-eyebrow">Community — 커뮤니티</div>
+    <div class="sec-label">Community — 커뮤니티</div>
     <h2 class="s6-title">같이<br><span>성장해요</span> <i data-lucide="leaf" class="lico"></i></h2>
     <p class="s6-sub">유리온실은 이제 막 온실 문을 열었어요.<br>따뜻한 응원과 함께라면 더 멀리, 더 크게 자랄 수 있어요.<br><strong style="color:var(--mint-dark)">첫 번째 구독자가 되어 주세요! <i data-lucide="heart" class="lico"></i></strong></p>
     <div class="social-grid">
