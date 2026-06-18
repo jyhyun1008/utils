@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>키리누키 자막 다는 곳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14121c; --panel:#1d1a28; --panel-2:#252132; --line:#332e44;
+  --ink:#ece9f5; --ink-dim:#9d97b5;
+  --accent:#c2a6ff; --accent-2:#ff9ec7;
+  --nar:#ffd27f; --intA:#7fc4ff; --intB:#ff9ec7;
+  --ok:#8ee6b0; --warn:#ff8b8b;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+header{display:flex;align-items:center;gap:14px;padding:10px 16px;
+  background:linear-gradient(180deg,#1f1b2c,#191622);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:.2px;line-height:1.1}
+.brand .dot{width:11px;height:11px;border-radius:3px;
+  background:conic-gradient(from 200deg,var(--accent),var(--accent-2),var(--nar),var(--accent));
+  box-shadow:0 0 10px rgba(194,166,255,.6)}
+.brand small{font-weight:500;color:var(--ink-dim);font-size:11px;letter-spacing:.5px}
+header .spacer{flex:1}
+.hbtn{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
+  padding:8px 13px;border-radius:9px;font-weight:700;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.hbtn:hover{border-color:var(--accent);color:#fff}
+.hbtn.primary{background:linear-gradient(180deg,var(--accent),#a883f5);border-color:transparent;color:#221a36}
+
+.middle{display:grid;grid-template-columns:1fr 332px;min-height:0}
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0;background:#0e0c15}
+.viewport{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;padding:14px}
+.vidwrap{position:relative;max-width:100%;max-height:100%;line-height:0;border-radius:10px;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,.5)}
+video{max-width:100%;max-height:100%;display:block;background:#000}
+.empty{text-align:center;color:var(--ink-dim);max-width:380px;line-height:1.7}
+.empty .big{font-size:46px;margin-bottom:8px}
+.drop{border:2px dashed var(--line);border-radius:16px;padding:34px 30px;transition:.2s}
+.drop.hot{border-color:var(--accent);background:rgba(194,166,255,.06)}
+.empty .pick{margin-top:14px}
+
+#overlay{position:absolute;inset:0;pointer-events:none}
+.sub{position:absolute;left:50%;transform:translateX(-50%);text-align:center;
+  width:fit-content;max-width:96%}
+.cap{display:inline-block}
+.cap-line{position:relative;display:block;line-height:1.22;white-space:nowrap}
+.cap-line .ol{display:block}
+.cap-line .fill{position:absolute;left:0;top:0;width:100%;background-repeat:no-repeat;pointer-events:none;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.namebox{position:absolute;left:0;bottom:100%;white-space:nowrap;color:#fff;font-weight:900;
+  transform-origin:left bottom;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+
+.transport{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-size:15px;display:grid;place-items:center}
+.tbtn:hover{border-color:var(--accent)}
+.tbtn.play{background:var(--accent);color:#221a36;border-color:transparent;font-size:16px}
+.time{font-variant-numeric:tabular-nums;color:var(--ink-dim);font-size:12.5px;min-width:118px}
+.time b{color:var(--ink)}
+.addgrp{margin-left:auto;display:flex;gap:7px}
+.add{padding:8px 11px;border-radius:9px;font-weight:800;font-size:12px;border:1px solid;background:transparent}
+.add.nar{color:var(--nar);border-color:rgba(255,210,127,.5)} .add.nar:hover{background:rgba(255,210,127,.12)}
+.add.a{color:var(--intA);border-color:rgba(127,196,255,.5)} .add.a:hover{background:rgba(127,196,255,.12)}
+.add.b{color:var(--intB);border-color:rgba(255,158,199,.5)} .add.b:hover{background:rgba(255,158,199,.12)}
+
+.tldock{background:var(--panel);border-top:1px solid var(--line)}
+.tlbar{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line)}
+.tlbar .lbl{font-size:11px;color:var(--ink-dim);font-weight:700;letter-spacing:.4px}
+.zoom{display:flex;align-items:center;gap:6px;margin-left:auto}
+.zoom button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-weight:800}
+.tlscroll{overflow-x:auto;overflow-y:hidden;height:166px;position:relative}
+.tlscroll::-webkit-scrollbar{height:10px}.tlscroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+.tlinner{position:relative;height:100%}
+.ruler{height:26px;position:relative;border-bottom:1px solid var(--line);cursor:pointer}
+.tick{position:absolute;top:0;height:100%;border-left:1px solid var(--line)}
+.tick span{position:absolute;left:4px;top:5px;font-size:10px;color:var(--ink-dim);font-variant-numeric:tabular-nums;pointer-events:none}
+.lane{position:relative;height:59px;border-bottom:1px solid var(--line)}
+.lane .lanetag{position:sticky;left:0;float:left;z-index:3;font-size:10px;font-weight:800;padding:3px 7px;margin:5px;border-radius:6px;pointer-events:none}
+.lane.nar .lanetag{color:var(--nar);background:rgba(255,210,127,.14)}
+.lane.int .lanetag{color:var(--intA);background:rgba(127,196,255,.14)}
+.block{position:absolute;top:8px;height:40px;border-radius:8px;overflow:hidden;display:flex;align-items:center;padding:0 9px;
+  cursor:grab;user-select:none;font-size:11.5px;font-weight:700;white-space:nowrap;color:#1a1626;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);border:1.5px solid transparent}
+.block.narration{background:linear-gradient(180deg,#ffe3ab,#ffd27f)}
+.block.interviewA{background:linear-gradient(180deg,#bfeaff,#7fc4ff)}
+.block.interviewB{background:linear-gradient(180deg,#ffd4e8,#ff9ec7)}
+.block.sel{border-color:#fff;box-shadow:0 0 0 2px var(--accent),0 4px 14px rgba(0,0,0,.45);z-index:4}
+.block .tag{font-weight:900;margin-right:6px;opacity:.65}
+.block .txt{overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.block .h{position:absolute;top:0;bottom:0;width:8px;cursor:ew-resize}
+.block .h.l{left:0}.block .h.r{right:0}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--accent-2);z-index:5;pointer-events:none;box-shadow:0 0 8px var(--accent-2)}
+.playhead::before{content:"";position:absolute;top:-1px;left:-5px;border:6px solid transparent;border-top-color:var(--accent-2)}
+
+.side{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;min-height:0}
+.side::-webkit-scrollbar{width:10px}.side::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+.sect{padding:14px 14px 16px;border-bottom:1px solid var(--line)}
+.sect h3{margin:0 0 11px;font-size:12px;letter-spacing:.5px;color:var(--ink-dim);text-transform:uppercase;font-weight:800}
+.row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.row label{width:78px;font-size:12px;color:var(--ink-dim);flex:none}
+.row .grow{flex:1}
+textarea,input[type=text],input[type=number],select{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 9px;font-size:13px;outline:none}
+textarea{resize:vertical;min-height:60px;line-height:1.45}
+textarea:focus,input:focus,select:focus{border-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--panel-2);flex:none}
+.numin{display:flex;align-items:center;gap:6px}
+.numin input{width:74px;text-align:center;font-variant-numeric:tabular-nums}
+.mini{font-size:11px;color:var(--ink-dim)}
+.del{width:100%;margin-top:4px;background:rgba(255,139,139,.1);color:var(--warn);border:1px solid rgba(255,139,139,.4);border-radius:8px;padding:8px;font-weight:700}
+.del:hover{background:rgba(255,139,139,.2)}
+.noSel{color:var(--ink-dim);font-size:12.5px;line-height:1.7;text-align:center;padding:12px 4px}
+.styletabs{display:flex;gap:6px;margin-bottom:12px}
+.styletabs button{flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-dim);font-weight:800;font-size:11.5px}
+.styletabs button.on[data-s=narration]{background:var(--nar);border-color:transparent;color:#1a1626}
+.styletabs button.on[data-s=interviewA]{background:var(--intA);border-color:transparent;color:#1a1626}
+.styletabs button.on[data-s=interviewB]{background:var(--intB);border-color:transparent;color:#1a1626}
+.valbadge{font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums;width:42px;text-align:right;flex:none}
+.exportbtn{width:100%;padding:11px;border-radius:9px;font-weight:800;font-size:13px;border:none;margin-bottom:8px}
+.exportbtn.ass{background:linear-gradient(180deg,var(--accent),#a883f5);color:#221a36}
+.exportbtn.srt{background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
+.exportbtn.burn{background:transparent;color:var(--accent-2);border:1px solid rgba(255,158,199,.5)}
+.exportbtn.chroma{background:transparent;color:#7fe6a0;border:1px solid rgba(127,230,160,.5)}
+.exportbtn.burn2{background:transparent;color:var(--ink-dim);border:1px solid var(--line)}
+.explbl{font-size:10.5px;font-weight:800;letter-spacing:.4px;color:var(--ink-dim);margin:10px 0 6px;text-transform:uppercase}
+.exportbtn:hover{filter:brightness(1.06)}
+.hint{font-size:11px;color:var(--ink-dim);line-height:1.6;margin-top:2px}
+.rec{display:none;align-items:center;gap:8px;padding:10px;margin-top:6px;border-radius:8px;background:rgba(255,158,199,.08);border:1px solid rgba(255,158,199,.4);font-size:12px}
+.rec.on{display:flex}
+.recdot{width:9px;height:9px;border-radius:50%;background:var(--accent-2);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.hidden{display:none!important}
+@media (max-width:900px){ .middle{grid-template-columns:1fr} .side{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="dot"></span><span>키리누키 자막<br><small>CLIP SUBTITLER</small></span></div>
+    <div class="spacer"></div>
+    <button class="hbtn" id="loadProj">프로젝트 불러오기</button>
+    <button class="hbtn" id="saveProj">프로젝트 저장</button>
+    <button class="hbtn primary" id="openVid">📁 영상 열기</button>
+    <input type="file" id="vidInput" accept="video/*" class="hidden">
+    <input type="file" id="projInput" accept=".json,application/json" class="hidden">
+  </header>
+
+  <div class="middle">
+    <div class="stage">
+      <div class="viewport">
+        <div class="vidwrap hidden" id="vidwrap">
+          <video id="video" playsinline></video>
+          <div id="overlay"></div>
+        </div>
+        <div class="empty" id="empty">
+          <div class="drop" id="drop">
+            <div class="big">🎬</div>
+            <div>영상을 여기로 끌어다 놓거나<br>위의 <b>영상 열기</b>를 눌러줘</div>
+            <div class="pick mini">큰 파일도 괜찮아 — 스트리밍 재생이라 편집 중엔 통째로 메모리에 안 올라가.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="transport">
+        <button class="tbtn" id="back5" title="-5초">«</button>
+        <button class="tbtn play" id="playBtn" title="재생/일시정지 (스페이스)">▶</button>
+        <button class="tbtn" id="fwd5" title="+5초">»</button>
+        <div class="time"><b id="curT">0:00.00</b> / <span id="durT">0:00.00</span></div>
+        <div class="addgrp">
+          <button class="add nar" id="addNar">＋ 상황</button>
+          <button class="add a" id="addA">＋ 인터뷰 A</button>
+          <button class="add b" id="addB">＋ 인터뷰 B</button>
+        </div>
+      </div>
+
+      <div class="tldock">
+        <div class="tlbar">
+          <span class="lbl">타임라인 — 블록을 끌어서 위치/길이 조절</span>
+          <div class="zoom">
+            <span class="lbl">확대</span>
+            <button id="zoomOut">－</button><button id="zoomIn">＋</button><button id="zoomFit" title="전체보기">⤢</button>
+          </div>
+        </div>
+        <div class="tlscroll" id="tlscroll">
+          <div class="tlinner" id="tlinner">
+            <div class="ruler" id="ruler"></div>
+            <div class="lane nar" id="laneNar"><span class="lanetag">상황 해설</span></div>
+            <div class="lane int" id="laneInt"><span class="lanetag">인터뷰 A·B</span></div>
+            <div class="playhead" id="playhead" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="sect" id="editSect">
+        <h3>선택한 자막</h3>
+        <div class="noSel" id="noSel">타임라인에서 블록을 누르면<br>여기서 글·이름·타이밍을 고칠 수 있어.</div>
+        <div id="editBox" class="hidden">
+          <textarea id="edText" placeholder="자막 내용… (줄바꿈 가능)"></textarea>
+          <div class="row" style="margin-top:10px">
+            <label>종류</label>
+            <select id="edLane" class="grow">
+              <option value="narration">상황 해설</option>
+              <option value="interviewA">인터뷰 A</option>
+              <option value="interviewB">인터뷰 B</option>
+            </select>
+          </div>
+          <div class="row" id="edNameRow">
+            <label>발언자</label>
+            <input type="text" id="edName" class="grow" placeholder="이름 (왼쪽 위 박스)">
+          </div>
+          <div class="row"><label>시작</label><div class="numin"><input type="number" id="edStart" step="0.05" min="0"><span class="mini">초</span></div></div>
+          <div class="row"><label>끝</label><div class="numin"><input type="number" id="edEnd" step="0.05" min="0"><span class="mini">초</span></div></div>
+          <button class="del" id="edDel">🗑 이 자막 삭제</button>
+        </div>
+      </div>
+
+      <div class="sect">
+        <h3>자막 스타일</h3>
+        <div class="styletabs">
+          <button data-s="narration" class="on">상황 해설</button>
+          <button data-s="interviewA">인터뷰 A</button>
+          <button data-s="interviewB">인터뷰 B</button>
+        </div>
+        <div class="row"><label>글자색 위</label><input type="color" id="stColorTop">
+          <label style="width:auto">아래</label><input type="color" id="stColorBot">
+          <span class="mini">위→아래 그라데이션</span></div>
+        <div class="row"><label>테두리</label><input type="color" id="stOutline">
+          <input type="range" id="stStroke" min="0" max="14" step="0.5" class="grow"><span class="valbadge" id="stStrokeV">0</span></div>
+        <div class="row"><label>드롭 그림자</label><input type="range" id="stShadow" min="0" max="40" step="1" class="grow"><span class="valbadge" id="stShadowV">0</span></div>
+        <div class="row"><label>글자 크기</label><input type="range" id="stSize" min="16" max="160" step="1" class="grow"><span class="valbadge" id="stSizeV">0</span></div>
+        <div class="row"><label>하단 높이</label><input type="range" id="stMargin" min="0" max="600" step="2" class="grow"><span class="valbadge" id="stMarginV">0</span></div>
+        <div class="row"><label>굵게</label><input type="checkbox" id="stBold" style="width:auto;accent-color:var(--accent)"></div>
+        <div class="row" id="stNameRow"><label>이름 박스색</label><input type="color" id="stNameColor">
+          <span class="mini">인터뷰 발언자 박스 배경</span></div>
+        <div class="row"><label>폰트 URL</label><input type="text" id="stFontUrl" class="grow" placeholder="https://…/font.woff2 (비우면 기본 폰트)"></div>
+        <div class="hint">크기·위치는 영상 원본 해상도 기준 px. 폰트 URL을 넣으면 자동으로 그 폰트로 바뀌어(프리뷰·이름박스·굽기 전부). CORS 허용 CDN(jsDelivr·unpkg 등)이어야 함. 비우면 기본 폰트로 돌아가. ※ .ass는 파일명 기반 폰트 이름을 참조하니, 편집툴에 같은 폰트가 깔려 있어야 그대로 보여 — webm 굽기는 폰트가 박혀 나와서 상관없음.</div>
+      </div>
+
+      <div class="sect">
+        <h3>내보내기</h3>
+        <button class="exportbtn ass" id="expAss">⬇ 자막 파일 (.ass) — 추천</button>
+        <button class="exportbtn srt" id="expSrt">⬇ 자막 파일 (.srt)</button>
+        <div class="explbl">자막만 영상으로 (원본 위에 얹기)</div>
+        <button class="exportbtn burn" id="expBurnAlpha">🪟 자막만 굽기 · 배경투명 (.webm)</button>
+        <button class="exportbtn chroma" id="expBurnChroma">🟩 자막만 굽기 · 크로마키 (.webm)</button>
+        <div class="explbl">영상에 합쳐서</div>
+        <button class="exportbtn burn2" id="expBurnFull">🔥 전체 영상에 태우기 (.webm)</button>
+        <div class="rec" id="recBox"><span class="recdot"></span><span id="recMsg">녹화 중…</span>
+          <button class="hbtn" id="recStop" style="margin-left:auto;padding:4px 10px">중지</button></div>
+        <div class="hint"><b>.ass</b>는 무손실·범용이지만 그라데이션·기울인 이름박스는 단순화돼. 풀 비주얼은 <b>자막만 굽기(webm)</b>를 써. 모든 굽기는 실시간 녹화라 영상 길이만큼 걸림.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ===================== state ===================== */
+function mkStyle(o){ return Object.assign({
+  font:'Noto Sans KR', fontUrl:'', size:64, margin:120,
+  colorTop:'#ffffff', colorBottom:'#ffffff', stroke:4, outline:'#000000',
+  shadow:12, bold:true, nameColor:'#7fc4ff'
+},o); }
+const S = {
+  video:null, dur:0, pps:0, subs:[], sel:null, uid:1, styleTab:'narration',
+  styles:{
+    narration: mkStyle({size:74, margin:210, colorTop:'#fff6cf', colorBottom:'#ffce4a', outline:'#3a2a00', nameColor:'#ffd27f'}),
+    interviewA:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#bfe6ff', outline:'#062236', nameColor:'#2f9bff'}),
+    interviewB:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#ffd0e6', outline:'#3a0620', nameColor:'#ff5fa2'}),
+  }
+};
+const $ = s=>document.querySelector(s);
+const el = {
+  video:$('#video'), vidwrap:$('#vidwrap'), empty:$('#empty'), overlay:$('#overlay'),
+  ruler:$('#ruler'), laneNar:$('#laneNar'), laneInt:$('#laneInt'),
+  tlinner:$('#tlinner'), tlscroll:$('#tlscroll'), playhead:$('#playhead'),
+  curT:$('#curT'), durT:$('#durT'), playBtn:$('#playBtn'),
+};
+
+/* ===================== helpers ===================== */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const r2=v=>Math.round(v*20)/20;
+function fmt(t){ t=Math.max(0,t); const m=Math.floor(t/60),s=(t%60); return `${m}:${s.toFixed(2).padStart(5,'0')}`; }
+function escHtml(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function styleKey(sub){ return sub.lane==='narration'?'narration':sub.lane; }
+function styleOf(sub){ return S.styles[styleKey(sub)] || S.styles.narration; }
+
+/* ===================== fonts ===================== */
+const loadedFonts={};
+async function ensureFont(st){
+  const url=(st.fontUrl||'').trim(); if(!url) return;
+  const fam=(st.font||'Custom').trim()||'Custom';
+  const key=fam+'@@'+url;
+  if(loadedFonts[key]==='ok'||loadedFonts[key]==='loading') return;
+  loadedFonts[key]='loading';
+  try{
+    const ff=new FontFace(fam,`url("${url}")`);
+    await ff.load(); document.fonts.add(ff);
+    loadedFonts[key]='ok'; renderOverlay();
+  }catch(e){ loadedFonts[key]='fail'; console.warn('font load failed',url,e); }
+}
+async function ensureAllFonts(){ for(const k in S.styles) await ensureFont(S.styles[k]); }
+
+/* ===================== load video ===================== */
+function loadVideoFile(file){
+  if(!file) return;
+  el.video.src=URL.createObjectURL(file);
+  el.video.onloadedmetadata=()=>{
+    S.dur=el.video.duration||0;
+    el.empty.classList.add('hidden'); el.vidwrap.classList.remove('hidden'); el.playhead.style.display='block';
+    el.durT.textContent=fmt(S.dur);
+    fitZoom(); buildRuler(); renderBlocks(); renderOverlay(); syncPlayhead();
+  };
+}
+$('#openVid').onclick=()=>$('#vidInput').click();
+$('#vidInput').onchange=e=>loadVideoFile(e.target.files[0]);
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();
+  if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files'))drop?.classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop?.classList.remove('hot');}));
+document.addEventListener('drop',e=>{const f=e.dataTransfer?.files?.[0]; if(f&&f.type.startsWith('video/'))loadVideoFile(f);});
+
+/* ===================== transport ===================== */
+el.playBtn.onclick=togglePlay;
+function togglePlay(){ if(!el.video.src)return; el.video.paused?el.video.play():el.video.pause(); }
+el.video.onplay =()=>{el.playBtn.textContent='❚❚';el.playBtn.classList.remove('play');rafLoop();};
+el.video.onpause=()=>{el.playBtn.textContent='▶';el.playBtn.classList.add('play');};
+$('#back5').onclick=()=>seek(el.video.currentTime-5);
+$('#fwd5').onclick =()=>seek(el.video.currentTime+5);
+function seek(t){ if(!el.video.src)return; el.video.currentTime=clamp(t,0,S.dur); syncPlayhead(); renderOverlay(); }
+let rafId=null;
+function rafLoop(){ cancelAnimationFrame(rafId);
+  const tick=()=>{ syncPlayhead(); renderOverlay(); if(!el.video.paused) rafId=requestAnimationFrame(tick); };
+  rafId=requestAnimationFrame(tick); }
+el.video.ontimeupdate=()=>{ el.curT.textContent=fmt(el.video.currentTime); };
+document.addEventListener('keydown',e=>{
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select')return;
+  if(e.code==='Space'){e.preventDefault();togglePlay();}
+  if((e.key==='Delete'||e.key==='Backspace')&&S.sel){deleteSub(S.sel);}
+});
+
+/* ===================== zoom / ruler ===================== */
+function fitZoom(){ const w=el.tlscroll.clientWidth-16; S.pps=S.dur>0?Math.max(8,w/S.dur):60; applyWidth(); }
+$('#zoomIn').onclick =()=>{S.pps=clamp(S.pps*1.4,4,600);applyWidth();buildRuler();renderBlocks();syncPlayhead();};
+$('#zoomOut').onclick=()=>{S.pps=clamp(S.pps/1.4,4,600);applyWidth();buildRuler();renderBlocks();syncPlayhead();};
+$('#zoomFit').onclick =()=>{fitZoom();buildRuler();renderBlocks();syncPlayhead();};
+function applyWidth(){ el.tlinner.style.width=Math.max(el.tlscroll.clientWidth,S.dur*S.pps)+'px'; }
+function buildRuler(){
+  el.ruler.innerHTML=''; if(S.dur<=0)return;
+  const target=70/S.pps, steps=[0.5,1,2,5,10,15,30,60,120,300,600];
+  let step=steps.find(s=>s>=target)||600;
+  for(let t=0;t<=S.dur+0.001;t+=step){
+    const d=document.createElement('div'); d.className='tick'; d.style.left=(t*S.pps)+'px';
+    const m=Math.floor(t/60),s=Math.floor(t%60); d.innerHTML=`<span>${m}:${String(s).padStart(2,'0')}</span>`;
+    el.ruler.appendChild(d);
+  }
+}
+el.ruler.addEventListener('pointerdown',e=>{const r=el.ruler.getBoundingClientRect();seek((e.clientX-r.left+el.tlscroll.scrollLeft)/S.pps);});
+function syncPlayhead(){ el.playhead.style.left=(el.video.currentTime*S.pps)+'px'; el.curT.textContent=fmt(el.video.currentTime); }
+
+/* ===================== subtitles ===================== */
+function addSub(lane){
+  if(!el.video.src){alert('먼저 영상을 열어줘');return;}
+  const start=r2(el.video.currentTime), end=r2(Math.min(S.dur,start+2));
+  const defText = lane==='narration'?'상황 해설 자막':'인터뷰 자막';
+  const s={id:S.uid++, lane, name:'', start, end, text:defText};
+  S.subs.push(s); renderBlocks(); selectSub(s.id); renderOverlay();
+}
+$('#addNar').onclick=()=>addSub('narration');
+$('#addA').onclick=()=>addSub('interviewA');
+$('#addB').onclick=()=>addSub('interviewB');
+function deleteSub(id){ S.subs=S.subs.filter(s=>s.id!==id); if(S.sel===id){S.sel=null;refreshEditPanel();} renderBlocks(); renderOverlay(); }
+function selectSub(id){ S.sel=id; highlightSel(); refreshEditPanel(); }
+function highlightSel(){
+  [el.laneNar,el.laneInt].forEach(l=>l.querySelectorAll('.block').forEach(b=>{
+    b.classList.toggle('sel', +b.dataset.id===S.sel);
+  }));
+}
+
+function renderBlocks(){
+  [el.laneNar,el.laneInt].forEach(l=>[...l.querySelectorAll('.block')].forEach(b=>b.remove()));
+  for(const s of S.subs){
+    const lane = s.lane==='narration'?el.laneNar:el.laneInt;
+    const b=document.createElement('div');
+    b.className='block '+styleKey(s)+(S.sel===s.id?' sel':'');
+    b.style.left=(s.start*S.pps)+'px';
+    b.style.width=Math.max(14,(s.end-s.start)*S.pps)+'px';
+    const tag = s.lane==='interviewA'?'A': s.lane==='interviewB'?'B':'';
+    const label = s.name ? s.name+' · '+s.text : s.text;
+    b.innerHTML=`<div class="h l"></div>${tag?`<span class="tag">${tag}</span>`:''}<div class="txt">${escHtml(label.replace(/\n/g,' '))||'…'}</div><div class="h r"></div>`;
+    b.dataset.id=s.id; lane.appendChild(b); attachDrag(b,s);
+  }
+}
+function attachDrag(b,s){
+  let mode=null,sx=0,st0=0,en0=0;
+  const onDown=(e,m)=>{e.stopPropagation();mode=m;sx=e.clientX;st0=s.start;en0=s.end;selectSub(s.id);b.setPointerCapture(e.pointerId);};
+  b.addEventListener('pointerdown',e=>{if(e.target.classList.contains('h'))return;onDown(e,'move');});
+  b.querySelector('.h.l').addEventListener('pointerdown',e=>onDown(e,'l'));
+  b.querySelector('.h.r').addEventListener('pointerdown',e=>onDown(e,'r'));
+  b.addEventListener('pointermove',e=>{
+    if(!mode)return; const dt=(e.clientX-sx)/S.pps;
+    if(mode==='move'){const len=en0-st0;let ns=clamp(r2(st0+dt),0,S.dur-len);s.start=ns;s.end=ns+len;}
+    else if(mode==='l'){s.start=clamp(r2(st0+dt),0,s.end-0.2);}
+    else if(mode==='r'){s.end=clamp(r2(en0+dt),s.start+0.2,S.dur);}
+    b.style.left=(s.start*S.pps)+'px'; b.style.width=Math.max(14,(s.end-s.start)*S.pps)+'px';
+    if(S.sel===s.id) fillEditTimes(); renderOverlay();
+  });
+  const end=e=>{if(mode){mode=null;try{b.releasePointerCapture(e.pointerId);}catch{}}};
+  b.addEventListener('pointerup',end); b.addEventListener('pointercancel',end);
+}
+
+/* ===================== edit panel ===================== */
+function refreshEditPanel(){
+  const s=S.subs.find(x=>x.id===S.sel);
+  $('#noSel').classList.toggle('hidden',!!s); $('#editBox').classList.toggle('hidden',!s);
+  if(!s)return;
+  $('#edText').value=s.text; $('#edLane').value=s.lane; $('#edName').value=s.name||'';
+  $('#edNameRow').style.display = s.lane==='narration'?'none':'flex';
+  fillEditTimes();
+}
+function fillEditTimes(){ const s=S.subs.find(x=>x.id===S.sel); if(!s)return;
+  $('#edStart').value=s.start.toFixed(2); $('#edEnd').value=s.end.toFixed(2); }
+$('#edText').addEventListener('input',e=>{const s=S.subs.find(x=>x.id===S.sel);if(!s)return;s.text=e.target.value;renderBlocks();renderOverlay();});
+$('#edName').addEventListener('input',e=>{const s=S.subs.find(x=>x.id===S.sel);if(!s)return;s.name=e.target.value;renderBlocks();renderOverlay();});
+$('#edLane').addEventListener('change',e=>{const s=S.subs.find(x=>x.id===S.sel);if(!s)return;s.lane=e.target.value;refreshEditPanel();renderBlocks();renderOverlay();});
+$('#edStart').addEventListener('change',e=>{const s=S.subs.find(x=>x.id===S.sel);if(!s)return;s.start=clamp(parseFloat(e.target.value)||0,0,s.end-0.1);renderBlocks();fillEditTimes();renderOverlay();});
+$('#edEnd').addEventListener('change',e=>{const s=S.subs.find(x=>x.id===S.sel);if(!s)return;s.end=clamp(parseFloat(e.target.value)||0,s.start+0.1,S.dur||1e9);renderBlocks();fillEditTimes();renderOverlay();});
+$('#edDel').onclick=()=>{ if(S.sel)deleteSub(S.sel); };
+
+/* ===================== style panel ===================== */
+const stEls={ colorTop:$('#stColorTop'),colorBottom:$('#stColorBot'),outline:$('#stOutline'),
+  stroke:$('#stStroke'),shadow:$('#stShadow'),size:$('#stSize'),margin:$('#stMargin'),
+  bold:$('#stBold'),nameColor:$('#stNameColor'),fontUrl:$('#stFontUrl') };
+function loadStylePanel(){
+  const st=S.styles[S.styleTab];
+  stEls.colorTop.value=st.colorTop; stEls.colorBottom.value=st.colorBottom; stEls.outline.value=st.outline;
+  stEls.stroke.value=st.stroke; $('#stStrokeV').textContent=st.stroke;
+  stEls.shadow.value=st.shadow; $('#stShadowV').textContent=st.shadow;
+  stEls.size.value=st.size; $('#stSizeV').textContent=st.size;
+  stEls.margin.value=st.margin; $('#stMarginV').textContent=st.margin;
+  stEls.bold.checked=st.bold; stEls.nameColor.value=st.nameColor||'#7fc4ff';
+  stEls.fontUrl.value=st.fontUrl||'';
+  $('#stNameRow').style.display = S.styleTab==='narration'?'none':'flex';
+}
+document.querySelectorAll('.styletabs button').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('.styletabs button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); S.styleTab=btn.dataset.s; loadStylePanel();
+});
+function bindStyle(elm,key,badge,isFont){
+  elm.addEventListener('input',()=>{
+    const v= elm.type==='checkbox'?elm.checked : (elm.type==='range'?parseFloat(elm.value):elm.value);
+    S.styles[S.styleTab][key]=v; if(badge)$(badge).textContent=v;
+    if(isFont) ensureFont(S.styles[S.styleTab]);
+    renderOverlay();
+  });
+}
+bindStyle(stEls.colorTop,'colorTop'); bindStyle(stEls.colorBottom,'colorBottom'); bindStyle(stEls.outline,'outline');
+bindStyle(stEls.stroke,'stroke','#stStrokeV'); bindStyle(stEls.shadow,'shadow','#stShadowV');
+bindStyle(stEls.size,'size','#stSizeV'); bindStyle(stEls.margin,'margin','#stMarginV');
+bindStyle(stEls.bold,'bold'); bindStyle(stEls.nameColor,'nameColor');
+function deriveFamily(url){
+  try{
+    let base=url.split('?')[0].split('#')[0];
+    base=base.substring(base.lastIndexOf('/')+1).replace(/\.(woff2?|ttf|otf|eot)$/i,'');
+    base=base.replace(/[^A-Za-z0-9가-힣 _-]/g,' ').replace(/\s+/g,' ').trim();
+    if(!base || base.toLowerCase()==='noto sans kr') base='CustomFont';
+    return base;
+  }catch(e){ return 'CustomFont'; }
+}
+stEls.fontUrl.addEventListener('input',()=>{
+  const st=S.styles[S.styleTab];
+  const url=stEls.fontUrl.value.trim();
+  st.fontUrl=url;
+  st.font = url ? deriveFamily(url) : 'Noto Sans KR';   // unique name → never clobbers the UI font
+  if(url) ensureFont(st);
+  renderOverlay();
+});
+
+/* ===================== live overlay ===================== */
+function activeSubs(t){ return S.subs.filter(s=>t>=s.start && t<s.end); }
+function previewScale(){ const vw=el.video.videoWidth||1280; return el.video.clientWidth/vw; }
+function outlineShadow(st,scale){
+  const sw=st.stroke*scale, dirs=[[sw,0],[-sw,0],[0,sw],[0,-sw],[sw,sw],[-sw,-sw],[sw,-sw],[-sw,sw]];
+  const parts=[];
+  if(sw>0) parts.push(...dirs.map(([x,y])=>`${x.toFixed(2)}px ${y.toFixed(2)}px 0 ${st.outline}`));
+  if(st.shadow>0) parts.push(`0 ${(st.shadow*0.4*scale).toFixed(2)}px ${(st.shadow*scale).toFixed(2)}px rgba(0,0,0,.55)`);
+  return parts.join(',');
+}
+function lineBaseCss(st,scale){
+  return `font-family:'${st.font}',sans-serif;font-size:${(st.size*scale).toFixed(2)}px;font-weight:${st.bold?900:500};`;
+}
+function olCss(st,scale){
+  // back layer: solid outline-colored text whose 8-direction shadow stack forms the outline + drop shadow.
+  // solid color guarantees the shadows render (transparent fills suppress text-shadow in some engines)
+  return `color:${st.outline};text-shadow:${outlineShadow(st,scale)};`;
+}
+function fillCss(st){
+  // front layer: pure gradient-clipped text, no shadow to interfere. stops inset so colors land on glyphs
+  return `background-image:linear-gradient(180deg,${st.colorTop} 14%,${st.colorBottom} 86%);background-size:100% 100%;`;
+}
+function nameboxCss(st,scale){
+  const fs=st.size*0.46*scale;
+  const shift=st.size*0.8*scale;   // ~one caption character to the left
+  return `font-family:'${st.font}',sans-serif;transform:rotate(-4deg);background:${st.nameColor};font-size:${fs}px;line-height:1.1;left:${(-shift).toFixed(1)}px;`+
+         `padding:${(fs*0.5).toFixed(1)}px ${(fs*0.66).toFixed(1)}px;border-radius:${(fs*0.62).toFixed(1)}px;`+
+         `margin-bottom:${(-st.size*0.05*scale).toFixed(1)}px;text-shadow:0 1px 2px rgba(0,0,0,.4);`;
+}
+function renderOverlay(){
+  if(!el.video.src){el.overlay.innerHTML='';return;}
+  const t=el.video.currentTime, scale=previewScale();
+  el.overlay.innerHTML='';
+  for(const s of activeSubs(t)){
+    const st=styleOf(s);
+    const wrap=document.createElement('div'); wrap.className='sub'; wrap.style.bottom=(st.margin*scale)+'px';
+    if(s.lane!=='narration' && s.name){
+      const nb=document.createElement('div'); nb.className='namebox'; nb.style.cssText=nameboxCss(st,scale); nb.textContent=s.name;
+      wrap.appendChild(nb);
+    }
+    const cap=document.createElement('div'); cap.className='cap';
+    const baseCss=lineBaseCss(st,scale), oCss=olCss(st,scale), fCss=fillCss(st);
+    for(const ln of s.text.split('\n')){
+      const text=ln.length?ln:'\u200b';
+      const le=document.createElement('div'); le.className='cap-line'; le.style.cssText=baseCss;
+      const ol=document.createElement('span'); ol.className='ol'; ol.style.cssText=oCss; ol.textContent=text;
+      const fl=document.createElement('span'); fl.className='fill'; fl.style.cssText=fCss; fl.textContent=text;
+      le.appendChild(ol); le.appendChild(fl);
+      cap.appendChild(le);
+    }
+    wrap.appendChild(cap); el.overlay.appendChild(wrap);
+  }
+}
+window.addEventListener('resize',()=>{ if(el.video.src){applyWidth();buildRuler();renderBlocks();syncPlayhead();renderOverlay();} });
+
+/* ===================== ASS export ===================== */
+function assTime(t){ t=Math.max(0,t);
+  let h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=Math.floor(t%60),cs=Math.round((t-Math.floor(t))*100);
+  if(cs>=100){cs-=100;s++;}if(s>=60){s-=60;m++;}if(m>=60){m-=60;h++;}
+  return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`; }
+function assColor(hex,a=0){ hex=hex.replace('#','');
+  const r=hex.slice(0,2),g=hex.slice(2,4),b=hex.slice(4,6);
+  return `&H${a.toString(16).padStart(2,'0')}${b}${g}${r}`.toUpperCase().replace('&H','&H'); }
+function assStyleLine(name,st){
+  const bold=st.bold?-1:0;
+  const shadow=st.shadow>0?Math.max(1,Math.round(st.shadow/6)):0;
+  return `Style: ${name},${st.font},${st.size},${assColor(st.colorTop)},${assColor(st.colorBottom)},${assColor(st.outline)},${assColor('#000000')},`+
+         `${bold},0,0,0,100,100,0,0,1,${st.stroke},${shadow},2,40,40,${st.margin},1`;
+}
+function buildAss(){
+  const W=el.video.videoWidth||1280,H=el.video.videoHeight||720;
+  let out='[Script Info]\nScriptType: v4.00+\nWrapStyle: 0\nScaledBorderAndShadow: yes\nYCbCr Matrix: TV.709\n';
+  out+=`PlayResX: ${W}\nPlayResY: ${H}\n\n[V4+ Styles]\n`;
+  out+='Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\n';
+  out+=assStyleLine('Narration',S.styles.narration)+'\n';
+  out+=assStyleLine('InterviewA',S.styles.interviewA)+'\n';
+  out+=assStyleLine('InterviewB',S.styles.interviewB)+'\n\n';
+  out+='[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n';
+  const styleName={narration:'Narration',interviewA:'InterviewA',interviewB:'InterviewB'};
+  const ordered=[...S.subs].sort((a,b)=>a.start-b.start);
+  for(const s of ordered){
+    const st=styleOf(s), nm=styleName[s.lane]||'Narration';
+    const layer=s.lane==='narration'?1:0;
+    let text=s.text.replace(/\n/g,'\\N');
+    if(s.lane!=='narration' && s.name){
+      const nameSize=Math.round(st.size*0.5);
+      text=`{\\fs${nameSize}\\b1\\1c${assColor(st.nameColor)}}${s.name}{\\r${nm}}\\N`+text;
+    }
+    out+=`Dialogue: ${layer},${assTime(s.start)},${assTime(s.end)},${nm},,0,0,0,,${text}\n`;
+  }
+  return out;
+}
+function download(name,content,type='text/plain'){
+  const blob=content instanceof Blob?content:new Blob([content],{type});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+$('#expAss').onclick=()=>{ if(!S.subs.length){alert('자막이 없어');return;} download('subtitles.ass',buildAss()); };
+
+/* ===================== SRT ===================== */
+function srtTime(t){ t=Math.max(0,t);
+  const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=Math.floor(t%60),ms=Math.round((t-Math.floor(t))*1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`; }
+$('#expSrt').onclick=()=>{
+  if(!S.subs.length){alert('자막이 없어');return;}
+  let out=''; [...S.subs].sort((a,b)=>a.start-b.start).forEach((s,i)=>{
+    const txt=(s.lane!=='narration'&&s.name)?`[${s.name}] `+s.text:s.text;
+    out+=`${i+1}\n${srtTime(s.start)} --> ${srtTime(s.end)}\n${txt}\n\n`; });
+  download('subtitles.srt',out);
+};
+
+/* ===================== project save/load ===================== */
+$('#saveProj').onclick=()=>download('project.json',JSON.stringify({v:2,dur:S.dur,styles:S.styles,subs:S.subs},null,2),'application/json');
+$('#loadProj').onclick=()=>$('#projInput').click();
+$('#projInput').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ try{
+    const d=JSON.parse(r.result);
+    if(d.styles) for(const k in S.styles) if(d.styles[k]) S.styles[k]=mkStyle(d.styles[k]);
+    for(const k in S.styles){ const st=S.styles[k]; if((st.fontUrl||'').trim()) st.font=deriveFamily(st.fontUrl); else st.font='Noto Sans KR'; }
+    if(Array.isArray(d.subs)){ S.subs=d.subs.map(s=>Object.assign({name:''},s)); S.uid=Math.max(1,...S.subs.map(s=>s.id||0))+1; }
+    loadStylePanel(); ensureAllFonts(); renderBlocks(); renderOverlay();
+    alert('프로젝트 불러왔어. 영상은 따로 다시 열어줘.');
+  }catch(err){ alert('JSON 오류: '+err.message); } };
+  r.readAsText(f);
+};
+
+/* ===================== canvas drawing (shared by burns) ===================== */
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);return;}
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function drawSubCanvas(ctx,W,H,t){
+  for(const s of activeSubs(t)){
+    const st=styleOf(s);
+    const fam=st.font, size=st.size, lines=s.text.split('\n'), lh=size*1.22;
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.font=`${st.bold?900:500} ${size}px '${fam}', sans-serif`;
+    let maxW=0; lines.forEach(l=>maxW=Math.max(maxW,ctx.measureText(l).width));
+    const cx=W/2, baseY=H-st.margin;
+    lines.forEach((ln,i)=>{
+      const y=baseY-(lines.length-1-i)*lh;
+      ctx.save();
+      if(st.shadow>0){ ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=st.shadow; ctx.shadowOffsetY=st.shadow*0.4; }
+      if(st.stroke>0){ ctx.lineJoin='round'; ctx.lineWidth=st.stroke*2; ctx.strokeStyle=st.outline; ctx.strokeText(ln,cx,y); }
+      else { ctx.fillStyle=st.colorTop; ctx.fillText(ln,cx,y); }
+      ctx.restore();
+      if(st.stroke>0){ ctx.lineJoin='round'; ctx.lineWidth=st.stroke*2; ctx.strokeStyle=st.outline; ctx.strokeText(ln,cx,y); }
+      const g=ctx.createLinearGradient(0,y-size*0.82,0,y+size*0.12);
+      g.addColorStop(0,st.colorTop); g.addColorStop(1,st.colorBottom);
+      ctx.fillStyle=g; ctx.fillText(ln,cx,y);
+    });
+    if(s.lane!=='narration' && s.name){
+      const blockLeft=cx-maxW/2;
+      const topLineY=baseY-(lines.length-1)*lh;
+      const topOfText=topLineY-size*0.8;
+      const nfs=size*0.46;
+      ctx.font=`900 ${nfs}px '${fam}', sans-serif`;
+      const padX=nfs*0.66, padY=nfs*0.5;
+      const nw=ctx.measureText(s.name).width+padX*2, nh=nfs+padY*2;
+      ctx.save();
+      ctx.translate(blockLeft - size*0.8, topOfText+size*0.04);
+      ctx.rotate(-4*Math.PI/180);
+      ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=nfs*0.4; ctx.shadowOffsetY=nfs*0.2;
+      roundRect(ctx,0,-nh,nw,nh,nh*0.42); ctx.fillStyle=st.nameColor; ctx.fill();
+      ctx.shadowColor='transparent';
+      ctx.fillStyle='#fff'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(s.name,padX,-nh/2);
+      ctx.restore();
+    }
+  }
+}
+
+/* ===================== burn (alpha / chroma / full) ===================== */
+let mediaRec=null,recChunks=[];
+async function burn(mode){
+  if(!el.video.src){alert('영상을 먼저 열어줘');return;}
+  if(!S.subs.length && !confirm('자막이 없는데 그냥 진행할까?'))return;
+  await ensureAllFonts();
+  try{ await document.fonts.ready; }catch(e){}
+  const W=el.video.videoWidth,H=el.video.videoHeight;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d',{alpha:mode!=='chroma'});
+  const cvStream=cv.captureStream(30);
+  const tracks=[...cvStream.getVideoTracks()];
+  if(mode==='full'){
+    let aud=null; try{ aud=el.video.captureStream?el.video.captureStream():el.video.mozCaptureStream(); }catch(e){}
+    if(aud) aud.getAudioTracks().forEach(tr=>tracks.push(tr));
+  }
+  const out=new MediaStream(tracks);
+  const cand= mode==='alpha'
+    ? ['video/webm;codecs=vp8','video/webm;codecs=vp9','video/webm']
+    : ['video/webm;codecs=vp9,opus','video/webm;codecs=vp9','video/webm'];
+  const mime=cand.find(m=>MediaRecorder.isTypeSupported(m))||'video/webm';
+  recChunks=[]; mediaRec=new MediaRecorder(out,{mimeType:mime,videoBitsPerSecond:mode==='full'?8e6:6e6});
+  mediaRec.ondataavailable=e=>{ if(e.data.size)recChunks.push(e.data); };
+  const fname=mode==='full'?'clip_subbed.webm':(mode==='alpha'?'subtitles_alpha.webm':'subtitles_chroma.webm');
+  mediaRec.onstop=()=>{ download(fname,new Blob(recChunks,{type:'video/webm'})); finishRec(); };
+
+  el.video.currentTime=0; el.video.muted=(mode!=='full');
+  await el.video.play(); mediaRec.start(100); $('#recBox').classList.add('on');
+  const lab={alpha:'자막만(투명)',chroma:'자막만(크로마)',full:'전체 영상'};
+  let raf;
+  const render=()=>{
+    if(mode==='chroma'){ ctx.fillStyle='#00b140'; ctx.fillRect(0,0,W,H); } else ctx.clearRect(0,0,W,H);
+    if(mode==='full') ctx.drawImage(el.video,0,0,W,H);
+    drawSubCanvas(ctx,W,H,el.video.currentTime);
+    $('#recMsg').textContent=`${lab[mode]} 녹화 중… ${fmt(el.video.currentTime)} / ${fmt(S.dur)}`;
+    if(el.video.ended||mediaRec.state==='inactive'){ stopRec(); return; }
+    raf=requestAnimationFrame(render);
+  };
+  render(); el.video.onended=()=>stopRec(); S._recRaf=()=>cancelAnimationFrame(raf);
+}
+$('#expBurnAlpha').onclick =()=>burn('alpha');
+$('#expBurnChroma').onclick=()=>burn('chroma');
+$('#expBurnFull').onclick  =()=>burn('full');
+function stopRec(){ if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop(); }
+function finishRec(){ $('#recBox').classList.remove('on'); el.video.pause(); el.video.onended=null; if(S._recRaf)S._recRaf(); }
+$('#recStop').onclick=stopRec;
+
+/* ===================== init ===================== */
+loadStylePanel(); ensureAllFonts();
+</script>
+</body>
+</html>
