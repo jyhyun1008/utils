@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데일리 다이어리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ── 기본 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@font-face {
+    font-family: 'BelovedMyoeunttobak';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Myoeunddobak-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'BelovedMyoeunttobak';
+  background: #F5EFF8;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* 페이지: iPad Pro 12.9" 가로 = 1366×1024 기준 */
+.page {
+  width: 100%;
+  max-width: 1400px;
+  min-height: 952px;
+  background: #FEF9F6;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(120,80,140,0.13);
+  padding: 18px 20px 14px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 배경 장식 */
+.deco { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; }
+
+/* ── 헤더 ── */
+.header {
+  background: #FFD6DC;
+  border: 2px solid #F0A0AA;
+  border-radius: 14px;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  color: #F0A0AA;
+}
+.date-text {
+  font-weight: 700;
+  color: #F0A0AA;
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+.hdr-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hdr-label { color: #A090A8; font-weight: 300; }
+.weather-row, .mood-row { display: flex; gap: 5px; }
+.w-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: white; border: 1px solid #F0A0AA;
+  display: flex; align-items: center; justify-content: center;
+}
+.m-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #F8C8D0; border: 1px solid #F0A0AA;
+}
+
+/* ── 4컬럼 본문 ── */
+.body {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 0.75fr 1.4fr;
+  gap: 10px;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+}
+
+/* ── 공통 섹션 ── */
+.sec {
+  border-radius: 13px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sec-head {
+  border-radius: 10px;
+  padding: 6px 11px;
+  font-weight: 700;
+  color: #3D3540;
+  margin: 6px 6px 0;
+  flex-shrink: 0;
+}
+.sec-body {
+  padding: 8px 10px 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* 라인 */
+.wline {
+  border: none;
+  border-bottom: 1px solid #EDE6F5;
+  height: 22px;
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* 체크행 */
+.crow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.cb {
+  width: 13px; height: 13px;
+  border-radius: 3px;
+  border: 1.5px solid #C8B8D8;
+  background: white;
+  flex-shrink: 0;
+}
+.cline { height: 12px; flex: 1; border-bottom: 1px solid #F2D0DC; }
+
+/* 소제목 */
+.slabel {
+  font-weight: 700;
+  margin: 7px 0 2px;
+  display: block;
+  flex-shrink: 0;
+}
+.slabel:first-child { margin-top: 0; }
+
+/* ════ 컬럼 1: 루틴 & 투두 ════ */
+.sec-routine {
+  background: #FFF5FB;
+  border: 1.5px solid #F0A0AA;
+}
+.sec-routine .sec-head { background: #FFD6DC; }
+
+.rtodo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 10px;
+  flex: 1;
+}
+.cb-peach { border-color: #E8A870 !important; }
+.pdot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.todo-crow {
+  display: flex; align-items: center; gap: 5px; height: 22px; flex-shrink: 0;
+}
+.tline { height: 12px; flex: 1; border-bottom: 1px solid #F2DCD0; }
+
+/* ════ 컬럼 2: 프로젝트 + 공부 ════ */
+.col2 { display: flex; flex-direction: column; gap: 10px; }
+
+.sec-project {
+  background: #F6F2FF;
+  border: 1.5px solid #B09DE0;
+}
+.sec-project .sec-head { background: #E2D5F8; }
+
+.pj-name-row {
+  display: flex; align-items: flex-end; gap: 6px; margin-bottom: 6px; flex-shrink: 0;
+}
+.pj-name-row span { font-weight: 700; color: #B09DE0; white-space: nowrap; }
+.pj-line { flex: 1; border-bottom: 1.5px solid #B09DE0; height: 18px; }
+
+.prog-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-shrink: 0;
+}
+.prog-lbl { color: #A090A8; font-weight: 300; white-space: nowrap; }
+.prog-bg {
+  flex: 1; height: 10px; background: #EAE0F8; border-radius: 5px; overflow: hidden;
+}
+.prog-fill { height: 100%; background: #B09DE0; border-radius: 5px; width: 30%; }
+.prog-pct {  color: #A090A8; }
+.sec-project .wline { border-bottom-color: #D8C8F0; }
+.done-line { border-bottom: 1px solid #C0E8E0; height: 22px; display: block; flex-shrink: 0; }
+
+.sec-study {
+  background: #F0FFF8;
+  border: 1.5px solid #7ECFC0;
+  flex: 1;
+}
+.sec-study .sec-head { background: #C6EFE8; }
+.sec-study .wline { border-bottom-color: #B8EEE0; }
+
+.tag-cloud {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; flex-shrink: 0;
+}
+.tag {
+  border-radius: 10px; padding: 3px 10px;
+   color: #3D3540;
+  min-width: 44px; text-align: center;
+}
+
+/* ════ 컬럼 3: 식사 일지 ════ */
+.sec-meal {
+  background: #FFFCF0;
+  border: 1.5px solid #E8C84A;
+  flex: 1;
+}
+.sec-meal .sec-head { background: #FFF3C2; }
+
+.meal-blk { margin-bottom: 7px; flex-shrink: 0; }
+.meal-top {
+  display: flex; align-items: flex-end; gap: 6px; margin-bottom: 3px;
+}
+.meal-top span { font-weight: 700; white-space: nowrap; }
+.meal-nline { flex: 1; border-bottom: 1.5px solid #F0E8C8; height: 17px; }
+.meal-wline { border-bottom: 1px solid #E8DEB8; height: 21px; display: block; }
+
+.water-row {
+  display: flex; align-items: center; gap: 7px; margin-top: 6px; flex-shrink: 0;
+}
+.water-lbl {font-weight: 700; color: #7AB8E8; }
+.wdots { display: flex; gap: 5px; }
+.wdot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #C8E0FF; border: 1px solid #7AB8E8;
+}
+.wdot.e { background: white; }
+
+/* ════ 컬럼 4: 타임블록 ════ */
+.sec-time {
+  background: #F5F7FF;
+  border: 1.5px solid #7AB8E8;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sec-time .sec-head { background: #C8E0FF; }
+
+.tch {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr;
+  padding: 3px 8px 3px;
+  border-bottom: 1px solid #7AB8E8;
+  flex-shrink: 0;
+}
+.tch span {
+   color: #A090A8; font-weight: 300; text-align: center;
+}
+.tch .tch0 { text-align: left; }
+
+.tslots {
+  flex: 1;
+  overflow: hidden;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.tr {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr;
+  border-bottom: 0.5px solid #DCE4F8;
+  flex: 1;
+  min-height: 0;
+}
+.tr.hour {
+  background: #EBF0FF;
+  border-bottom: 1px solid #B8C8F0;
+}
+.tl {
+  color: #A090A8;
+  padding: 0 0 0 6px;
+  display: flex;
+  align-items: center;
+  border-right: 0.5px solid #D0D8F8;
+  flex-shrink: 0;
+}
+.tr.hour .tl { color: #7AB8E8; font-weight: 700; }
+.tc {
+  border-right: 0.5px solid #D0D8F8;
+  min-height: 0;
+}
+.tc:last-child { border-right: none; }
+
+/* 페이지 하단 */
+.footer {
+  text-align: center;
+  color: #C0B0C8;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+/* 프린트 */
+@media print {
+  body { background: none; padding: 0; }
+  .page { box-shadow: none; border-radius: 0; width: 100vw; min-height: 100vh; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 배경 장식 -->
+  <div class="deco" style="width:110px;height:110px;background:#FFEAF0;top:-30px;right:-25px;"></div>
+  <div class="deco" style="width:130px;height:130px;background:#EAF2FF;top:-40px;left:-35px;"></div>
+  <div class="deco" style="width:80px;height:80px;background:#EAF9F4;bottom:-20px;right:-15px;"></div>
+  <div class="deco" style="width:65px;height:65px;background:#FFF4EA;bottom:-10px;left:-10px;"></div>
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="date-text">20&nbsp;&nbsp;&nbsp; 년 &nbsp;&nbsp;&nbsp; 월 &nbsp;&nbsp;&nbsp; 일 &nbsp;&nbsp;&nbsp; 요일</div>
+    <div class="hdr-group">
+      <div class="hdr-label">날씨</div>
+      <div class="weather-row">
+        <div class="w-dot">☀</div><div class="w-dot">⛅</div>
+        <div class="w-dot">☁</div><div class="w-dot">☔</div><div class="w-dot">❄</div>
+      </div>
+    </div>
+    <div class="hdr-group">
+      <div class="hdr-label">기분</div>
+      <div class="mood-row">
+        <div class="m-dot"></div><div class="m-dot"></div><div class="m-dot"></div>
+        <div class="m-dot"></div><div class="m-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4컬럼 본문 -->
+  <div class="body">
+
+    <!-- ══ 컬럼 1: 루틴 & 투두 ══ -->
+    <div class="sec sec-routine">
+      <div class="sec-head">✅  루틴 &amp; 투두</div>
+      <div class="sec-body">
+        <div class="rtodo-grid">
+          <div>
+            <span class="slabel" style="color:#F0A0AA;">☀ 루틴</span>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+            <div class="crow"><div class="cb"></div><div class="cline"></div></div>
+          </div>
+          <div>
+            <span class="slabel" style="color:#E8A870;">📋 오늘 할 일</span>
+            <div class="todo-crow"><div class="pdot" style="background:#FF9880;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FF9880;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FF9880;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FF9880;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFB89A;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFB89A;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFB89A;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFB89A;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFD8C0;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFD8C0;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+            <div class="todo-crow"><div class="pdot" style="background:#FFD8C0;"></div><div class="cb cb-peach"></div><div class="tline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 컬럼 2: 프로젝트 + 공부 ══ -->
+    <div class="col2">
+      <div class="sec sec-project">
+        <div class="sec-head">🎯  프로젝트 포커스</div>
+        <div class="sec-body">
+          <div class="pj-name-row">
+            <span>Project</span><div class="pj-line"></div>
+          </div>
+          <div class="prog-row">
+            <span class="prog-lbl">진행도</span>
+            <div class="prog-bg"><div class="prog-fill"></div></div>
+            <span class="prog-pct">&nbsp;&nbsp;&nbsp;%</span>
+          </div>
+          <span class="slabel" style="color:#B09DE0;">오늘 목표</span>
+          <div class="wline"></div>
+          <div class="wline"></div>
+          <div class="wline"></div>
+          <span class="slabel" style="color:#B09DE0; margin-top:6px;">✓ 완료한 것</span>
+          <div class="wline"></div>
+          <div class="wline"></div>
+        </div>
+      </div>
+
+      <div class="sec sec-study">
+        <div class="sec-head">📚  오늘 공부한 것</div>
+        <div class="sec-body">
+          <span class="slabel" style="color:#7ECFC0;"># 키워드</span>
+          <div class="tag-cloud">
+            <div class="tag" style="background:#C6EFE8;border:1px solid #7ECFC0;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div class="tag" style="background:#E2D5F8;border:1px solid #B09DE0;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div class="tag" style="background:#FFF3C2;border:1px solid #E8C84A;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div class="tag" style="background:#FFE4C8;border:1px solid #E8A870;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div class="tag" style="background:#C8E0FF;border:1px solid #7AB8E8;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div class="tag" style="background:#FFD6DC;border:1px solid #F0A0AA;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+          </div>
+          <span class="slabel" style="color:#7ECFC0;">💡 인사이트</span>
+          <div class="wline" style="border-bottom-color:#B8EEE0;"></div>
+          <div class="wline" style="border-bottom-color:#B8EEE0;"></div>
+          <div class="wline" style="border-bottom-color:#B8EEE0;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 컬럼 3: 식사 일지 ══ -->
+    <div class="sec sec-meal">
+      <div class="sec-head">🍱  식사 일지</div>
+      <div class="sec-body">
+        <div class="meal-blk">
+          <div class="meal-top"><span style="color:#E8A870;">☀ 아침</span><div class="meal-nline"></div></div>
+          <div class="meal-wline"></div>
+          <div class="meal-wline"></div>
+        </div>
+        <div class="meal-blk">
+          <div class="meal-top"><span style="color:#C8A020;">☀ 점심</span><div class="meal-nline"></div></div>
+          <div class="meal-wline"></div>
+          <div class="meal-wline"></div>
+        </div>
+        <div class="meal-blk">
+          <div class="meal-top"><span style="color:#B09DE0;">🌙 저녁</span><div class="meal-nline"></div></div>
+          <div class="meal-wline"></div>
+          <div class="meal-wline"></div>
+        </div>
+        <div class="meal-blk">
+          <div class="meal-top"><span style="color:#E8A870;">🍿 간식</span><div class="meal-nline"></div></div>
+          <div class="meal-wline"></div>
+        </div>
+        <div class="water-row">
+          <span class="water-lbl">💧 수분</span>
+          <div class="wdots">
+            <div class="wdot"></div><div class="wdot"></div>
+            <div class="wdot"></div><div class="wdot"></div>
+            <div class="wdot e"></div><div class="wdot e"></div>
+            <div class="wdot e"></div><div class="wdot e"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 컬럼 4: 타임블록 ══ -->
+    <div class="sec sec-time">
+      <div class="sec-head">⏰  타임 블록</div>
+      <div class="tch">
+        <span class="tch0">시간</span>
+        <span>계획</span>
+        <span>실제</span>
+      </div>
+      <div class="tslots">
+<div class="tr hour"><span class="tl">06:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">06:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">07:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">07:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">08:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">08:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">09:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">09:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">10:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">10:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">11:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">11:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">12:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">12:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">13:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">13:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">14:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">14:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">15:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">15:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">16:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">16:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">17:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">17:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">18:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">18:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">19:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">19:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">20:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">20:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">21:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">21:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">22:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">22:30</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr hour"><span class="tl">23:00</span><div class="tc"></div><div class="tc"></div></div>
+<div class="tr"><span class="tl">23:30</span><div class="tc"></div><div class="tc"></div></div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <div class="footer">✦  good day  ✦</div>
+</div>
+</body>
+</html>
