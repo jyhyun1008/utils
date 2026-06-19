@@ -412,7 +412,13 @@ function buildRuler(){
     el.ruler.appendChild(d);
   }
 }
-el.ruler.addEventListener('pointerdown',e=>{const r=el.ruler.getBoundingClientRect();seek((e.clientX-r.left+el.tlscroll.scrollLeft)/S.pps);});
+const SNAP_PX=6;
+function snapTime(t){
+  const px=t*S.pps; let best=t, bestD=SNAP_PX;
+  for(const s of S.subs){ for(const edge of [s.start,s.end]){ const d=Math.abs(edge*S.pps-px); if(d<bestD){bestD=d;best=edge;} } }
+  return best;
+}
+el.ruler.addEventListener('pointerdown',e=>{const r=el.ruler.getBoundingClientRect();seek(snapTime((e.clientX-r.left)/S.pps));});
 function syncPlayhead(){ el.playhead.style.left=(el.video.currentTime*S.pps)+'px'; el.curT.textContent=fmt(el.video.currentTime); }
 
 /* ===================== subtitles ===================== */
@@ -451,6 +457,7 @@ function renderBlocks(){
     b.innerHTML=`<div class="h l"></div>${tag?`<span class="tag">${tag}</span>`:''}<div class="txt">${escHtml(label.replace(/\n/g,' '))||'…'}</div><div class="h r"></div>`;
     b.dataset.id=s.id; lane.appendChild(b); attachDrag(b,s);
   }
+  autosave();
 }
 function attachDrag(b,s){
   let mode=null,sx=0,st0=0,en0=0;
@@ -466,7 +473,7 @@ function attachDrag(b,s){
     b.style.left=(s.start*S.pps)+'px'; b.style.width=Math.max(14,(s.end-s.start)*S.pps)+'px';
     if(S.sel===s.id) fillEditTimes(); renderOverlay();
   });
-  const end=e=>{if(mode){mode=null;try{b.releasePointerCapture(e.pointerId);}catch{}}};
+  const end=e=>{if(mode){mode=null;try{b.releasePointerCapture(e.pointerId);}catch{}autosave();}};
   b.addEventListener('pointerup',end); b.addEventListener('pointercancel',end);
 }
 
@@ -514,7 +521,7 @@ function bindStyle(elm,key,badge,isFont){
     const v= elm.type==='checkbox'?elm.checked : (elm.type==='range'?parseFloat(elm.value):elm.value);
     S.styles[S.styleTab][key]=v; if(badge)$(badge).textContent=v;
     if(isFont) ensureFont(S.styles[S.styleTab]);
-    renderOverlay();
+    renderOverlay(); autosave();
   });
 }
 bindStyle(stEls.colorTop,'colorTop'); bindStyle(stEls.colorBottom,'colorBottom'); bindStyle(stEls.outline,'outline');
@@ -536,7 +543,7 @@ stEls.fontUrl.addEventListener('input',()=>{
   st.fontUrl=url;
   st.font = url ? deriveFamily(url) : 'Noto Sans KR';   // unique name → never clobbers the UI font
   if(url) ensureFont(st);
-  renderOverlay();
+  renderOverlay(); autosave();
 });
 
 /* ===================== live overlay ===================== */
@@ -650,6 +657,28 @@ $('#expSrt').onclick=()=>{
   download('subtitles.srt',out);
 };
 
+/* ===================== autosave (localStorage) ===================== */
+const LS_KEY='kirinuki_sub_autosave_v1';
+let saveTimer=null;
+function autosave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({v:3,ts:Date.now(),dur:S.dur,styles:S.styles,subs:S.subs})); }catch(e){}
+  },400);
+}
+function restoreAutosave(){
+  try{
+    const raw=localStorage.getItem(LS_KEY); if(!raw) return false;
+    const d=JSON.parse(raw);
+    if(d.styles) for(const k in S.styles) if(d.styles[k]) S.styles[k]=mkStyle(d.styles[k]);
+    for(const k in S.styles){ const st=S.styles[k]; st.font=(st.fontUrl||'').trim()?deriveFamily(st.fontUrl):'Noto Sans KR'; }
+    if(Array.isArray(d.subs)){ S.subs=d.subs.map(s=>Object.assign({name:''},s)); S.uid=Math.max(1,...S.subs.map(s=>s.id||0))+1; }
+    S.dur = d.dur||0;
+    return Array.isArray(d.subs) && d.subs.length>0;
+  }catch(e){ return false; }
+}
+window.addEventListener('beforeunload',e=>{ if(S.subs.length){ e.preventDefault(); e.returnValue=''; } });
+
 /* ===================== project save/load ===================== */
 $('#saveProj').onclick=()=>download('project.json',JSON.stringify({v:2,dur:S.dur,styles:S.styles,subs:S.subs},null,2),'application/json');
 $('#loadProj').onclick=()=>$('#projInput').click();
@@ -761,7 +790,15 @@ function finishRec(){ $('#recBox').classList.remove('on'); el.video.pause(); el.
 $('#recStop').onclick=stopRec;
 
 /* ===================== init ===================== */
+const _restored=restoreAutosave();
 loadStylePanel(); ensureAllFonts();
+if(_restored){
+  fitZoom(); buildRuler(); renderBlocks();
+  const note=document.createElement('div');
+  note.className='mini'; note.style.cssText='margin-top:12px;color:var(--accent);font-weight:700';
+  note.textContent='✓ 이전 작업을 복원했어. 영상을 다시 열면 이어서 작업할 수 있어.';
+  $('#drop')?.appendChild(note);
+}
 </script>
 </body>
 </html>
