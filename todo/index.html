@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포괄 실행 목록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #eef4fa;
+    --surface: #ffffff;
+    --border: #dce9f2;
+    --shadow-c: #cfe1ec;
+    --text: #46586a;
+    --sub: #a2b3c0;
+    --accent: #6ec6e8;
+    --accent-soft: #ddf2fb;
+    --accent-deep: #2f93b8;
+    --mint: #bdf0dc;
+    --mint-deep: #3fa47d;
+    --coral: #ffd4cb;
+    --coral-deep: #e07364;
+    --lavender: #e5dbfb;
+    --done-bg: #eaf6f0;
+  }
+
+  body {
+    font-family: 'Jua', 'Noto Sans KR', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+    position: relative;
+  }
+
+  #bgLayer {
+    position: fixed;
+    inset: -40px;
+    z-index: -1;
+    background:
+      radial-gradient(120px 90px at 92% 8%, rgba(110, 198, 232, 0.16), transparent 70%),
+      radial-gradient(160px 110px at 6% 90%, rgba(189, 240, 220, 0.22), transparent 70%),
+      radial-gradient(100px 80px at 50% 2%, rgba(229, 219, 251, 0.18), transparent 70%),
+      var(--bg);
+    background-size: cover;
+    background-position: center;
+    transition: opacity .2s, filter .2s;
+  }
+  #bgLayer.custom { background-color: var(--bg); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 22px;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(.8) rotate(0deg) translateY(8px); opacity: 0; }
+    to { transform: scale(1) rotate(var(--tilt, 0deg)) translateY(0); opacity: 1; }
+  }
+
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 2.5px solid var(--border);
+    border-radius: 26px;
+    min-height: 190px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 5px 0 var(--shadow-c);
+    transform: rotate(var(--tilt, 0deg));
+    animation: popIn .3s cubic-bezier(.34, 1.56, .64, 1);
+    transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .18s;
+  }
+  .todo-card:nth-child(3n+1) { --tilt: -1deg; }
+  .todo-card:nth-child(3n+2) { --tilt: .8deg; }
+  .todo-card:nth-child(3n+3) { --tilt: -.4deg; }
+  .todo-card:hover {
+    transform: rotate(0deg) translateY(-5px);
+    box-shadow: 0 10px 0 var(--shadow-c);
+  }
+
+  /* ── tape decoration ── */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 26px;
+    width: 46px;
+    height: 20px;
+    background: var(--accent-soft);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    transform: rotate(-5deg);
+    opacity: .9;
+  }
+  .todo-card:nth-child(3n+2)::before { background: var(--mint); left: auto; right: 30px; transform: rotate(6deg); }
+  .todo-card:nth-child(3n+3)::before { background: var(--lavender); transform: rotate(3deg); }
+  .add-card::before { display: none; }
+
+  /* ── add card ── */
+  .add-card {
+    padding: 0;
+    border: 3px dashed var(--border);
+    background: transparent;
+    box-shadow: none;
+  }
+  .add-face {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--sub);
+    cursor: pointer;
+    border-radius: 24px;
+    transition: color .15s, background .15s, transform .15s;
+  }
+  .add-face:hover {
+    color: var(--accent-deep);
+    background: var(--accent-soft);
+    transform: scale(1.03);
+  }
+  .add-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1;
+    transition: transform .18s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  .add-face:hover .add-icon { transform: rotate(90deg) scale(1.12); }
+  .add-label { font-size: 21px; }
+
+  .add-input {
+    display: none;
+    width: 100%;
+    height: 100%;
+    min-height: 190px;
+    padding: 22px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 25px;
+    color: var(--text);
+    resize: none;
+  }
+  .add-card.editing { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+  .add-card.editing .add-face { display: none; }
+  .add-card.editing .add-input { display: block; }
+
+  /* ── todo card ── */
+  .todo-title {
+    font-size: 25px;
+    line-height: 1.4;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    outline: none;
+    margin-top: 6px;
+  }
+  .todo-title[contenteditable="true"] {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .todo-card.completed {
+    background: var(--done-bg);
+    border-color: var(--mint-deep);
+  }
+  .todo-card.completed .todo-title {
+    color: var(--sub);
+    text-decoration: line-through wavy var(--mint-deep);
+  }
+  .todo-card.completed::after {
+    content: '완료!';
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    font-size: 15px;
+    color: var(--mint-deep);
+    background: var(--mint);
+    padding: 3px 12px;
+    border-radius: 20px;
+    transform: rotate(-6deg);
+  }
+
+  .todo-actions {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-2px) scale(.9);
+    transition: opacity .12s, transform .12s;
+  }
+  .todo-card:hover .todo-actions,
+  .todo-card.is-editing .todo-actions {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .act-btn {
+    all: unset;
+    box-sizing: border-box;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform .12s cubic-bezier(.34, 1.56, .64, 1), background .12s;
+  }
+  .act-btn:hover { transform: scale(1.15) rotate(-6deg); }
+  .act-btn svg { width: 21px; height: 21px; }
+  .act-btn.edit-btn { background: var(--accent-soft); color: var(--accent-deep); }
+  .act-btn.done-btn { background: var(--mint); color: var(--mint-deep); }
+  .act-btn.del-btn { background: var(--coral); color: var(--coral-deep); }
+
+  /* ── settings fab ── */
+  .settings-fab {
+    position: fixed;
+    right: 26px;
+    bottom: 26px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 3px solid var(--accent-soft);
+    border-radius: 50%;
+    color: var(--accent-deep);
+    cursor: pointer;
+    box-shadow: 0 5px 0 var(--shadow-c), 0 10px 20px rgba(70, 88, 106, 0.12);
+    transition: transform .15s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  .settings-fab:hover { transform: translateY(-3px) rotate(45deg); }
+  .settings-fab svg { width: 26px; height: 26px; }
+  .settings-fab .badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 5px;
+    border-radius: 12px;
+    background: var(--coral-deep);
+    color: #fff;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .settings-fab .badge.visible { display: flex; }
+
+  /* ── settings panel ── */
+  .settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(70, 88, 106, 0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 50;
+  }
+  .settings-overlay.open { display: flex; }
+
+  .settings-panel {
+    width: 100%;
+    max-width: 380px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 3px solid var(--accent-soft);
+    border-radius: 28px;
+    padding: 26px;
+    box-shadow: 0 12px 0 var(--shadow-c), 0 20px 40px rgba(70, 88, 106, 0.2);
+    animation: popIn .25s cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .settings-header h2 { font-size: 24px; font-weight: normal; }
+  .close-btn {
+    all: unset;
+    box-sizing: border-box;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--coral);
+    color: var(--coral-deep);
+    cursor: pointer;
+    font-size: 18px;
+  }
+  .close-btn:hover { transform: scale(1.1) rotate(-6deg); }
+
+  .settings-section {
+    padding: 16px 0;
+    border-top: 2px dashed var(--border);
+  }
+  .settings-section:first-of-type { border-top: none; padding-top: 0; }
+  .settings-section h3 { font-size: 18px; margin-bottom: 6px; color: var(--text); }
+  .settings-desc { font-size: 14px; color: var(--sub); margin-bottom: 12px; font-family: 'Noto Sans KR', sans-serif; }
+
+  .settings-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .settings-input:focus { border-color: var(--accent); }
+
+  .settings-btn-row { display: flex; gap: 10px; margin-bottom: 6px; }
+
+  .settings-btn {
+    all: unset;
+    box-sizing: border-box;
+    flex: 1;
+    text-align: center;
+    padding: 11px 14px;
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--sub);
+    cursor: pointer;
+    font-size: 15px;
+    font-family: 'Jua', sans-serif;
+    transition: transform .12s;
+  }
+  .settings-btn:hover { transform: scale(1.03); }
+  .settings-btn.primary { background: var(--accent-soft); color: var(--accent-deep); }
+  .settings-btn.danger { background: var(--coral); color: var(--coral-deep); }
+  .settings-btn:disabled { opacity: .5; cursor: default; transform: none; }
+
+  .slider-row { margin-top: 14px; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--sub);
+    margin-bottom: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .slider-row input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text);
+    color: #fff;
+    font-size: 18px;
+    padding: 14px 26px;
+    border-radius: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <div id="bgLayer"></div>
+
+  <div class="grid" id="grid">
+    <div class="card add-card" id="addCard">
+      <button type="button" class="add-face" id="addFace">
+        <span class="add-icon">+</span>
+        <span class="add-label">새 할일</span>
+      </button>
+      <textarea class="add-input" id="addInput" placeholder="할 일을 입력하고 Enter" maxlength="300" rows="1"></textarea>
+    </div>
+    <div id="todoItems" style="display: contents;"></div>
+  </div>
+
+  <button type="button" class="settings-fab" id="settingsBtn" title="설정">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6a3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+    <span class="badge" id="settingsBadge"></span>
+  </button>
+
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h2>설정</h2>
+        <button type="button" class="close-btn" id="closeSettingsBtn">✕</button>
+      </div>
+
+      <section class="settings-section">
+        <h3>🧹 완료 항목 정리</h3>
+        <p class="settings-desc">어제까지 완료한 항목을 한번에 지워요 (오늘 완료한 건 남겨둬요)</p>
+        <button type="button" class="settings-btn danger" id="cleanupActionBtn">정리하기</button>
+      </section>
+
+      <section class="settings-section">
+        <h3>🖼️ 배경 이미지</h3>
+        <p class="settings-desc">이미지 URL을 붙여넣으면 배경으로 적용돼요</p>
+        <input type="url" id="bgUrlInput" class="settings-input" placeholder="https://...">
+        <div class="settings-btn-row">
+          <button type="button" class="settings-btn primary" id="applyBgBtn">적용</button>
+          <button type="button" class="settings-btn" id="clearBgBtn">배경 제거</button>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label"><span>투명도</span><span id="opacityValue">50%</span></div>
+          <input type="range" id="opacitySlider" min="10" max="100" step="1" value="50">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>블러</span><span id="blurValue">0px</span></div>
+          <input type="range" id="blurSlider" min="0" max="30" step="1" value="0">
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'todo_list_items_v1';
+  const ICONS = {
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+  };
+
+  const BG_STORAGE_KEY = 'todo_bg_settings_v1';
+
+  let todos = [];
+  try {
+    todos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (e) {
+    todos = [];
+  }
+
+  let bgSettings = { url: '', opacity: 50, blur: 0 };
+  try {
+    bgSettings = Object.assign(bgSettings, JSON.parse(localStorage.getItem(BG_STORAGE_KEY)) || {});
+  } catch (e) {
+    // keep defaults
+  }
+
+  const todoItemsEl = document.getElementById('todoItems');
+  const addCard = document.getElementById('addCard');
+  const addFace = document.getElementById('addFace');
+  const addInput = document.getElementById('addInput');
+  const toastEl = document.getElementById('toast');
+
+  const bgLayer = document.getElementById('bgLayer');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsBadge = document.getElementById('settingsBadge');
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  const cleanupActionBtn = document.getElementById('cleanupActionBtn');
+  const bgUrlInput = document.getElementById('bgUrlInput');
+  const applyBgBtn = document.getElementById('applyBgBtn');
+  const clearBgBtn = document.getElementById('clearBgBtn');
+  const opacitySlider = document.getElementById('opacitySlider');
+  const blurSlider = document.getElementById('blurSlider');
+  const opacityValue = document.getElementById('opacityValue');
+  const blurValue = document.getElementById('blurValue');
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function todayStart() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove('show'), 1800);
+  }
+
+  function countStaleCompleted() {
+    const t0 = todayStart();
+    return todos.filter(t => t.completed && t.completedAt && new Date(t.completedAt) < t0).length;
+  }
+
+  function updateSettingsBadge() {
+    const staleCount = countStaleCompleted();
+    settingsBadge.classList.toggle('visible', staleCount > 0);
+    settingsBadge.textContent = staleCount;
+    cleanupActionBtn.textContent = staleCount ? `정리하기 (${staleCount})` : '정리할 항목 없음';
+    cleanupActionBtn.disabled = staleCount === 0;
+  }
+
+  function saveBgSettings() {
+    localStorage.setItem(BG_STORAGE_KEY, JSON.stringify(bgSettings));
+  }
+
+  function applyBackground() {
+    if (bgSettings.url) {
+      bgLayer.classList.add('custom');
+      bgLayer.style.backgroundImage = `url("${bgSettings.url}")`;
+    } else {
+      bgLayer.classList.remove('custom');
+      bgLayer.style.backgroundImage = '';
+    }
+    bgLayer.style.opacity = bgSettings.opacity / 100;
+    bgLayer.style.filter = bgSettings.blur > 0 ? `blur(${bgSettings.blur}px)` : 'none';
+  }
+
+  function sortedTodos() {
+    return todos
+      .map((t, i) => ({ t, i }))
+      .sort((a, b) => {
+        if (a.t.completed !== b.t.completed) return a.t.completed ? 1 : -1;
+        return a.i - b.i;
+      })
+      .map(x => x.t);
+  }
+
+  function render() {
+    todoItemsEl.innerHTML = '';
+
+    sortedTodos().forEach(todo => {
+      const card = document.createElement('div');
+      card.className = 'card todo-card' + (todo.completed ? ' completed' : '');
+      card.dataset.id = todo.id;
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'todo-title';
+      titleEl.textContent = todo.title;
+
+      const actions = document.createElement('div');
+      actions.className = 'todo-actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'act-btn edit-btn';
+      editBtn.type = 'button';
+      editBtn.title = '제목 편집';
+      editBtn.innerHTML = ICONS.edit;
+
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'act-btn done-btn';
+      doneBtn.type = 'button';
+      doneBtn.title = todo.completed ? '완료 취소' : '완료 표시';
+      doneBtn.innerHTML = todo.completed ? ICONS.undo : ICONS.check;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'act-btn del-btn';
+      delBtn.type = 'button';
+      delBtn.title = '삭제';
+      delBtn.innerHTML = ICONS.close;
+
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startEdit(todo, titleEl, card);
+      });
+
+      doneBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleComplete(todo.id);
+      });
+
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteTodo(todo.id, todo.title);
+      });
+
+      actions.append(editBtn, doneBtn, delBtn);
+      card.append(titleEl, actions);
+      todoItemsEl.appendChild(card);
+    });
+
+    updateSettingsBadge();
+  }
+
+  function startEdit(todo, titleEl, card) {
+    card.classList.add('is-editing');
+    titleEl.contentEditable = 'true';
+    titleEl.focus();
+
+    const range = document.createRange();
+    range.selectNodeContents(titleEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    const finish = (commit) => {
+      titleEl.contentEditable = 'false';
+      card.classList.remove('is-editing');
+      const newTitle = titleEl.textContent.trim();
+      if (commit && newTitle && newTitle !== todo.title) {
+        todo.title = newTitle;
+        save();
+      }
+      titleEl.textContent = todo.title;
+      titleEl.removeEventListener('keydown', onKeyDown);
+      titleEl.removeEventListener('blur', onBlur);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        finish(true);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        finish(false);
+      }
+    };
+    const onBlur = () => finish(true);
+
+    titleEl.addEventListener('keydown', onKeyDown);
+    titleEl.addEventListener('blur', onBlur);
+  }
+
+  function toggleComplete(id) {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+    todo.completed = !todo.completed;
+    todo.completedAt = todo.completed ? new Date().toISOString() : null;
+    save();
+    render();
+  }
+
+  function deleteTodo(id, title) {
+    if (!confirm(`"${title}" 항목을 삭제할까요?`)) return;
+    todos = todos.filter(t => t.id !== id);
+    save();
+    render();
+  }
+
+  function addTodo(title) {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    todos.unshift({
+      id: uid(),
+      title: trimmed,
+      completed: false,
+      createdAt: new Date().toISOString(),
+      completedAt: null
+    });
+    save();
+    render();
+  }
+
+  function cleanupStaleCompleted() {
+    const t0 = todayStart();
+    const staleIds = new Set(
+      todos.filter(t => t.completed && t.completedAt && new Date(t.completedAt) < t0).map(t => t.id)
+    );
+    if (staleIds.size === 0) return;
+    if (!confirm(`어제까지 완료한 항목 ${staleIds.size}개를 삭제할까요?`)) return;
+    todos = todos.filter(t => !staleIds.has(t.id));
+    save();
+    render();
+    showToast(`${staleIds.size}개 항목을 정리했어요`);
+  }
+
+  // ── add card interactions ──
+  addFace.addEventListener('click', () => {
+    addCard.classList.add('editing');
+    addInput.focus();
+  });
+
+  addInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      addTodo(addInput.value);
+      addInput.value = '';
+      addInput.focus();
+    } else if (e.key === 'Escape') {
+      addInput.value = '';
+      addCard.classList.remove('editing');
+      addInput.blur();
+    }
+  });
+
+  addInput.addEventListener('blur', () => {
+    if (!addInput.value.trim()) {
+      addCard.classList.remove('editing');
+    }
+  });
+
+  // ── settings panel ──
+  function openSettings() {
+    bgUrlInput.value = bgSettings.url;
+    opacitySlider.value = bgSettings.opacity;
+    blurSlider.value = bgSettings.blur;
+    opacityValue.textContent = `${bgSettings.opacity}%`;
+    blurValue.textContent = `${bgSettings.blur}px`;
+    settingsOverlay.classList.add('open');
+  }
+
+  function closeSettings() {
+    settingsOverlay.classList.remove('open');
+  }
+
+  settingsBtn.addEventListener('click', openSettings);
+  closeSettingsBtn.addEventListener('click', closeSettings);
+  settingsOverlay.addEventListener('click', (e) => {
+    if (e.target === settingsOverlay) closeSettings();
+  });
+
+  cleanupActionBtn.addEventListener('click', cleanupStaleCompleted);
+
+  applyBgBtn.addEventListener('click', () => {
+    bgSettings.url = bgUrlInput.value.trim();
+    saveBgSettings();
+    applyBackground();
+  });
+
+  clearBgBtn.addEventListener('click', () => {
+    bgSettings.url = '';
+    bgUrlInput.value = '';
+    saveBgSettings();
+    applyBackground();
+  });
+
+  opacitySlider.addEventListener('input', () => {
+    bgSettings.opacity = Number(opacitySlider.value);
+    opacityValue.textContent = `${bgSettings.opacity}%`;
+    applyBackground();
+    saveBgSettings();
+  });
+
+  blurSlider.addEventListener('input', () => {
+    bgSettings.blur = Number(blurSlider.value);
+    blurValue.textContent = `${bgSettings.blur}px`;
+    applyBackground();
+    saveBgSettings();
+  });
+
+  applyBackground();
+  render();
+</script>
+</body>
+</html>
