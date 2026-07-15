@@ -1,0 +1,26 @@
+{
+  "name": "포괄 실행 목록",
+  "short_name": "실행목록",
+  "description": "기한이나 분류 없이 생각날 때 적어두는 할 일 목록 관리 유틸",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef4fa",
+  "theme_color": "#6ec6e8",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
