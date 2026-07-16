@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSShaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#fff2f8; --surface:#ffffff; --border:#ffd6ea; --shadow-c:#ffc0dd;
+    --text:#5c4a56; --sub:#b696ac;
+    --accent:#ff7ab8; --accent-deep:#e0509a; --accent-soft:#ffe4f2;
+    --mint:#b8f2d9; --mint-deep:#2fae82;
+    --lavender:#e3d4fb; --lavender-deep:#8a63d1;
+    --sun:#ffe08a; --sun-deep:#e0a326;
+    --danger:#e2694f; --danger-soft:#ffe1da;
+    --radius:18px;
+  }
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Nanum Gothic',system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh;
+  }
+  header{padding:22px 24px 8px}
+  header h1{font-family:'Jua',sans-serif;font-size:24px;font-weight:400;letter-spacing:-.2px;margin:0 0 4px;color:var(--accent-deep)}
+  header p{font-size:12.5px;color:var(--sub);margin:0;font-family:'Nanum Gothic',sans-serif}
+
+  .layout{
+    display:grid;
+    grid-template-columns:250px minmax(0,1fr) 420px;
+    grid-template-rows:auto auto auto;
+    gap:14px; padding:14px 20px 40px; align-items:start;
+  }
+  @media(max-width:1100px){ .layout{grid-template-columns:1fr} }
+
+  .panel{
+    background:var(--surface); border:2.5px solid var(--border); border-radius:var(--radius);
+    padding:14px; margin-bottom:14px; box-shadow:0 4px 0 var(--shadow-c);
+  }
+  .panel h2{
+    font-family:'Jua',sans-serif; font-size:14px; font-weight:400; margin:0 0 10px;
+    display:flex; align-items:center; gap:7px; color:var(--accent-deep);
+  }
+  .panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+  label.field{display:block;font-size:11px;color:var(--sub);margin:10px 0 4px;font-weight:700}
+  label.field:first-child{margin-top:0}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;font-family:inherit;font-size:13px;color:var(--text);
+    background:#fffafd;border:2px solid var(--border);border-radius:12px;
+    padding:7px 9px;outline:none;transition:.12s;
+  }
+  input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
+  textarea{resize:vertical;min-height:56px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.5}
+  textarea.text-content-input{font-family:inherit;font-size:13.5px;line-height:1.5;min-height:64px}
+  input[type=color]{width:36px;height:30px;border:2px solid var(--border);border-radius:10px;padding:2px;background:#fff;cursor:pointer}
+  /* a custom track needs a fully custom thumb too, or the browser's native thumb
+     stays sized/positioned for its own default track and ends up off-center */
+  input[type=range]{
+    width:100%;height:16px;background:transparent;cursor:pointer;
+    -webkit-appearance:none;-moz-appearance:none;appearance:none;
+  }
+  input[type=range]::-webkit-slider-runnable-track{background:var(--accent-soft);border-radius:6px;height:6px}
+  input[type=range]::-moz-range-track{background:var(--accent-soft);border-radius:6px;height:6px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:16px;height:16px;border-radius:50%;margin-top:-5px;
+    background:var(--accent);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;border:2px solid #fff;
+    background:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;
+  }
+
+  .btn{
+    font-family:'Jua',sans-serif;font-weight:400;cursor:pointer;border:none;border-radius:12px;
+    padding:8px 13px;font-size:12.5px;transition:.12s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 3px 0 var(--accent-deep)}
+  .btn-primary:hover{background:#ff6bae;transform:translateY(-1px);box-shadow:0 4px 0 var(--accent-deep)}
+  .btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 var(--accent-deep)}
+  .btn-ghost{background:var(--accent-soft);color:var(--accent-deep);border:2px solid var(--border)}
+  .btn-ghost:hover{background:#ffd4ea;transform:translateY(-1px)}
+  .btn-ghost:active{transform:translateY(1px)}
+  .btn-danger{background:var(--danger-soft);color:var(--danger);border:2px solid #ffcdbf}
+  .btn-danger:hover{background:#ffd2c4;transform:translateY(-1px)}
+  .btn-danger:active{transform:translateY(1px)}
+  .btn-sm{padding:4px 9px;font-size:11px;border-radius:9px}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+  .btn-block{width:100%}
+  .row{display:flex;gap:8px;align-items:center}
+  .row.between{justify-content:space-between}
+  .row.wrap{flex-wrap:wrap}
+  .hint{font-size:11px;color:var(--sub);line-height:1.55;margin-top:6px}
+
+  /* ---- elements panel ---- */
+  .el-add{width:100%;border:2px dashed var(--accent);background:var(--accent-soft);color:var(--accent-deep);
+    border-radius:14px;padding:9px;font-family:'Jua',sans-serif;font-size:13px;cursor:pointer;margin-bottom:10px;transition:.12s}
+  .el-add:hover{background:#ffd4ea;transform:translateY(-1px)}
+  .file-drop{
+    display:block;border:2px dashed var(--accent);border-radius:14px;
+    padding:9px;text-align:center;color:var(--sub);font-size:12.5px;
+    background:var(--accent-soft);cursor:pointer;transition:.15s;
+  }
+  .file-drop:hover{background:#ffd4ea;color:var(--accent-deep)}
+  .file-drop b{color:var(--accent-deep)}
+  .el-list{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow-y:auto;overflow-x:hidden}
+  .el-row{border:2px solid var(--border);border-radius:14px;padding:7px 8px;background:#fffafd;cursor:pointer;min-width:0;transition:.12s}
+  .el-row.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .el-row .l1{display:flex;align-items:center;gap:5px;min-width:0}
+  .el-row input.idinp{font-size:12px;padding:4px 6px;font-family:ui-monospace,monospace;min-width:0;flex:1}
+  .el-row input.clsinp{font-size:11px;padding:4px 6px;margin-top:4px;font-family:ui-monospace,monospace;min-width:0}
+  .el-row .mini{border:none;background:#fff;border:2px solid var(--border);border-radius:8px;
+    width:20px;height:20px;font-size:11px;cursor:pointer;flex-shrink:0;line-height:1;color:var(--sub);transition:.12s}
+  .el-row .mini:hover{color:var(--accent-deep);border-color:var(--accent);transform:scale(1.1)}
+  .empty-hint{font-size:12px;color:var(--sub);text-align:center;padding:14px 6px}
+
+  /* ---- color palette ---- */
+  .palette-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;max-height:92px;overflow-y:auto;overflow-x:hidden}
+  .palette-swatch{
+    width:26px;height:26px;border-radius:9px;cursor:pointer;
+    border:2px solid var(--border);position:relative;flex-shrink:0;transition:.12s;
+  }
+  .palette-swatch:hover{outline:2px solid var(--accent);outline-offset:1px;transform:scale(1.08)}
+  .palette-swatch .rm{
+    position:absolute;top:-6px;right:-6px;width:15px;height:15px;border-radius:50%;
+    background:#fff;border:1.5px solid var(--border);font-size:10px;line-height:12px;
+    text-align:center;color:var(--danger);display:none;cursor:pointer;
+  }
+  .palette-swatch:hover .rm{display:block}
+
+  /* ---- stage ---- */
+  .stage-panel{padding:14px}
+  .stage-viewport-outer{
+    background:#f2e9f0;border-radius:16px;overflow:auto;display:flex;
+    align-items:center;justify-content:center;padding:16px;border:2px solid var(--border);
+  }
+  .stage-viewport{position:relative;flex-shrink:0}
+  #stage{
+    position:relative;overflow:hidden;background:#ffffff;transform-origin:top left;
+  }
+  .el{
+    position:absolute; box-sizing:border-box; outline:1.5px dashed rgba(255,122,184,.55);
+    cursor:move; min-width:4px; min-height:4px; overflow:hidden;
+  }
+  .el:focus{outline:1.5px dashed rgba(255,122,184,.55)}
+  .el.selected{outline:2.5px solid var(--accent); outline-offset:0; z-index:9998!important}
+  .el.selected::after{
+    content:''; position:absolute; right:-6px; bottom:-6px; width:12px;height:12px;
+    background:var(--accent); border:2px solid #fff; border-radius:4px; cursor:nwse-resize;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  .el.editing{cursor:text; outline:2.5px solid var(--sun-deep)}
+  body.exporting .el{outline:none!important}
+  body.exporting .el.selected::after{display:none}
+
+  .transport{display:flex;align-items:center;gap:10px;padding:12px 4px 2px}
+  .transport .time{font-size:12px;color:var(--sub);min-width:78px;font-family:ui-monospace,monospace}
+  .play{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:var(--accent);color:#fff;font-size:14px;box-shadow:0 3px 0 var(--accent-deep);transition:.12s}
+  .play:hover{background:#ff6bae;transform:translateY(-1px)}
+  .play:active{transform:translateY(2px);box-shadow:0 1px 0 var(--accent-deep)}
+  .scrub{flex:1;accent-color:var(--accent)}
+
+  /* ---- tabs ---- */
+  .tabs{display:flex;gap:4px;margin-bottom:12px;background:var(--accent-soft);border-radius:12px;padding:3px}
+  .tabs button{flex:1;border:none;background:transparent;padding:7px 4px;border-radius:9px;font-size:12.5px;
+    font-family:'Jua',sans-serif;color:var(--sub);cursor:pointer;transition:.12s}
+  .tabs button.on{background:#fff;color:var(--accent-deep);box-shadow:0 2px 0 var(--shadow-c)}
+  .tabpage{display:none}
+  .tabpage.on{display:block;max-height:min(420px,50vh);overflow-y:auto;overflow-x:hidden;padding-right:4px}
+  .side-col{max-height:min(620px,72vh);overflow-y:auto;overflow-x:hidden;padding-right:2px;min-width:0}
+  .no-target{font-size:12px;color:var(--sub);text-align:center;padding:16px 6px}
+
+  .prop-group-title{font-size:10.5px;font-weight:700;color:var(--accent-deep);text-transform:uppercase;
+    letter-spacing:.05em;margin:14px 0 2px;border-top:2px dashed var(--border);padding-top:10px}
+  .prop-group-title:first-child{margin-top:0;border-top:none;padding-top:0}
+  .field-row{display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center;margin:6px 0}
+  .field-row label{font-size:11px;color:var(--sub)}
+  .field-row .range-val{font-size:10px;color:var(--sub);text-align:right;margin-top:1px}
+  .imgfield{display:flex;gap:6px;align-items:center}
+  .imgfield input[type=file]{display:none}
+  .imgfield .thumb{width:28px;height:28px;border-radius:8px;background:var(--accent-soft) center/cover no-repeat;flex-shrink:0;border:2px solid var(--border)}
+
+  /* ---- timeline strip ---- */
+  @media(max-width:1100px){ #tracksPanel{grid-column:1!important} }
+
+  /* ---- tracks (multi-element global timeline) ---- */
+  .tracks-zoombar{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:6px}
+  .tracks-zoombar .hint{margin:0;min-width:38px;text-align:center}
+  .tracks-wrap{position:relative;overflow-x:auto;padding-top:4px}
+  .tracks-ruler{height:18px;position:relative;margin-left:150px;border-bottom:2px solid var(--border)}
+  .tracks-ruler .rule-tick{position:absolute;top:0;font-size:9px;color:var(--sub);border-left:1px solid var(--border);padding-left:3px}
+  .tracks-rows{display:flex;flex-direction:column;gap:5px;margin-top:6px;position:relative}
+  .track-row{display:flex;align-items:center;height:30px}
+  .track-row .track-label{
+    width:150px;flex-shrink:0;font-size:11.5px;font-family:ui-monospace,monospace;color:var(--sub);
+    padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    position:sticky;left:0;z-index:2;background:var(--surface);
+  }
+  .track-row .track-lane{position:relative;flex-shrink:0;height:100%;background:var(--accent-soft);border-radius:9px}
+  .track-block{
+    position:absolute;top:3px;bottom:3px;background:var(--accent);border-radius:8px;
+    cursor:grab;opacity:.85;min-width:10px;
+  }
+  .track-block.sel{outline:2.5px solid var(--sun-deep);opacity:1}
+  .track-block-name{
+    position:absolute;left:8px;top:50%;transform:translateY(-50%);
+    font-size:10.5px;font-weight:700;color:#fff;font-family:ui-monospace,monospace;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 20px);
+    pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  .track-block .th{position:absolute;top:0;bottom:0;width:9px;cursor:ew-resize}
+  .track-block .th.l{left:0} .track-block .th.r{right:0}
+  .tracks-playhead{position:absolute;top:0;bottom:0;width:2.5px;background:var(--lavender-deep);z-index:3;pointer-events:none}
+  .anim-meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+  .anim-meta .field-row{grid-template-columns:1fr;margin:0}
+  .anim-meta label{font-size:10px}
+  .track-wrap{position:relative;padding:6px 8px 30px}
+  .track{position:relative;height:34px;background:var(--accent-soft);border-radius:10px;cursor:copy}
+  .track .ruler{position:absolute;top:100%;left:0;right:0;height:16px}
+  .track .rule-tick{position:absolute;top:2px;font-size:9px;color:var(--sub);transform:translateX(-50%)}
+  .kf-dot{
+    position:absolute; top:50%; width:14px;height:14px; background:var(--accent);
+    border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.3);
+    transform:translate(-50%,-50%) rotate(45deg); cursor:pointer; z-index:2;
+  }
+  .kf-dot.sel{background:var(--sun-deep)}
+  .kf-form{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .kf-form .field-row{grid-template-columns:1fr;margin:0}
+  .kf-form label{font-size:10px}
+  .kf-raw{margin-top:8px}
+  .kf-actions{margin-top:8px}
+
+  /* ---- export ---- */
+  .export-status{font-size:11.5px;color:var(--sub);margin-top:8px;line-height:1.6}
+  .progress-bar{height:6px;background:var(--accent-soft);border-radius:6px;overflow:hidden;margin-top:8px}
+  .progress-bar > div{height:100%;background:var(--accent);width:0%;transition:width .1s}
+  a.dl{display:none}
+
+  /* scroll stays functional (wheel/trackpad/keyboard), just no visible scrollbar chrome */
+  *{scrollbar-width:none}
+  *::-webkit-scrollbar{display:none;width:0;height:0}
+
+  /* ---- mobile notice: this tool leans on precise mouse drag, not built for touch ---- */
+  #mobileNotice{
+    display:none;position:fixed;inset:0;z-index:999;background:var(--bg);
+    align-items:center;justify-content:center;padding:28px;
+  }
+  .mobile-card{
+    background:var(--surface);border:2.5px solid var(--border);border-radius:22px;
+    box-shadow:0 4px 0 var(--shadow-c);padding:28px 24px;max-width:340px;text-align:center;
+  }
+  .mobile-emoji{font-size:38px;margin-bottom:14px}
+  .mobile-card p{font-size:14px;line-height:1.6;color:var(--text);margin:0 0 8px}
+  .mobile-card p.sub{font-size:12.5px;color:var(--sub);margin-bottom:18px}
+  #mobileContinueBtn{
+    font-family:'Jua',sans-serif;border:none;border-radius:12px;padding:9px 18px;font-size:13px;
+    background:var(--accent-soft);color:var(--accent-deep);cursor:pointer;
+  }
+  @media(max-width:768px){ #mobileNotice.show{display:flex} }
+</style>
+</head>
+<body>
+
+<div id="mobileNotice">
+  <div class="mobile-card">
+    <div class="mobile-emoji">🖥️🎀</div>
+    <p><b>CSShaker</b>는 드래그로 세밀하게 조작하는 도구라<br>PC(마우스) 환경에 최적화되어 있어요.</p>
+    <p class="sub">컴퓨터로 접속하면 훨씬 편하게 쓸 수 있어요!</p>
+    <button id="mobileContinueBtn">그래도 볼래요</button>
+  </div>
+</div>
+
+<header>
+  <h1>🎀 CSShaker</h1>
+  <p>요소를 만들고, id·class로 CSS를 입히고, 키프레임으로 흔들어서 영상으로 뽑아내는 도구</p>
+</header>
+
+<div class="layout">
+
+  <!-- ===================== LEFT: elements + project ===================== -->
+  <div class="side-col" style="grid-column:1;grid-row:1">
+    <div class="panel">
+      <h2><span class="dot"></span>프로젝트</h2>
+      <label class="field">캔버스 비율</label>
+      <select id="resSel">
+        <option value="1280x720">1280×720 (16:9)</option>
+        <option value="720x1280">720×1280 (9:16)</option>
+        <option value="1080x1080">1080×1080 (1:1)</option>
+        <option value="custom">직접 입력</option>
+      </select>
+      <div class="row" id="customResRow" style="display:none;margin-top:6px">
+        <input type="number" id="customW" placeholder="width" min="16">
+        <input type="number" id="customH" placeholder="height" min="16">
+      </div>
+      <div class="row" style="margin-top:10px;align-items:flex-end;gap:10px">
+        <div>
+          <label class="field" style="margin-top:0">배경색</label>
+          <input type="color" id="stageBg" value="#ffffff">
+        </div>
+        <div style="flex:1">
+          <label class="field" style="margin-top:0">최소 길이(초)</label>
+          <input type="number" id="minDur" value="3" min="1" step="0.5">
+        </div>
+      </div>
+      <div class="hint">영상 길이는 최소 <b id="durLabel">3.0s</b> — 애니메이션·음원이 더 길면 자동으로 늘어나요.</div>
+
+      <label class="field">배경 음악</label>
+      <label class="file-drop" for="audioInput"><b>음원 파일</b> 올리기 · mp3, wav, m4a</label>
+      <input type="file" id="audioInput" accept="audio/*" style="display:none">
+      <div class="hint" id="audioName">아직 없음</div>
+      <div class="row" id="audioControls" style="display:none;margin-top:6px">
+        <button class="btn btn-danger btn-sm" id="removeAudioBtn">제거</button>
+        <input type="range" id="audioVolume" min="0" max="1" step="0.01" value="1" style="flex:1" title="음량">
+      </div>
+      <div class="hint">저장하면 음원도 파일 안에 같이 저장돼요(용량 커질 수 있음).</div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="dot"></span>요소</h2>
+      <button class="el-add" id="addElBtn">＋ 새 요소 추가</button>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" id="copyElBtn" style="flex:1" disabled title="선택한 요소 복사">⧉ 복사</button>
+        <button class="btn btn-ghost btn-sm" id="pasteElBtn" style="flex:1" disabled title="재생헤드 위치에 붙여넣기">📋 붙여넣기</button>
+      </div>
+      <div class="el-list" id="elList"></div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="dot"></span>색상 팔레트</h2>
+      <div class="row">
+        <input type="color" id="paletteColorPick" value="#ff7ab8">
+        <input type="text" id="paletteHexInput" placeholder="#rrggbb" style="flex:1">
+        <button class="btn btn-ghost btn-sm" id="paletteAddBtn">+ 추가</button>
+      </div>
+      <div class="palette-grid" id="paletteGrid"></div>
+      <div class="hint">스와치를 클릭하면 마지막으로 선택했던 색상 입력칸에 바로 적용돼요. 저장한 색은 브라우저에 계속 남아있어요.</div>
+    </div>
+  </div>
+
+  <!-- ===================== CENTER: stage ===================== -->
+  <div class="panel stage-panel" style="grid-column:2;grid-row:1;min-width:0">
+    <div class="stage-viewport-outer" id="viewportOuter">
+      <div class="stage-viewport" id="stageViewport">
+        <div id="stage"></div>
+      </div>
+    </div>
+    <audio id="audio" crossorigin="anonymous"></audio>
+    <div class="transport">
+      <button class="play" id="playBtn">▶</button>
+      <button class="btn btn-ghost btn-sm" id="restartBtn">⏮</button>
+      <span class="time" id="tlabel">0.00 / 3.00s</span>
+      <input type="range" class="scrub" id="scrub" min="0" max="3000" value="0">
+    </div>
+    <div class="hint">요소를 클릭하면 선택, 더블클릭하면 텍스트 편집, 드래그로 이동, 우하단 손잡이로 크기 조절이 가능해요.</div>
+  </div>
+
+  <!-- ===================== RIGHT: style / animation tabs ===================== -->
+  <div class="side-col" style="grid-column:3;grid-row:1">
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab-btn on" data-tab="style">스타일</button>
+        <button class="tab-btn" data-tab="anim">애니메이션</button>
+      </div>
+
+      <!-- ---- STYLE TAB ---- -->
+      <div class="tabpage on" id="tab-style">
+        <label class="field" style="margin-top:0">대상 선택 (id / class)</label>
+        <select id="selectorSel"></select>
+        <div id="styleForm"></div>
+      </div>
+
+      <!-- ---- ANIM TAB ---- -->
+      <div class="tabpage" id="tab-anim">
+        <label class="field" style="margin-top:0">대상 요소 (id)</label>
+        <select id="animTargetSel"></select>
+        <div id="animBody"></div>
+
+        <div id="timelineStrip" style="display:none">
+          <div class="prop-group-title" style="margin-top:14px">표시 구간</div>
+          <div class="anim-meta" style="grid-template-columns:1fr 1fr">
+            <div class="field-row"><label>등장 시점(초)</label><input type="number" id="elStart" min="0" step="0.1" value="0"></div>
+            <div class="field-row"><label>퇴장 시점(초)</label><input type="number" id="elEnd" min="0" step="0.1" placeholder="끝까지"></div>
+          </div>
+          <div class="hint" style="margin:-2px 0 4px">이 구간 밖에서는 스테이지·영상에 요소가 보이지 않아요. 값을 바꾸면 그 시점으로 이동해요.</div>
+
+          <div class="prop-group-title">키프레임</div>
+          <div class="anim-meta">
+            <div class="field-row"><label>길이(초)</label><input type="number" id="animDuration" min="0.1" step="0.1" value="1"></div>
+            <div class="field-row"><label>지연(초)</label><input type="number" id="animDelay" min="0" step="0.1" value="0"></div>
+            <div class="field-row"><label>이징</label>
+              <select id="animEasing">
+                <option value="linear">linear</option>
+                <option value="ease" selected>ease</option>
+                <option value="ease-in">ease-in</option>
+                <option value="ease-out">ease-out</option>
+                <option value="ease-in-out">ease-in-out</option>
+                <option value="cubic-bezier(.34,1.56,.64,1)">bounce-ish</option>
+              </select>
+            </div>
+            <div class="field-row"><label>반복</label><input type="text" id="animIterations" value="1" placeholder="1 또는 infinite"></div>
+          </div>
+          <div class="track-wrap">
+            <div class="track" id="track">
+              <div class="ruler" id="ruler"></div>
+            </div>
+          </div>
+          <div class="hint">트랙의 빈 공간을 클릭하면 키프레임이 추가돼요. 점을 드래그하면 시점이 바뀌고, 클릭하면 아래에서 값을 편집할 수 있어요.</div>
+          <div id="kfEditor"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="dot"></span>내보내기</h2>
+      <button class="btn btn-primary btn-block" id="exportBtn">🎬 영상으로 렌더링</button>
+      <div class="progress-bar"><div id="progressFill"></div></div>
+      <div class="export-status" id="exportStatus"></div>
+      <a id="dlLink" class="dl">download</a>
+      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+        <label class="field" style="margin-top:0">프로젝트 저장/불러오기</label>
+        <div class="row">
+          <button class="btn btn-ghost btn-sm" id="saveJson">⬇ 저장</button>
+          <label class="btn btn-ghost btn-sm" for="loadJson" style="display:inline-block">⬆ 불러오기</label>
+          <input type="file" id="loadJson" accept="application/json,.json" style="display:none">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TRACKS TIMELINE ===================== -->
+  <div class="panel" id="tracksPanel" style="grid-column:1/4;grid-row:2">
+    <div class="row between" style="margin-bottom:2px">
+      <h2 style="margin:0"><span class="dot"></span>트랙 타임라인</h2>
+      <div class="tracks-zoombar">
+        <button class="btn btn-ghost btn-sm" id="tracksZoomOut">－</button>
+        <span class="hint" id="tracksZoomLabel">100%</span>
+        <button class="btn btn-ghost btn-sm" id="tracksZoomIn">＋</button>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:-4px">행은 요소가 아니라 z-index(레이어)별이에요 — 같은 z-index를 가진 요소들은 한 레인에 같이 놓여요. 블록을 드래그하면 등장 구간이 통째로 이동하고, 양쪽 끝을 드래그하면 등장/퇴장 시점이 트리밍돼요. 레인의 빈 곳을 클릭하면 그 시점으로 이동해요. Ctrl/Cmd+스크롤(또는 트랙패드 핀치)로 확대·축소할 수 있어요.</div>
+    <div class="tracks-wrap" id="tracksWrap">
+      <div class="tracks-ruler" id="tracksRuler"></div>
+      <div class="tracks-rows" id="tracksRows"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+let STAGE_W = 1280, STAGE_H = 720;
+let elCounter = 1;
+let styleRules = {};      // selector -> {props:{}, raw:''}
+let animations = {};      // elId -> {duration,delay,easing,iterations,keyframes:[{offset,tx,ty,rot,scale,opacity,raw}]}
+let liveAnim = {};        // elId -> Animation instance
+let elTiming = {};        // elId -> {start:seconds, end:seconds|null} — visibility window on the global timeline
+
+let selectedElId = null;      // element currently selected on stage
+let selectedSelector = null;  // current selector shown in style tab
+let selectedAnimTarget = null;// current el id shown in anim tab
+let selectedKfIdx = null;
+
+let curTime = 0;       // ms
+let totalDuration = 3000; // ms
+let playing = false;
+let rafHandle = null, lastTs = null;
+
+const stage = $('#stage');
+const stageViewport = $('#stageViewport');
+const viewportOuter = $('#viewportOuter');
+const audio = $('#audio');
+let audioLoaded = false;
+let audioDurationMs = 0;
+let audioFile = null;   // original File, kept around so Save can embed it as a data URL
+let audioName = '';
+
+$('#audioInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  audioFile = f; audioName = f.name;
+  if(audio.src && audio.src.startsWith('blob:')) URL.revokeObjectURL(audio.src);
+  audio.src = URL.createObjectURL(f);
+  $('#audioName').textContent = '🎵 ' + audioName;
+  $('#audioControls').style.display = '';
+  audio.onloadedmetadata = ()=>{
+    audioLoaded = true;
+    audioDurationMs = audio.duration*1000;
+    recomputeDuration();
+  };
+});
+function clearAudio(){
+  audio.pause();
+  if(audio.src && audio.src.startsWith('blob:')) URL.revokeObjectURL(audio.src);
+  audio.removeAttribute('src'); audio.load();
+  audioLoaded = false; audioDurationMs = 0; audioFile = null; audioName = '';
+  $('#audioName').textContent = '아직 없음';
+  $('#audioControls').style.display = 'none';
+}
+$('#removeAudioBtn').addEventListener('click', ()=>{
+  clearAudio();
+  $('#audioInput').value = '';
+  recomputeDuration();
+});
+$('#audioVolume').addEventListener('input', e=>{ audio.volume = +e.target.value; });
+
+/* ============================================================
+   PROPERTY SCHEMA (static style editor)
+============================================================ */
+const FONTS = [
+  ["inherit","기본"], ["'Jua',sans-serif","Jua"], ["'Gowun Dodum',sans-serif","고운돋움"],
+  ["'Black Han Sans',sans-serif","Black Han Sans"], ["'Nanum Gothic',sans-serif","나눔고딕"],
+  ["'Poppins',sans-serif","Poppins"], ["serif","serif"], ["monospace","monospace"],
+];
+const PROP_SCHEMA = [
+  {group:'배치', fields:[
+    {k:'position',label:'position',type:'select',opts:['absolute','relative','static','fixed']},
+    {k:'top',label:'top',type:'text',ph:'40px'},
+    {k:'left',label:'left',type:'text',ph:'40px'},
+    {k:'width',label:'width',type:'text',ph:'200px'},
+    {k:'height',label:'height',type:'text',ph:'100px'},
+    {k:'z-index',label:'z-index',type:'text',ph:'1'},
+  ]},
+  {group:'배경 · 테두리', stageOk:true, fields:[
+    {k:'background-color',label:'배경색',type:'color'},
+    {k:'background-image',label:'배경 이미지',type:'image'},
+    {k:'background-size',label:'배경 크기',type:'select',opts:['','cover','contain','auto']},
+    {k:'border',label:'테두리',type:'text',ph:'2px solid #333'},
+    {k:'border-radius',label:'모서리',type:'text',ph:'12px'},
+    {k:'box-shadow',label:'그림자',type:'text',ph:'0 4px 12px rgba(0,0,0,.3)'},
+    {k:'opacity',label:'투명도',type:'range',min:0,max:1,step:.01},
+    {k:'filter',label:'필터',type:'text',ph:'blur(2px)'},
+  ]},
+  {group:'텍스트', stageOk:true, fields:[
+    {k:'color',label:'글자색',type:'color'},
+    {k:'font-family',label:'폰트',type:'select',opts:FONTS.map(f=>f[0]),optLabels:FONTS.map(f=>f[1])},
+    {k:'font-size',label:'크기',type:'text',ph:'24px'},
+    {k:'font-weight',label:'굵기',type:'select',opts:['','400','500','600','700','800']},
+    {k:'text-align',label:'정렬',type:'select',opts:['','left','center','right']},
+    {k:'line-height',label:'줄간격',type:'text',ph:'1.4'},
+  ]},
+  {group:'변형', fields:[
+    {k:'transform',label:'transform',type:'text',ph:'rotate(10deg) scale(1.2)'},
+  ]},
+];
+const KF_SCHEMA = [
+  {k:'tx',label:'X 이동(px)',type:'number',def:0},
+  {k:'ty',label:'Y 이동(px)',type:'number',def:0},
+  {k:'rot',label:'회전(deg)',type:'number',def:0},
+  {k:'scale',label:'크기 배율',type:'number',step:.01,def:1},
+  {k:'opacity',label:'투명도',type:'range',min:0,max:1,step:.01,def:1},
+];
+
+/* ============================================================
+   USER STYLE SHEET
+============================================================ */
+const userStyleTag = document.createElement('style');
+userStyleTag.id = 'userStyles';
+document.head.appendChild(userStyleTag);
+
+function regenerateStyleTag(){
+  let css = '';
+  for(const sel in styleRules){
+    const rule = styleRules[sel];
+    const decl = Object.entries(rule.props||{}).map(([k,v])=>`${k}:${v};`).join('');
+    if(decl) css += `${sel}{${decl}}\n`;
+    if(rule.raw && rule.raw.trim()) css += `${sel}{${rule.raw}}\n`;
+  }
+  userStyleTag.textContent = css;
+}
+function ensureRule(sel){
+  if(!styleRules[sel]) styleRules[sel] = {props:{}, raw:''};
+  return styleRules[sel];
+}
+
+/* ============================================================
+   STAGE SIZE / ZOOM
+============================================================ */
+function applyStageSize(){
+  stage.style.width = STAGE_W+'px';
+  stage.style.height = STAGE_H+'px';
+  fitZoom();
+}
+function fitZoom(){
+  const maxW = viewportOuter.clientWidth - 32;
+  const maxH = Math.min(window.innerHeight*0.6, 620);
+  const zoom = Math.min(1, maxW/STAGE_W, maxH/STAGE_H);
+  stage.style.transform = `scale(${zoom})`;
+  stageViewport.style.width = (STAGE_W*zoom)+'px';
+  stageViewport.style.height = (STAGE_H*zoom)+'px';
+  syncSideColHeight();
+}
+function syncSideColHeight(){
+  // keep the left/right sidebars exactly as tall as the actual rendered stage
+  // panel (not a guessed constant) so they never look mismatched against it
+  const stagePanel = document.querySelector('.stage-panel');
+  if(!stagePanel) return;
+  const targetH = stagePanel.getBoundingClientRect().height;
+  if(targetH<=0) return;
+  const cols = document.querySelectorAll('.side-col');
+  const leftCol = cols[0], rightCol = cols[1];
+  if(leftCol) leftCol.style.maxHeight = targetH+'px';
+  if(!rightCol) return;
+
+  // the right column has its own inner scroll region (.tabpage.on) alongside a
+  // fixed tabs header and the export panel below it — a static cap on the tabpage
+  // doesn't know how tall those siblings are, so it can push the whole column
+  // taller (or leave it shorter) than the stage. Measure everything unclamped once,
+  // then give the tabpage only whatever height is actually left over.
+  const tabpage = rightCol.querySelector('.tabpage.on');
+  rightCol.style.maxHeight = 'none';
+  if(tabpage){
+    tabpage.style.maxHeight = 'none';
+    const naturalColHeight = rightCol.scrollHeight;
+    const naturalTabpageHeight = tabpage.scrollHeight;
+    const otherHeight = naturalColHeight - naturalTabpageHeight; // tabs header + export panel + gaps
+    tabpage.style.maxHeight = Math.max(80, targetH - otherHeight) + 'px';
+  }
+  rightCol.style.maxHeight = targetH+'px';
+}
+window.addEventListener('resize', fitZoom);
+
+$('#resSel').addEventListener('change', e=>{
+  const v = e.target.value;
+  $('#customResRow').style.display = v==='custom' ? 'flex' : 'none';
+  if(v==='custom'){ return; }
+  const [w,h] = v.split('x').map(Number);
+  STAGE_W=w; STAGE_H=h; applyStageSize();
+});
+$('#customW').addEventListener('change', ()=>{ STAGE_W = +$('#customW').value||STAGE_W; applyStageSize(); });
+$('#customH').addEventListener('change', ()=>{ STAGE_H = +$('#customH').value||STAGE_H; applyStageSize(); });
+function setStageBg(color){
+  ensureRule('#stage').props['background-color'] = color;
+  regenerateStyleTag();
+  if(selectedSelector==='#stage') renderStyleForm();
+}
+$('#stageBg').addEventListener('input', e=>setStageBg(e.target.value));
+
+/* ============================================================
+   ELEMENT MANAGEMENT (DOM = source of truth)
+============================================================ */
+function allElements(){ return Array.from(stage.children); }
+function getEl(id){ return stage.querySelector('#'+CSS.escape(id)); }
+function allClasses(){
+  const s = new Set();
+  allElements().forEach(el=> el.classList.forEach(c=>s.add(c)));
+  return Array.from(s);
+}
+function effectiveZ(id){
+  const v = styleRules['#'+id]?.props['z-index'];
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+// Frontmost layer first — matches real CSS stacking: explicit z-index wins,
+// elements with the same (or no) z-index fall back to DOM order.
+function elementsTopFirst(){
+  const els = allElements();
+  const domIndex = new Map(els.map((el,i)=>[el.id,i]));
+  return els.slice().sort((a,b)=>{
+    const za = effectiveZ(a.id), zb = effectiveZ(b.id);
+    if(za!==zb) return zb-za;
+    return domIndex.get(b.id) - domIndex.get(a.id);
+  });
+}
+
+function addElement(){
+  const id = 'el'+(elCounter++);
+  const div = document.createElement('div');
+  div.className = 'el';
+  div.id = id;
+  const n = allElements().length;
+  const off = 20 + (n%8)*24;
+  ensureRule('#'+id).props = {top:off+'px', left:off+'px', width:'200px', height:'100px'};
+  regenerateStyleTag();
+  stage.appendChild(div);
+  selectElement(id);
+  refreshAll();
+}
+$('#addElBtn').addEventListener('click', addElement);
+
+/* ============================================================
+   COPY / PASTE (paste lands at the current playhead position)
+============================================================ */
+let clipboardEl = null;
+function copySelectedElement(){
+  if(!selectedElId) return;
+  const el = getEl(selectedElId); if(!el) return;
+  const tm = elTiming[selectedElId] || {start:0, end:null};
+  clipboardEl = {
+    classes: [...el.classList].filter(c => !['el','selected','editing'].includes(c)),
+    innerHTML: el.innerHTML,
+    styleProps: JSON.parse(JSON.stringify(styleRules['#'+selectedElId]?.props || {})),
+    styleRaw: styleRules['#'+selectedElId]?.raw || '',
+    animation: animations[selectedElId] ? JSON.parse(JSON.stringify(animations[selectedElId])) : null,
+    span: tm.end!=null ? (tm.end - tm.start) : null,
+    startAtCopy: tm.start,
+  };
+  $('#pasteElBtn').disabled = false;
+}
+function pasteClipboardAtPlayhead(){
+  if(!clipboardEl) return;
+  const id = 'el'+(elCounter++);
+  const div = document.createElement('div');
+  div.className = ['el', ...clipboardEl.classes].join(' ');
+  div.id = id;
+  div.innerHTML = clipboardEl.innerHTML;
+  stage.appendChild(div);
+  styleRules['#'+id] = {props: {...clipboardEl.styleProps}, raw: clipboardEl.styleRaw};
+  const startSec = curTime/1000;
+  const tm = ensureTiming(id);
+  tm.start = startSec;
+  tm.end = clipboardEl.span!=null ? startSec + clipboardEl.span : null;
+  if(clipboardEl.animation){
+    animations[id] = JSON.parse(JSON.stringify(clipboardEl.animation));
+    // keep the animation aligned with the element's new position: shift its delay
+    // by the same amount the visibility window itself moved, not just copy it as-is
+    const shift = startSec - clipboardEl.startAtCopy;
+    animations[id].delay = Math.max(0, animations[id].delay + shift);
+  }
+  regenerateStyleTag();
+  rebuildAnimation(id);
+  selectElement(id);
+  recomputeDuration();
+  refreshAll();
+}
+$('#copyElBtn').addEventListener('click', copySelectedElement);
+$('#pasteElBtn').addEventListener('click', pasteClipboardAtPlayhead);
+document.addEventListener('keydown', e=>{
+  const ae = document.activeElement;
+  if(/INPUT|TEXTAREA|SELECT/.test(ae.tagName) || ae.isContentEditable) return; // don't hijack real text copy/paste
+  if(!(e.ctrlKey || e.metaKey)) return;
+  const k = e.key.toLowerCase();
+  if(k==='c' && selectedElId){ e.preventDefault(); copySelectedElement(); }
+  else if(k==='v' && clipboardEl){ e.preventDefault(); pasteClipboardAtPlayhead(); }
+});
+
+function deleteElement(id){
+  if(!confirm(id+' 요소를 삭제할까요?')) return;
+  if(liveAnim[id]){ liveAnim[id].cancel(); delete liveAnim[id]; }
+  delete animations[id];
+  delete styleRules['#'+id];
+  delete elTiming[id];
+  const el = getEl(id); if(el) el.remove();
+  if(selectedElId===id) selectedElId=null;
+  if(selectedSelector==='#'+id) selectedSelector=null;
+  if(selectedAnimTarget===id) selectedAnimTarget=null;
+  regenerateStyleTag();
+  refreshAll();
+}
+
+function renameElementId(oldId, newId){
+  newId = newId.trim().replace(/[^a-zA-Z0-9_-]/g,'');
+  if(!newId || newId===oldId) { refreshAll(); return; }
+  if(newId==='stage'){ alert('"stage"는 예약된 이름이에요.'); refreshAll(); return; }
+  if(getEl(newId)){ alert('이미 사용 중인 id예요.'); refreshAll(); return; }
+  const el = getEl(oldId); if(!el) return;
+  el.id = newId;
+  if(styleRules['#'+oldId]){ styleRules['#'+newId]=styleRules['#'+oldId]; delete styleRules['#'+oldId]; }
+  if(animations[oldId]){ animations[newId]=animations[oldId]; delete animations[oldId]; }
+  if(liveAnim[oldId]){ liveAnim[newId]=liveAnim[oldId]; delete liveAnim[oldId]; }
+  if(elTiming[oldId]){ elTiming[newId]=elTiming[oldId]; delete elTiming[oldId]; }
+  if(selectedElId===oldId) selectedElId=newId;
+  if(selectedSelector==='#'+oldId) selectedSelector='#'+newId;
+  if(selectedAnimTarget===oldId) selectedAnimTarget=newId;
+  regenerateStyleTag();
+  refreshAll();
+}
+
+function moveLayer(id, dir){
+  const el = getEl(id); if(!el) return;
+  if(dir==='up' && el.nextElementSibling) stage.insertBefore(el.nextElementSibling, el);
+  else if(dir==='down' && el.previousElementSibling) stage.insertBefore(el, el.previousElementSibling);
+  refreshAll();
+}
+
+function selectElement(id){
+  selectedElId = id;
+  allElements().forEach(el=> el.classList.toggle('selected', el.id===id));
+  if(id){
+    if($('.tab-btn.on').dataset.tab==='style') { selectedSelector = '#'+id; }
+    selectedAnimTarget = id;
+  }
+  refreshAll();
+}
+
+/* ---- stage event delegation: select / drag / resize / edit ---- */
+let dragState = null; // {mode:'move'|'resize', id, startX, startY, startLeft, startTop, startW, startH, scale}
+stage.addEventListener('mousedown', e=>{
+  const target = e.target.closest('.el');
+  if(!target) return;
+  if(target.classList.contains('editing')) return; // let text editing handle its own clicks
+  const rect = target.getBoundingClientRect();
+  const isResize = target.classList.contains('selected') &&
+    (rect.right - e.clientX) < 16 && (rect.bottom - e.clientY) < 16;
+  selectElement(target.id);
+  const stageRect = stage.getBoundingClientRect();
+  const scale = stageRect.width / STAGE_W;
+  const cs = getComputedStyle(target);
+  dragState = {
+    mode: isResize ? 'resize' : 'move',
+    id: target.id,
+    startX: e.clientX, startY: e.clientY,
+    startLeft: parseFloat(cs.left)||0, startTop: parseFloat(cs.top)||0,
+    startW: parseFloat(cs.width)||target.offsetWidth, startH: parseFloat(cs.height)||target.offsetHeight,
+    scale
+  };
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e=>{
+  if(!dragState) return;
+  const dx = (e.clientX - dragState.startX)/dragState.scale;
+  const dy = (e.clientY - dragState.startY)/dragState.scale;
+  const sel = '#'+dragState.id;
+  const r = ensureRule(sel);
+  if(dragState.mode==='move'){
+    r.props.left = Math.round(dragState.startLeft+dx)+'px';
+    r.props.top = Math.round(dragState.startTop+dy)+'px';
+  } else {
+    r.props.width = Math.max(8, Math.round(dragState.startW+dx))+'px';
+    r.props.height = Math.max(8, Math.round(dragState.startH+dy))+'px';
+  }
+  regenerateStyleTag();
+  if(selectedSelector===sel) renderStyleForm();
+});
+document.addEventListener('mouseup', ()=>{ dragState=null; });
+
+stage.addEventListener('dblclick', e=>{
+  const target = e.target.closest('.el');
+  if(!target) return;
+  allElements().forEach(el=> el.classList.remove('editing'));
+  target.classList.add('editing');
+  target.contentEditable = 'true';
+  target.focus();
+});
+stage.addEventListener('focusout', e=>{
+  const target = e.target.closest('.el');
+  if(!target) return;
+  target.classList.remove('editing');
+  target.contentEditable = 'false';
+});
+
+/* ============================================================
+   ELEMENT LIST PANEL
+============================================================ */
+function renderElList(){
+  const wrap = $('#elList');
+  const els = allElements();
+  if(!els.length){ wrap.innerHTML = '<div class="empty-hint">아직 요소가 없어요.<br>위 버튼으로 추가해보세요.</div>'; return; }
+  wrap.innerHTML = '';
+  elementsTopFirst().forEach(el=>{
+    const id = el.id;
+    const row = document.createElement('div');
+    row.className = 'el-row'+(id===selectedElId?' sel':'');
+    row.innerHTML = `
+      <div class="l1">
+        <input class="idinp" value="${id}" data-id="${id}">
+        <button class="mini" data-act="up" title="위로(앞으로)">▲</button>
+        <button class="mini" data-act="down" title="아래로(뒤로)">▼</button>
+        <button class="mini" data-act="del" title="삭제">✕</button>
+      </div>
+      <input class="clsinp" value="${el.className.replace('el','').trim()}" placeholder="class1 class2" data-id="${id}">
+    `;
+    row.addEventListener('click', ev=>{
+      if(ev.target.tagName==='INPUT' || ev.target.tagName==='BUTTON') return;
+      selectElement(id);
+    });
+    row.querySelector('.idinp').addEventListener('click', ev=>ev.stopPropagation());
+    row.querySelector('.idinp').addEventListener('change', ev=> renameElementId(id, ev.target.value));
+    row.querySelector('.clsinp').addEventListener('click', ev=>ev.stopPropagation());
+    row.querySelector('.clsinp').addEventListener('change', ev=>{
+      const cls = ev.target.value.trim().split(/\s+/).filter(Boolean);
+      el.className = ['el', ...cls].join(' ');
+      refreshAll();
+    });
+    row.querySelectorAll('button.mini').forEach(b=>{
+      b.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        const act = b.dataset.act;
+        if(act==='del') deleteElement(id);
+        else moveLayer(id, act);
+      });
+    });
+    wrap.appendChild(row);
+  });
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+$$('.tab-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    $$('.tab-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    $$('.tabpage').forEach(p=>p.classList.remove('on'));
+    $('#tab-'+b.dataset.tab).classList.add('on');
+    if(b.dataset.tab==='anim') renderAnimBody();
+    syncSideColHeight();
+  });
+});
+
+/* ============================================================
+   STYLE TAB
+============================================================ */
+function renderSelectorDropdown(){
+  const sel = $('#selectorSel');
+  const prevVal = selectedSelector;
+  sel.innerHTML = '';
+  const stageGroup = document.createElement('optgroup'); stageGroup.label = '스테이지';
+  const stageOpt = document.createElement('option'); stageOpt.value='#stage'; stageOpt.textContent='#stage (배경)';
+  stageGroup.appendChild(stageOpt);
+  sel.appendChild(stageGroup);
+  const idGroup = document.createElement('optgroup'); idGroup.label = '요소 (id)';
+  allElements().forEach(el=>{
+    const o = document.createElement('option'); o.value='#'+el.id; o.textContent='#'+el.id; idGroup.appendChild(o);
+  });
+  sel.appendChild(idGroup);
+  const classes = allClasses();
+  if(classes.length){
+    const clGroup = document.createElement('optgroup'); clGroup.label='클래스';
+    classes.forEach(c=>{
+      const o = document.createElement('option'); o.value='.'+c; o.textContent='.'+c; clGroup.appendChild(o);
+    });
+    sel.appendChild(clGroup);
+  }
+  if(prevVal && [...sel.options].some(o=>o.value===prevVal)) sel.value = prevVal;
+  else if(sel.options.length){ sel.selectedIndex = 0; selectedSelector = sel.value; }
+  else selectedSelector = null;
+  renderStyleForm();
+}
+$('#selectorSel').addEventListener('change', e=>{ selectedSelector = e.target.value; renderStyleForm(); });
+
+function renderStyleForm(){
+  const wrap = $('#styleForm');
+  if(!selectedSelector){ wrap.innerHTML = '<div class="no-target">요소를 먼저 추가해주세요.</div>'; return; }
+  const rule = ensureRule(selectedSelector);
+  wrap.innerHTML = '';
+  const isStage = selectedSelector==='#stage';
+  if(isStage){
+    wrap.insertAdjacentHTML('beforeend', '<div class="hint" style="margin-top:0">캔버스 자체의 배경이에요. 그라디언트나 배경 이미지, 커스텀 CSS를 자유롭게 넣을 수 있어요.</div>');
+  } else if(selectedSelector.startsWith('#')){
+    const targetEl = getEl(selectedSelector.slice(1));
+    if(targetEl){
+      const label = document.createElement('label'); label.className='field'; label.style.marginTop='0'; label.textContent='텍스트 내용';
+      wrap.appendChild(label);
+      const ta = document.createElement('textarea');
+      ta.className = 'text-content-input';
+      ta.placeholder = '요소 안에 표시할 글자를 입력하세요';
+      ta.value = targetEl.textContent;
+      ta.addEventListener('input', ()=>{ targetEl.textContent = ta.value; });
+      wrap.appendChild(ta);
+      const hint = document.createElement('div'); hint.className='hint'; hint.style.margin='6px 0 14px';
+      hint.textContent = '스테이지에서 요소를 더블클릭해도 바로 타이핑할 수 있어요.';
+      wrap.appendChild(hint);
+    }
+  }
+  const schema = isStage ? PROP_SCHEMA.filter(g=>g.stageOk) : PROP_SCHEMA;
+  schema.forEach(group=>{
+    const gt = document.createElement('div'); gt.className='prop-group-title'; gt.textContent = group.group;
+    wrap.appendChild(gt);
+    group.fields.forEach(f=>{
+      const val = rule.props[f.k] || '';
+      const row = document.createElement('div'); row.className='field-row';
+      const label = document.createElement('label'); label.textContent = f.label;
+      row.appendChild(label);
+      let input;
+      if(f.type==='select'){
+        input = document.createElement('select');
+        f.opts.forEach((o,i)=>{
+          const opt = document.createElement('option'); opt.value=o;
+          opt.textContent = f.optLabels ? f.optLabels[i] : (o||'(기본)');
+          input.appendChild(opt);
+        });
+        input.value = val;
+        input.addEventListener('change', ()=> setProp(f.k, input.value));
+      } else if(f.type==='color'){
+        input = document.createElement('input'); input.type='color';
+        input.value = /^#[0-9a-fA-F]{6}$/.test(val) ? val : '#000000';
+        input.addEventListener('input', ()=> setProp(f.k, input.value));
+      } else if(f.type==='range'){
+        const wrapper = document.createElement('div');
+        input = document.createElement('input'); input.type='range';
+        input.min=f.min; input.max=f.max; input.step=f.step;
+        input.value = val!=='' ? val : f.max;
+        const rv = document.createElement('div'); rv.className='range-val'; rv.textContent = input.value;
+        input.addEventListener('input', ()=>{ rv.textContent=input.value; setProp(f.k, input.value); });
+        wrapper.appendChild(input); wrapper.appendChild(rv);
+        row.appendChild(wrapper);
+        wrap.appendChild(row);
+        return;
+      } else if(f.type==='image'){
+        const wrapper = document.createElement('div'); wrapper.className='imgfield';
+        const thumb = document.createElement('div'); thumb.className='thumb';
+        const m = /url\((.*)\)/.exec(val); if(m) thumb.style.backgroundImage = `url(${m[1].replace(/['"]/g,'')})`;
+        const fileInp = document.createElement('input'); fileInp.type='file'; fileInp.accept='image/*';
+        const btn = document.createElement('button'); btn.className='btn btn-ghost btn-sm'; btn.type='button'; btn.textContent='업로드';
+        btn.addEventListener('click', ()=>fileInp.click());
+        const clr = document.createElement('button'); clr.className='btn btn-danger btn-sm'; clr.type='button'; clr.textContent='제거';
+        clr.addEventListener('click', ()=>{ setProp(f.k, ''); thumb.style.backgroundImage=''; });
+        fileInp.addEventListener('change', ()=>{
+          const file = fileInp.files[0]; if(!file) return;
+          const reader = new FileReader();
+          reader.onload = ()=>{ setProp(f.k, `url(${reader.result})`); thumb.style.backgroundImage = `url(${reader.result})`; };
+          reader.readAsDataURL(file);
+        });
+        wrapper.appendChild(thumb); wrapper.appendChild(btn); wrapper.appendChild(clr); wrapper.appendChild(fileInp);
+        row.appendChild(wrapper); wrap.appendChild(row);
+        return;
+      } else {
+        input = document.createElement('input'); input.type='text'; input.placeholder = f.ph||'';
+        input.value = val;
+        input.addEventListener('change', ()=> setProp(f.k, input.value));
+      }
+      row.appendChild(input);
+      wrap.appendChild(row);
+    });
+  });
+  const rawTitle = document.createElement('div'); rawTitle.className='prop-group-title'; rawTitle.textContent='커스텀 CSS (직접 입력)';
+  wrap.appendChild(rawTitle);
+  const rawArea = document.createElement('textarea');
+  rawArea.placeholder = 'property: value;\n예) background: linear-gradient(45deg,#f06,#4af);';
+  rawArea.value = rule.raw || '';
+  rawArea.addEventListener('change', ()=>{ rule.raw = rawArea.value; regenerateStyleTag(); });
+  wrap.appendChild(rawArea);
+}
+function setProp(k, v){
+  const rule = ensureRule(selectedSelector);
+  if(v==='' || v==null) delete rule.props[k]; else rule.props[k]=v;
+  regenerateStyleTag();
+  if(k==='z-index'){ renderTracks(); renderElList(); }
+}
+
+/* ============================================================
+   ANIMATION TAB + TIMELINE
+============================================================ */
+function ensureTiming(id){
+  if(!elTiming[id]) elTiming[id] = {start:0, end:null};
+  return elTiming[id];
+}
+function ensureAnim(id){
+  if(!animations[id]) animations[id] = {
+    duration:1, delay:0, easing:'ease', iterations:'1',
+    keyframes:[
+      {offset:0, tx:0, ty:0, rot:0, scale:1, opacity:1, raw:''},
+      {offset:1, tx:0, ty:0, rot:0, scale:1, opacity:1, raw:''},
+    ]
+  };
+  return animations[id];
+}
+function renderAnimTargetDropdown(){
+  const sel = $('#animTargetSel');
+  const prevVal = selectedAnimTarget;
+  sel.innerHTML = '';
+  allElements().forEach(el=>{
+    const o = document.createElement('option'); o.value=el.id; o.textContent='#'+el.id; sel.appendChild(o);
+  });
+  if(prevVal && [...sel.options].some(o=>o.value===prevVal)) sel.value = prevVal;
+  else if(sel.options.length){ sel.selectedIndex=0; selectedAnimTarget = sel.value; }
+  else selectedAnimTarget = null;
+  renderAnimBody();
+}
+$('#animTargetSel').addEventListener('change', e=>{ selectedAnimTarget = e.target.value; selectedKfIdx=null; renderAnimBody(); });
+
+function renderAnimBody(){
+  const body = $('#animBody');
+  if(!selectedAnimTarget){ body.innerHTML = '<div class="no-target">요소를 먼저 추가해주세요.</div>'; $('#timelineStrip').style.display='none'; return; }
+  body.innerHTML = `<div class="hint">아래에서 <b>#${selectedAnimTarget}</b>의 등장 구간과 움직임을 편집해요.</div>`;
+  $('#timelineStrip').style.display='';
+  const data = ensureAnim(selectedAnimTarget);
+  $('#animDuration').value = data.duration;
+  $('#animDelay').value = data.delay;
+  $('#animEasing').value = data.easing;
+  $('#animIterations').value = data.iterations;
+  const tm = ensureTiming(selectedAnimTarget);
+  $('#elStart').value = tm.start;
+  $('#elEnd').value = tm.end==null ? '' : tm.end;
+  renderTrack();
+  renderKfForm();
+}
+['animDuration','animDelay','animEasing','animIterations'].forEach(id=>{
+  $('#'+id).addEventListener('change', ()=>{
+    if(!selectedAnimTarget) return;
+    const data = ensureAnim(selectedAnimTarget);
+    data.duration = Math.max(0.05, +$('#animDuration').value||1);
+    data.delay = Math.max(0, +$('#animDelay').value||0);
+    data.easing = $('#animEasing').value;
+    data.iterations = $('#animIterations').value.trim() || '1';
+    rebuildAnimation(selectedAnimTarget);
+    recomputeDuration();
+  });
+});
+$('#elStart').addEventListener('change', ()=>{
+  if(!selectedAnimTarget) return;
+  const tm = ensureTiming(selectedAnimTarget);
+  tm.start = Math.max(0, +$('#elStart').value||0);
+  if(tm.end!=null && tm.end < tm.start) tm.end = tm.start;
+  recomputeDuration();
+  curTime = tm.start*1000;
+  syncScrub();
+  renderTracks();
+});
+$('#elEnd').addEventListener('change', ()=>{
+  if(!selectedAnimTarget) return;
+  const tm = ensureTiming(selectedAnimTarget);
+  const v = $('#elEnd').value.trim();
+  tm.end = v==='' ? null : Math.max(tm.start, +v);
+  recomputeDuration();
+  renderTracks();
+  syncScrub();
+});
+
+// clicking/creating a keyframe should move the global playhead (and preview) to
+// the exact moment that keyframe plays at, not just select it in the side form
+function jumpTimelineToKeyframe(data, kf){
+  const globalMs = (data.delay + kf.offset*data.duration) * 1000;
+  playing = false; $('#playBtn').textContent = '▶';
+  curTime = Math.max(0, Math.min(totalDuration, globalMs));
+  syncScrub();
+  if(audioLoaded){ audio.pause(); audio.currentTime = Math.min(curTime/1000, audio.duration||0); }
+}
+
+function renderTrack(){
+  const track = $('#track');
+  track.querySelectorAll('.kf-dot').forEach(d=>d.remove());
+  const data = ensureAnim(selectedAnimTarget);
+  data.keyframes.forEach((kf, idx)=>{
+    const dot = document.createElement('div');
+    dot.className = 'kf-dot'+(idx===selectedKfIdx?' sel':'');
+    dot.style.left = (kf.offset*100)+'%';
+    dot.addEventListener('mousedown', e=>{
+      e.stopPropagation();
+      let dragging=false;
+      const trackRect = track.getBoundingClientRect();
+      function onMove(ev){
+        dragging=true;
+        let off = (ev.clientX - trackRect.left)/trackRect.width;
+        off = Math.max(0, Math.min(1, Math.round(off*100)/100));
+        kf.offset = off;
+        dot.style.left = (off*100)+'%';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if(dragging){ rebuildAnimation(selectedAnimTarget); recomputeDuration(); renderTrack(); }
+        else { selectedKfIdx = idx; renderTrack(); renderKfForm(); jumpTimelineToKeyframe(data, kf); }
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    track.appendChild(dot);
+  });
+  // ruler ticks
+  const ruler = $('#ruler'); ruler.innerHTML='';
+  [0,25,50,75,100].forEach(p=>{
+    const t = document.createElement('div'); t.className='rule-tick'; t.style.left=p+'%'; t.textContent=p+'%';
+    ruler.appendChild(t);
+  });
+}
+$('#track').addEventListener('click', e=>{
+  if(e.target.classList.contains('kf-dot')) return;
+  if(!selectedAnimTarget) return;
+  const rect = $('#track').getBoundingClientRect();
+  let off = (e.clientX - rect.left)/rect.width;
+  off = Math.max(0, Math.min(1, Math.round(off*100)/100));
+  const data = ensureAnim(selectedAnimTarget);
+  data.keyframes.push({offset:off, tx:0, ty:0, rot:0, scale:1, opacity:1, raw:''});
+  data.keyframes.sort((a,b)=>a.offset-b.offset);
+  selectedKfIdx = data.keyframes.findIndex(k=>k.offset===off);
+  rebuildAnimation(selectedAnimTarget);
+  recomputeDuration();
+  renderTrack();
+  renderKfForm();
+  jumpTimelineToKeyframe(data, data.keyframes[selectedKfIdx]);
+});
+
+function renderKfForm(){
+  const wrap = $('#kfEditor');
+  if(selectedKfIdx==null || !selectedAnimTarget){ wrap.innerHTML=''; return; }
+  const data = ensureAnim(selectedAnimTarget);
+  const kf = data.keyframes[selectedKfIdx];
+  if(!kf){ selectedKfIdx=null; wrap.innerHTML=''; return; }
+  wrap.innerHTML = '';
+  const form = document.createElement('div'); form.className='kf-form';
+  KF_SCHEMA.forEach(f=>{
+    const row = document.createElement('div'); row.className='field-row';
+    const label = document.createElement('label'); label.textContent = f.label;
+    row.appendChild(label);
+    const input = document.createElement('input');
+    input.type = f.type==='range' ? 'range' : 'number';
+    if(f.min!=null) input.min=f.min; if(f.max!=null) input.max=f.max;
+    input.step = f.step||1;
+    input.value = kf[f.k];
+    input.addEventListener('input', ()=>{ kf[f.k] = parseFloat(input.value)||0; rebuildAnimation(selectedAnimTarget); syncScrub(); });
+    row.appendChild(input);
+    form.appendChild(row);
+  });
+  wrap.appendChild(form);
+  const rawTitle = document.createElement('div'); rawTitle.className='prop-group-title kf-raw'; rawTitle.textContent='커스텀 속성 (이 키프레임에만 적용)';
+  wrap.appendChild(rawTitle);
+  const rawArea = document.createElement('textarea');
+  rawArea.placeholder = 'background-color: #ff0066;\ncolor: white;';
+  rawArea.value = kf.raw||'';
+  rawArea.addEventListener('change', ()=>{ kf.raw = rawArea.value; rebuildAnimation(selectedAnimTarget); syncScrub(); });
+  wrap.appendChild(rawArea);
+  const actions = document.createElement('div'); actions.className='kf-actions';
+  const delBtn = document.createElement('button'); delBtn.className='btn btn-danger btn-sm'; delBtn.textContent='이 키프레임 삭제';
+  delBtn.addEventListener('click', ()=>{
+    data.keyframes.splice(selectedKfIdx,1);
+    selectedKfIdx=null;
+    rebuildAnimation(selectedAnimTarget); recomputeDuration(); renderTrack(); renderKfForm();
+  });
+  actions.appendChild(delBtn);
+  wrap.appendChild(actions);
+}
+
+function kebabToCamel(s){ return s.replace(/-([a-z])/g, (_,c)=>c.toUpperCase()); }
+function parseRawToObject(text){
+  const out = {};
+  (text||'').split(';').forEach(chunk=>{
+    const i = chunk.indexOf(':');
+    if(i<0) return;
+    const k = chunk.slice(0,i).trim(); const v = chunk.slice(i+1).trim();
+    if(k && v) out[kebabToCamel(k)] = v;
+  });
+  return out;
+}
+function buildWaapiKeyframes(data){
+  const sorted = data.keyframes.slice().sort((a,b)=>a.offset-b.offset);
+  return sorted.map(kf=>({
+    offset: kf.offset,
+    transform: `translate(${kf.tx}px, ${kf.ty}px) rotate(${kf.rot}deg) scale(${kf.scale})`,
+    opacity: kf.opacity,
+    ...parseRawToObject(kf.raw)
+  }));
+}
+function rebuildAnimation(id){
+  const el = getEl(id); if(!el) return;
+  if(liveAnim[id]){ liveAnim[id].cancel(); delete liveAnim[id]; }
+  const data = animations[id];
+  if(!data || data.keyframes.length<2) return;
+  const iterations = data.iterations.trim().toLowerCase()==='infinite' ? Infinity : (parseFloat(data.iterations)||1);
+  const anim = el.animate(buildWaapiKeyframes(data), {
+    duration: data.duration*1000,
+    delay: data.delay*1000,
+    easing: data.easing,
+    iterations,
+    fill: 'both',
+  });
+  anim.pause();
+  liveAnim[id] = anim;
+}
+function rebuildAllAnimations(){
+  Object.keys(animations).forEach(id=>{ if(getEl(id)) rebuildAnimation(id); });
+}
+
+// html2canvas doesn't reliably read a live Web Animations API state — it clones the
+// DOM and copies computed styles onto the clone, and that copy doesn't consistently
+// pick up values driven by element.animate() rather than plain CSS. So right before
+// each export capture we "bake" the current computed values of every animated
+// property into literal inline styles (which html2canvas reads fine), then remove
+// the override right after so WAAPI keeps driving the live preview normally.
+function freezeAnimatedStyles(){
+  const frozen = [];
+  Object.keys(liveAnim).forEach(id=>{
+    const el = getEl(id), data = animations[id];
+    if(!el || !data) return;
+    const propSet = new Set(['transform','opacity']);
+    data.keyframes.forEach(kf=>{
+      Object.keys(parseRawToObject(kf.raw)).forEach(camelKey=>{
+        propSet.add(camelKey.replace(/([A-Z])/g,'-$1').toLowerCase());
+      });
+    });
+    const cs = getComputedStyle(el);
+    const prevInline = {};
+    propSet.forEach(prop=>{
+      prevInline[prop] = el.style.getPropertyValue(prop);
+      el.style.setProperty(prop, cs.getPropertyValue(prop));
+    });
+    frozen.push({el, prevInline, propSet});
+  });
+  return frozen;
+}
+function unfreezeAnimatedStyles(frozen){
+  frozen.forEach(({el, prevInline, propSet})=>{
+    propSet.forEach(prop=>{
+      if(prevInline[prop]) el.style.setProperty(prop, prevInline[prop]);
+      else el.style.removeProperty(prop);
+    });
+  });
+}
+function recomputeDuration(){
+  let max = (+$('#minDur').value||3) * 1000;
+  Object.keys(animations).forEach(id=>{
+    const d = animations[id];
+    const iter = d.iterations.trim().toLowerCase()==='infinite' ? 1 : (parseFloat(d.iterations)||1);
+    const span = (d.delay + d.duration*iter) * 1000;
+    if(span > max) max = span;
+  });
+  Object.keys(elTiming).forEach(id=>{
+    const tm = elTiming[id];
+    if(tm.end!=null && tm.end*1000 > max) max = tm.end*1000;
+  });
+  if(audioLoaded && audioDurationMs > max) max = audioDurationMs;
+  totalDuration = max;
+  $('#scrub').max = totalDuration;
+  if(curTime > totalDuration) curTime = totalDuration;
+  syncScrub();
+}
+$('#minDur').addEventListener('change', recomputeDuration);
+
+/* ============================================================
+   PLAYBACK
+============================================================ */
+function applyVisibility(t){
+  if(t==null) t = curTime;
+  allElements().forEach(el=>{
+    const tm = elTiming[el.id];
+    if(!tm){ el.style.display=''; return; }
+    const startMs = (tm.start||0)*1000;
+    const endMs = tm.end==null ? Infinity : tm.end*1000;
+    el.style.display = (t>=startMs && t<=endMs) ? '' : 'none';
+  });
+}
+function syncScrub(){
+  Object.values(liveAnim).forEach(a=>{ try{ a.currentTime = curTime; }catch(e){} });
+  applyVisibility();
+  $('#scrub').value = curTime;
+  $('#tlabel').textContent = `${(curTime/1000).toFixed(2)} / ${(totalDuration/1000).toFixed(2)}s`;
+  $('#durLabel').textContent = (totalDuration/1000).toFixed(1)+'s';
+  updateTracksPlayhead();
+}
+
+/* ============================================================
+   TRACKS TIMELINE (global, multi-element)
+============================================================ */
+// Track lane widths use CSS % internally (percentages of an absolutely-positioned
+// child always resolve against its containing block's *current* width, whether that
+// width came from flex:1 or an explicit px value) — so zoom only needs to change the
+// lane/ruler's own pixel width; every block/tick already repositions itself for free.
+let tracksZoom = 1;
+function laneWidthPx(){
+  const containerW = Math.max(200, ($('#tracksWrap').clientWidth || 600) - 150 - 6);
+  return containerW * tracksZoom;
+}
+function setTracksZoom(z){
+  tracksZoom = Math.max(1, Math.min(20, z));
+  $('#tracksZoomLabel').textContent = Math.round(tracksZoom*100)+'%';
+  renderTracks();
+}
+$('#tracksZoomIn').addEventListener('click', ()=> setTracksZoom(tracksZoom*1.5));
+$('#tracksZoomOut').addEventListener('click', ()=> setTracksZoom(tracksZoom/1.5));
+$('#tracksWrap').addEventListener('wheel', e=>{
+  if(!(e.ctrlKey || e.metaKey)) return; // ctrlKey is also how Chrome reports trackpad pinch
+  e.preventDefault();
+  setTracksZoom(tracksZoom * (e.deltaY < 0 ? 1.15 : 1/1.15));
+}, {passive:false});
+
+function renderTracks(){
+  const rowsWrap = $('#tracksRows');
+  const rulerWrap = $('#tracksRuler');
+  rowsWrap.innerHTML = '';
+  rulerWrap.innerHTML = '';
+  const durSec = totalDuration/1000;
+  const laneW = laneWidthPx();
+  rulerWrap.style.width = laneW+'px';
+
+  const niceSteps = [0.1,0.25,0.5,1,2,5,10,15,30,60,120];
+  const interval = niceSteps.find(s=>s>=durSec/6) || Math.ceil(durSec/6);
+  for(let s=0; s<=durSec+0.0001; s+=interval){
+    const pct = durSec>0 ? (s/durSec)*100 : 0;
+    const t = document.createElement('div'); t.className='rule-tick'; t.style.left=pct+'%';
+    t.textContent = (interval<1 ? s.toFixed(1) : Math.round(s))+'s';
+    rulerWrap.appendChild(t);
+  }
+
+  // group elements by effective z-index — each z level is a row/layer (like a
+  // track in Premiere/Final Cut); elements sharing a z-index sit as separate
+  // blocks in the same lane, so overlapping time ranges at the same layer overlap visually
+  const groups = new Map();
+  allElements().forEach(el=>{
+    const z = effectiveZ(el.id);
+    if(!groups.has(z)) groups.set(z, []);
+    groups.get(z).push(el);
+  });
+  const zLevels = [...groups.keys()].sort((a,b)=>b-a);
+
+  zLevels.forEach(z=>{
+    const rowEls = groups.get(z);
+    const row = document.createElement('div'); row.className='track-row';
+    const label = document.createElement('div');
+    label.className = 'track-label';
+    label.textContent = `z-index ${z}` + (rowEls.length>1 ? ` (${rowEls.length})` : '');
+    label.title = rowEls.map(e=>'#'+e.id).join(', ');
+    row.appendChild(label);
+
+    const lane = document.createElement('div'); lane.className='track-lane';
+    lane.style.width = laneW+'px';
+    row.appendChild(lane);
+    rowsWrap.appendChild(row);
+
+    rowEls.forEach(el=>{
+      const id = el.id;
+      const tm = ensureTiming(id);
+      const endSec = tm.end==null ? durSec : tm.end;
+      const startPct = durSec>0 ? (tm.start/durSec)*100 : 0;
+      const widthPct = durSec>0 ? Math.max(0.7, ((endSec-tm.start)/durSec)*100) : 100;
+
+      const block = document.createElement('div');
+      block.className = 'track-block'+(id===selectedElId?' sel':'');
+      block.style.left = startPct+'%';
+      block.style.width = widthPct+'%';
+      const nameEl = document.createElement('span'); nameEl.className='track-block-name'; nameEl.textContent = '#'+id;
+      const lh = document.createElement('div'); lh.className='th l';
+      const rh = document.createElement('div'); rh.className='th r';
+      block.appendChild(nameEl); block.appendChild(lh); block.appendChild(rh);
+      lane.appendChild(block);
+
+      block.addEventListener('mousedown', e=>{
+        e.stopPropagation();
+        e.preventDefault();
+        // Lightweight selection only — NOT selectElement(), which calls refreshAll()
+        // -> renderTracks() synchronously and would destroy/recreate this very block
+        // (and `lane`) mid-mousedown, leaving `laneRect` measured on a detached node
+        // and every later block.style write landing on a node no longer on screen.
+        // The full refresh happens once in onUp instead.
+        selectedElId = id;
+        selectedAnimTarget = id;
+        allElements().forEach(elx => elx.classList.toggle('selected', elx.id===id));
+        const isL = e.target===lh, isR = e.target===rh;
+        const startClientX = e.clientX;
+        const t2 = ensureTiming(id);
+        const origStart = t2.start;
+        const origEnd = t2.end==null ? durSec : t2.end;
+        const laneRect = lane.getBoundingClientRect();
+        // durSec/laneRect are frozen for the whole drag — cheap inline style updates
+        // only (no renderTracks()) so the block tracks the mouse smoothly; the full
+        // recompute (which can grow totalDuration) happens once on mouseup. Rebuilding
+        // the DOM on every mousemove was both janky and, once totalDuration grew mid-drag,
+        // made the math use a stale scale — the block would visibly fight the cursor.
+        function onMove(ev){
+          if(durSec<=0) return;
+          const dt = ((ev.clientX-startClientX)/laneRect.width)*durSec;
+          if(isL){
+            t2.start = Math.max(0, Math.min(origEnd-0.05, origStart+dt));
+          } else if(isR){
+            t2.end = Math.max(origStart+0.05, origEnd+dt);
+          } else {
+            const span = origEnd-origStart;
+            const ns = Math.max(0, origStart+dt);
+            t2.start = ns; t2.end = ns+span;
+          }
+          const endSec2 = t2.end==null ? durSec : t2.end;
+          block.style.left = ((t2.start/durSec)*100)+'%';
+          block.style.width = Math.max(0.7, ((endSec2-t2.start)/durSec)*100)+'%';
+          if(id===selectedAnimTarget){
+            $('#elStart').value = t2.start.toFixed(2);
+            $('#elEnd').value = t2.end==null ? '' : t2.end.toFixed(2);
+          }
+          applyVisibility();
+        }
+        function onUp(){
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          refreshAll();
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+
+    lane.addEventListener('click', e=>{
+      if(e.target!==lane || durSec<=0) return;
+      const rect = lane.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+      playing=false; $('#playBtn').textContent='▶';
+      curTime = frac*durSec*1000;
+      syncScrub();
+      if(audioLoaded){ audio.pause(); audio.currentTime = Math.min(curTime/1000, audio.duration||0); }
+    });
+  });
+
+  updateTracksPlayhead();
+}
+function updateTracksPlayhead(){
+  const wrap = $('#tracksRows');
+  if(!wrap) return;
+  let ph = document.getElementById('tracksPlayhead');
+  if(!ph){
+    ph = document.createElement('div'); ph.className='tracks-playhead'; ph.id='tracksPlayhead';
+    wrap.appendChild(ph);
+  }
+  const durSec = totalDuration/1000;
+  const frac = durSec>0 ? Math.min(1, (curTime/1000)/durSec) : 0;
+  ph.style.left = `calc(150px + (100% - 150px) * ${frac})`;
+}
+function tick(ts){
+  if(!playing) return;
+  if(audioLoaded && !audio.paused && !audio.ended){
+    curTime = audio.currentTime*1000; // audio is the authoritative clock while it plays — avoids drift
+  } else {
+    if(lastTs==null) lastTs = ts;
+    curTime += (ts-lastTs);
+  }
+  lastTs = ts;
+  if(curTime >= totalDuration){
+    curTime = totalDuration; playing=false; $('#playBtn').textContent='▶';
+    if(audioLoaded) audio.pause();
+  }
+  syncScrub();
+  if(playing) rafHandle = requestAnimationFrame(tick);
+}
+$('#playBtn').addEventListener('click', ()=>{
+  if(playing){
+    playing=false; $('#playBtn').textContent='▶';
+    if(audioLoaded) audio.pause();
+  } else {
+    if(curTime >= totalDuration) curTime = 0;
+    playing=true; lastTs=null; $('#playBtn').textContent='❚❚';
+    if(audioLoaded){
+      ensureAudioGraph();
+      audio.currentTime = Math.min(curTime/1000, audio.duration||0);
+      audio.play().catch(()=>{});
+    }
+    rafHandle = requestAnimationFrame(tick);
+  }
+});
+$('#restartBtn').addEventListener('click', ()=>{
+  curTime=0; playing=false; $('#playBtn').textContent='▶'; syncScrub();
+  if(audioLoaded){ audio.pause(); audio.currentTime=0; }
+});
+$('#scrub').addEventListener('input', e=>{
+  playing=false; $('#playBtn').textContent='▶'; curTime = +e.target.value; syncScrub();
+  if(audioLoaded){ audio.pause(); audio.currentTime = Math.min(curTime/1000, audio.duration||0); }
+});
+document.addEventListener('keydown', e=>{
+  if(e.code!=='Space') return;
+  const ae = document.activeElement;
+  if(/INPUT|TEXTAREA|SELECT/.test(ae.tagName) || ae.isContentEditable) return;
+  e.preventDefault();
+  $('#playBtn').click();
+});
+
+/* ============================================================
+   REFRESH ALL
+============================================================ */
+function refreshAll(){
+  renderElList();
+  renderSelectorDropdown();
+  renderAnimTargetDropdown();
+  recomputeDuration();
+  renderTracks();
+  $('#copyElBtn').disabled = !selectedElId;
+  $('#pasteElBtn').disabled = !clipboardEl;
+}
+
+/* ============================================================
+   AUDIO GRAPH (for mixing the background track into the export)
+============================================================ */
+let actx, srcNode, streamDest;
+function ensureAudioGraph(){
+  if(actx || !audioLoaded) return;
+  try{
+    actx = new (window.AudioContext||window.webkitAudioContext)();
+    srcNode = actx.createMediaElementSource(audio);
+    streamDest = actx.createMediaStreamDestination();
+    srcNode.connect(actx.destination);
+    srcNode.connect(streamDest);
+  }catch(err){ console.warn('audio graph', err); }
+}
+
+/* ============================================================
+   EXPORT (html2canvas frame capture + MediaRecorder)
+============================================================ */
+$('#exportBtn').addEventListener('click', async ()=>{
+  if(!allElements().length){ alert('요소를 먼저 추가해주세요.'); return; }
+  const btn = $('#exportBtn'); btn.disabled = true;
+  playing = false; $('#playBtn').textContent='▶';
+  const statusEl = $('#exportStatus'); const fillEl = $('#progressFill');
+  statusEl.textContent = '준비 중...'; fillEl.style.width='0%';
+
+  document.body.classList.add('exporting');
+  const prevSelected = selectedElId;
+  selectElement(null);
+  // the on-screen preview shrinks #stage itself via transform:scale() to fit the
+  // viewport (fitZoom()) — html2canvas captures the element's own transform, so
+  // without this every exported frame was rendered at the shrunk preview size
+  // instead of the real STAGE_W x STAGE_H, leaving most of the canvas black.
+  stage.style.transform = 'none';
+
+  const fps = 30;
+  const recCanvas = document.createElement('canvas');
+  recCanvas.width = STAGE_W; recCanvas.height = STAGE_H;
+  const rctx = recCanvas.getContext('2d');
+
+  // captureStream(fps) auto-samples the canvas on its own real-time clock, so we
+  // drive the animation timeline against real elapsed time too — that keeps the
+  // exported clip's duration correct no matter how slow html2canvas is per frame
+  // (a manual requestFrame() approach was tried but timestamps frames by wall-clock
+  // call time, which stretched a 3s timeline into 6s+ once capture fell behind).
+  const vstream = recCanvas.captureStream(fps);
+  if(audioLoaded){ ensureAudioGraph(); if(actx && actx.state==='suspended') await actx.resume(); }
+  const tracks = [...vstream.getVideoTracks()];
+  if(audioLoaded && streamDest) tracks.push(...streamDest.stream.getAudioTracks());
+  const stream = new MediaStream(tracks);
+
+  let mime;
+  if(audioLoaded){
+    mime = 'video/webm;codecs=vp9,opus';
+    if(!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8,opus';
+  } else {
+    mime = 'video/webm;codecs=vp9';
+    if(!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8';
+  }
+  if(!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+  const chunks = [];
+  const recorder = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:8_000_000});
+  recorder.ondataavailable = e=>{ if(e.data.size) chunks.push(e.data); };
+  const stopped = new Promise(res=>{ recorder.onstop = res; });
+
+  const savedTime = curTime;
+  recorder.start();
+  const startReal = performance.now();
+  if(audioLoaded){ audio.currentTime = 0; await audio.play().catch(()=>{}); }
+  try{
+    while(true){
+      const elapsed = performance.now() - startReal;
+      const t = Math.min(elapsed, totalDuration);
+      Object.values(liveAnim).forEach(a=>{ try{ a.currentTime = t; }catch(e){} });
+      applyVisibility(t);
+      await new Promise(r=>requestAnimationFrame(r));
+      const frozen = freezeAnimatedStyles();
+      const shot = await html2canvas(stage, {
+        width: STAGE_W, height: STAGE_H, backgroundColor: null, scale: 1, logging:false,
+      });
+      unfreezeAnimatedStyles(frozen);
+      rctx.clearRect(0,0,STAGE_W,STAGE_H);
+      rctx.drawImage(shot, 0, 0, STAGE_W, STAGE_H);
+      const pct = Math.min(100, Math.round((elapsed/totalDuration)*100));
+      fillEl.style.width = pct+'%';
+      statusEl.textContent = `렌더링 중... ${(elapsed/1000).toFixed(1)}s / ${(totalDuration/1000).toFixed(1)}s`;
+      if(elapsed >= totalDuration) break;
+    }
+  } finally {
+    if(audioLoaded){ audio.pause(); audio.currentTime = Math.min(savedTime/1000, audio.duration||0); }
+    curTime = savedTime;
+    Object.values(liveAnim).forEach(a=>{ try{ a.currentTime = curTime; }catch(e){} });
+    applyVisibility();
+  }
+
+  await new Promise(r=>setTimeout(r, 150));
+  recorder.stop();
+  await stopped;
+
+  const blob = new Blob(chunks, {type:'video/webm'});
+  const url = URL.createObjectURL(blob);
+  const a = $('#dlLink'); a.href = url; a.download = 'csshaker_video.webm'; a.click();
+
+  document.body.classList.remove('exporting');
+  fitZoom();
+  selectElement(prevSelected);
+  btn.disabled = false;
+  statusEl.textContent = '완성됐어요! 다운로드됐어요 🎉';
+  fillEl.style.width='0%';
+});
+
+/* ============================================================
+   SAVE / LOAD PROJECT
+============================================================ */
+$('#saveJson').addEventListener('click', async ()=>{
+  const btn = $('#saveJson'); btn.disabled = true;
+  try{
+    const proj = {
+      app:'csshaker', v:1,
+      stageW:STAGE_W, stageH:STAGE_H, stageBg: $('#stageBg').value, minDur: +$('#minDur').value,
+      elCounter, html: stage.innerHTML,
+      styleRules, animations, elTiming,
+    };
+    if(audioLoaded){
+      proj.audioName = audioName;
+      if(audioFile){
+        proj.audioDataUrl = await new Promise((resolve,reject)=>{
+          const r = new FileReader();
+          r.onload = ()=>resolve(r.result);
+          r.onerror = ()=>reject(new Error('오디오를 읽지 못했어요'));
+          r.readAsDataURL(audioFile);
+        });
+      } else if(audio.src && audio.src.startsWith('data:')){
+        proj.audioDataUrl = audio.src;
+      }
+    }
+    const blob = new Blob([JSON.stringify(proj,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'csshaker_project.json'; a.click(); URL.revokeObjectURL(url);
+  } catch(err){ alert('저장 실패: '+err.message); }
+  btn.disabled = false;
+});
+$('#loadJson').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const d = JSON.parse(reader.result);
+      Object.values(liveAnim).forEach(a=>a.cancel()); liveAnim={};
+      STAGE_W = d.stageW||1280; STAGE_H = d.stageH||720;
+      $('#minDur').value = d.minDur!=null ? d.minDur : 3;
+      elCounter = d.elCounter||1;
+      stage.innerHTML = d.html||'';
+      styleRules = d.styleRules||{};
+      // older saves only had a flat stageBg field — migrate it if #stage has no rule yet
+      if(d.stageBg && !(styleRules['#stage'] && styleRules['#stage'].props['background-color'])){
+        ensureRule('#stage').props['background-color'] = d.stageBg;
+      }
+      const stageBgVal = styleRules['#stage']?.props?.['background-color'];
+      $('#stageBg').value = /^#[0-9a-fA-F]{6}$/.test(stageBgVal||'') ? stageBgVal : '#ffffff';
+      animations = d.animations||{};
+      elTiming = d.elTiming||{};
+      clearAudio();
+      if(d.audioDataUrl){
+        audio.src = d.audioDataUrl;
+        audioName = d.audioName || '음원';
+        $('#audioName').textContent = '🎵 ' + audioName;
+        $('#audioControls').style.display = '';
+        audio.onloadedmetadata = ()=>{
+          audioLoaded = true;
+          audioDurationMs = audio.duration*1000;
+          recomputeDuration();
+        };
+      }
+      selectedElId=null; selectedSelector=null; selectedAnimTarget=null; selectedKfIdx=null; curTime=0; playing=false;
+      $('#playBtn').textContent='▶';
+      const known = ['1280x720','720x1280','1080x1080'];
+      const key = STAGE_W+'x'+STAGE_H;
+      if(known.includes(key)){ $('#resSel').value = key; $('#customResRow').style.display='none'; }
+      else { $('#resSel').value='custom'; $('#customResRow').style.display='flex'; $('#customW').value=STAGE_W; $('#customH').value=STAGE_H; }
+      applyStageSize();
+      regenerateStyleTag();
+      rebuildAllAnimations();
+      refreshAll();
+    }catch(err){ alert('불러오기 실패: '+err.message); }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+});
+
+/* ============================================================
+   COLOR PALETTE
+============================================================ */
+const PALETTE_KEY = 'csshakerPalette';
+let palette = [];
+try{ palette = JSON.parse(localStorage.getItem(PALETTE_KEY)||'[]'); }catch(e){ palette = []; }
+let lastColorInput = $('#stageBg');
+document.addEventListener('focusin', e=>{
+  if(e.target && e.target.matches && e.target.matches('input[type=color]')) lastColorInput = e.target;
+});
+function savePalette(){ try{ localStorage.setItem(PALETTE_KEY, JSON.stringify(palette)); }catch(e){} }
+function renderPalette(){
+  const wrap = $('#paletteGrid');
+  wrap.innerHTML = '';
+  palette.forEach((hex,i)=>{
+    const sw = document.createElement('div');
+    sw.className = 'palette-swatch'; sw.style.background = hex; sw.title = hex;
+    sw.addEventListener('click', ()=>{
+      const target = lastColorInput && document.contains(lastColorInput) ? lastColorInput : $('#stageBg');
+      target.value = hex;
+      target.dispatchEvent(new Event('input', {bubbles:true}));
+    });
+    const rm = document.createElement('div'); rm.className='rm'; rm.textContent='×';
+    rm.addEventListener('click', ev=>{ ev.stopPropagation(); palette.splice(i,1); savePalette(); renderPalette(); });
+    sw.appendChild(rm);
+    wrap.appendChild(sw);
+  });
+}
+function addToPalette(hex){
+  hex = hex.trim().toLowerCase();
+  if(!/^#[0-9a-f]{6}$/.test(hex)){ alert('올바른 16진수 색상이 아니에요. 예: #ff88aa'); return; }
+  if(!palette.includes(hex)){ palette.unshift(hex); if(palette.length>30) palette.length=30; savePalette(); renderPalette(); }
+}
+$('#paletteAddBtn').addEventListener('click', ()=>{
+  const typed = $('#paletteHexInput').value.trim();
+  addToPalette(typed || $('#paletteColorPick').value);
+  $('#paletteHexInput').value = '';
+});
+$('#paletteHexInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#paletteAddBtn').click(); });
+renderPalette();
+
+/* ============================================================
+   MOBILE NOTICE
+============================================================ */
+if(!sessionStorage.getItem('csshakerMobileDismissed')){
+  $('#mobileNotice').classList.add('show');
+}
+$('#mobileContinueBtn').addEventListener('click', ()=>{
+  $('#mobileNotice').classList.remove('show');
+  sessionStorage.setItem('csshakerMobileDismissed', '1');
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+applyStageSize();
+refreshAll();
+</script>
+</body>
+</html>
