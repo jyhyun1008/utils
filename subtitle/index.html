@@ -12,7 +12,7 @@
   --bg:#14121c; --panel:#1d1a28; --panel-2:#252132; --line:#332e44;
   --ink:#ece9f5; --ink-dim:#9d97b5;
   --accent:#c2a6ff; --accent-2:#ff9ec7;
-  --nar:#ffd27f; --intA:#7fc4ff; --intB:#ff9ec7;
+  --nar:#ffd27f; --intA:#7fc4ff; --intB:#ff9ec7; --intC:#7fe6b8; --intD:#c9a6ff;
   --ok:#8ee6b0; --warn:#ff8b8b;
 }
 *{box-sizing:border-box}
@@ -70,6 +70,8 @@ video{width:100%;height:100%;display:block;background:#000;object-fit:fill}
 .add.nar{color:var(--nar);border-color:rgba(255,210,127,.5)} .add.nar:hover{background:rgba(255,210,127,.12)}
 .add.a{color:var(--intA);border-color:rgba(127,196,255,.5)} .add.a:hover{background:rgba(127,196,255,.12)}
 .add.b{color:var(--intB);border-color:rgba(255,158,199,.5)} .add.b:hover{background:rgba(255,158,199,.12)}
+.add.c{color:var(--intC);border-color:rgba(127,230,184,.5)} .add.c:hover{background:rgba(127,230,184,.12)}
+.add.d{color:var(--intD);border-color:rgba(201,166,255,.5)} .add.d:hover{background:rgba(201,166,255,.12)}
 
 .tldock{background:var(--panel);border-top:1px solid var(--line)}
 .tlbar{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line)}
@@ -92,6 +94,8 @@ video{width:100%;height:100%;display:block;background:#000;object-fit:fill}
 .block.narration{background:linear-gradient(180deg,#ffe3ab,#ffd27f)}
 .block.interviewA{background:linear-gradient(180deg,#bfeaff,#7fc4ff)}
 .block.interviewB{background:linear-gradient(180deg,#ffd4e8,#ff9ec7)}
+.block.interviewC{background:linear-gradient(180deg,#c8f7e0,#7fe6b8)}
+.block.interviewD{background:linear-gradient(180deg,#e6d8ff,#c9a6ff)}
 .block.sel{border-color:#fff;box-shadow:0 0 0 2px var(--accent),0 4px 14px rgba(0,0,0,.45);z-index:4}
 .block .tag{font-weight:900;margin-right:6px;opacity:.65}
 .block .txt{overflow:hidden;text-overflow:ellipsis;pointer-events:none}
@@ -121,10 +125,12 @@ input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);
 .del:hover{background:rgba(255,139,139,.2)}
 .noSel{color:var(--ink-dim);font-size:12.5px;line-height:1.7;text-align:center;padding:12px 4px}
 .styletabs{display:flex;gap:6px;margin-bottom:12px}
-.styletabs button{flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-dim);font-weight:800;font-size:11.5px}
+.styletabs button{flex:1;padding:7px 2px;white-space:nowrap;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-dim);font-weight:800;font-size:11.5px}
 .styletabs button.on[data-s=narration]{background:var(--nar);border-color:transparent;color:#1a1626}
 .styletabs button.on[data-s=interviewA]{background:var(--intA);border-color:transparent;color:#1a1626}
 .styletabs button.on[data-s=interviewB]{background:var(--intB);border-color:transparent;color:#1a1626}
+.styletabs button.on[data-s=interviewC]{background:var(--intC);border-color:transparent;color:#1a1626}
+.styletabs button.on[data-s=interviewD]{background:var(--intD);border-color:transparent;color:#1a1626}
 .valbadge{font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums;width:42px;text-align:right;flex:none}
 .exportbtn{width:100%;padding:11px;border-radius:9px;font-weight:800;font-size:13px;border:none;margin-bottom:8px}
 .exportbtn.ass{background:linear-gradient(180deg,var(--accent),#a883f5);color:#221a36}
@@ -180,6 +186,8 @@ input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);
           <button class="add nar" id="addNar">＋ 상황</button>
           <button class="add a" id="addA">＋ 인터뷰 A</button>
           <button class="add b" id="addB">＋ 인터뷰 B</button>
+          <button class="add c" id="addC">＋ 인터뷰 C</button>
+          <button class="add d" id="addD">＋ 인터뷰 D</button>
         </div>
       </div>
 
@@ -195,7 +203,7 @@ input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);
           <div class="tlinner" id="tlinner">
             <div class="ruler" id="ruler"></div>
             <div class="lane nar" id="laneNar"><span class="lanetag">상황 해설</span></div>
-            <div class="lane int" id="laneInt"><span class="lanetag">인터뷰 A·B</span></div>
+            <div class="lane int" id="laneInt"><span class="lanetag">인터뷰 A–D</span></div>
             <div class="playhead" id="playhead" style="display:none"></div>
           </div>
         </div>
@@ -214,6 +222,8 @@ input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);
               <option value="narration">상황 해설</option>
               <option value="interviewA">인터뷰 A</option>
               <option value="interviewB">인터뷰 B</option>
+              <option value="interviewC">인터뷰 C</option>
+              <option value="interviewD">인터뷰 D</option>
             </select>
           </div>
           <div class="row" id="edNameRow">
@@ -230,8 +240,10 @@ input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);
         <h3>자막 스타일</h3>
         <div class="styletabs">
           <button data-s="narration" class="on">상황 해설</button>
-          <button data-s="interviewA">인터뷰 A</button>
-          <button data-s="interviewB">인터뷰 B</button>
+          <button data-s="interviewA" title="인터뷰 A">인터뷰A</button>
+          <button data-s="interviewB" title="인터뷰 B">인터뷰B</button>
+          <button data-s="interviewC" title="인터뷰 C">인터뷰C</button>
+          <button data-s="interviewD" title="인터뷰 D">인터뷰D</button>
         </div>
         <div class="row"><label>글자색 위</label><input type="color" id="stColorTop">
           <label style="width:auto">아래</label><input type="color" id="stColorBot">
@@ -279,6 +291,8 @@ const S = {
     narration: mkStyle({size:74, margin:210, colorTop:'#fff6cf', colorBottom:'#ffce4a', outline:'#3a2a00', nameColor:'#ffd27f'}),
     interviewA:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#bfe6ff', outline:'#062236', nameColor:'#2f9bff'}),
     interviewB:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#ffd0e6', outline:'#3a0620', nameColor:'#ff5fa2'}),
+    interviewC:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#c8f7e0', outline:'#063a24', nameColor:'#22b877'}),
+    interviewD:mkStyle({size:60, margin:120, colorTop:'#ffffff', colorBottom:'#e6d8ff', outline:'#24063a', nameColor:'#9a5fff'}),
   }
 };
 const $ = s=>document.querySelector(s);
@@ -436,6 +450,8 @@ function addSub(lane){
 $('#addNar').onclick=()=>addSub('narration');
 $('#addA').onclick=()=>addSub('interviewA');
 $('#addB').onclick=()=>addSub('interviewB');
+$('#addC').onclick=()=>addSub('interviewC');
+$('#addD').onclick=()=>addSub('interviewD');
 function deleteSub(id){ S.subs=S.subs.filter(s=>s.id!==id); if(S.sel===id){S.sel=null;refreshEditPanel();} renderBlocks(); renderOverlay(); }
 function selectSub(id){ S.sel=id; highlightSel(); refreshEditPanel(); }
 function highlightSel(){
@@ -452,7 +468,7 @@ function renderBlocks(){
     b.className='block '+styleKey(s)+(S.sel===s.id?' sel':'');
     b.style.left=(s.start*S.pps)+'px';
     b.style.width=Math.max(14,(s.end-s.start)*S.pps)+'px';
-    const tag = s.lane==='interviewA'?'A': s.lane==='interviewB'?'B':'';
+    const tag = s.lane.startsWith('interview') ? s.lane.slice(9) : '';
     const label = s.name ? s.name+' · '+s.text : s.text;
     b.innerHTML=`<div class="h l"></div>${tag?`<span class="tag">${tag}</span>`:''}<div class="txt">${escHtml(label.replace(/\n/g,' '))||'…'}</div><div class="h r"></div>`;
     b.dataset.id=s.id; lane.appendChild(b); attachDrag(b,s);
@@ -622,9 +638,11 @@ function buildAss(){
   out+='Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\n';
   out+=assStyleLine('Narration',S.styles.narration)+'\n';
   out+=assStyleLine('InterviewA',S.styles.interviewA)+'\n';
-  out+=assStyleLine('InterviewB',S.styles.interviewB)+'\n\n';
+  out+=assStyleLine('InterviewB',S.styles.interviewB)+'\n';
+  out+=assStyleLine('InterviewC',S.styles.interviewC)+'\n';
+  out+=assStyleLine('InterviewD',S.styles.interviewD)+'\n\n';
   out+='[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n';
-  const styleName={narration:'Narration',interviewA:'InterviewA',interviewB:'InterviewB'};
+  const styleName={narration:'Narration',interviewA:'InterviewA',interviewB:'InterviewB',interviewC:'InterviewC',interviewD:'InterviewD'};
   const ordered=[...S.subs].sort((a,b)=>a.start-b.start);
   for(const s of ordered){
     const st=styleOf(s), nm=styleName[s.lane]||'Narration';
